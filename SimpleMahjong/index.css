@@ -1,0 +1,202 @@
+body{
+    overflow: hidden;
+    font-size: 170%;
+}
+body > div > div{
+    width: 1200px;
+    height: 1200px;
+}
+div{
+    position: absolute;
+    border: 0px solid #0000FF;
+}
+.hand{
+    width: 80%;
+    height: 5%;
+}
+.left.hand{
+    left: -32.5%;
+    top: 47.5%;
+}
+.top.hand{
+    left: 10%;
+    top: 5%;
+}
+.right.hand{
+    left: 52.5%;
+    top: 47.5%;
+}
+.bottom.hand{
+    left: 10%;
+    top: 90%;
+}
+.table, #center{
+    width: 20%;
+    height: 20%;
+}
+.left.table{
+    left: 15%;
+    top: 40%;
+}
+.top.table{
+    left: 40%;
+    top: 15%;
+}
+.right.table{
+    left: 65%;
+    top: 40%;
+}
+.bottom.table{
+    left: 40%;
+    top: 65%;
+}
+.reach{
+    width: 20%;
+    height: 5%;
+}
+.left.reach{
+    left: 27.5%;
+    top: 47.5%;
+}
+.top.reach{
+    left: 40%;
+    top: 35%;
+}
+.right.reach{
+    left: 52.5%;
+    top: 47.5%;
+}
+.bottom.reach{
+    left: 40%;
+    top: 60%;
+}
+#center{
+    left: 40%;
+    top: 40%;
+}
+.left{
+    transform: rotate(90deg);
+}
+.top{
+    transform: rotate(180deg);
+}
+.right{
+    transform: rotate(270deg);
+}
+.score{
+    width: 60%;
+    height: 20%;
+}
+.left.score{
+    left: -20%;
+    top: 40%;
+}
+.top.score{
+    left: 20%;
+    top: 0%;
+}
+.right.score{
+    left: 60%;
+    top: 40%;
+}
+.bottom.score{
+    left: 20%;
+    top: 80%;
+}
+.corner{
+    width: 20%;
+    height: 20%;
+}
+.left.corner{
+    left: 0%;
+    top: 0%;
+}
+.top.corner{
+    left: 80%;
+    top: 0%;
+}
+.right.corner{
+    left: 80%;
+    top: 80%;
+}
+.bottom.corner{
+    left: 0%;
+    top: 80%;
+}
+#matchtitle{
+    left: 20%;
+    top: 20%;
+    width: 60%;
+    height: 15%;
+}
+#remaintile{
+    left: 20%;
+    top: 35%;
+    width: 60%;
+    height: 15%;
+}
+#dora{
+    left: 20%;
+    top: 50%;
+    width: 60%;
+    height: 15%;
+}
+#honbaicon{
+    left: 20%;
+    top: 65%;
+    width: 15%;
+    height: 15%;
+}
+#kyoutakuicon{
+    left: 50%;
+    top: 65%;
+    width: 15%;
+    height: 15%;
+}
+#honba{
+    left: 35%;
+    top: 65%;
+    width: 15%;
+    height: 15%;
+}
+#kyoutaku{
+    left: 65%;
+    top: 65%;
+    width: 15%;
+    height: 15%;
+}
+.score, .corner, .reach, #matchtitle, #remaintile, #dora, #honba, #kyoutaku, body > div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hand, .tilediv{
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.hand > div{
+    position: relative;
+    margin: 0 5px 0 5px;
+}
+.tilediv > div, .table > div{
+    position: relative;
+}
+.table > div{
+    height: 53px;
+}
+.table{
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+.light{
+    color: #FF0000;
+}
+#cornerinformation{
+    font-size: 12px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    font-family: monospace
+}

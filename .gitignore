@@ -1,0 +1,13 @@
+.git
+.DS_Store
+dist
+out
+node_modules
+*.log
+*.exe
+bin
+UserData
+.vscode
+data
+PaipuAnalyzer
+result

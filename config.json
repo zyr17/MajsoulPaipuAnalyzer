@@ -1,0 +1,28 @@
+{
+    "source": "majsoul",
+    "id": "",
+    "filter":{
+        "include": {
+            "id": [],
+            "name": [],
+            "source": [],
+            "room": [],
+            "player": [],
+            "round": [],
+            "speed": [],
+            "timebefore": "2099-12-31 23:59:59",
+            "timeafter": "1970-01-01 08:00:00"
+        },
+        "exclude": {
+            "id": [],
+            "name": [],
+            "source": [],
+            "room": [],
+            "player": [],
+            "round": [],
+            "speed": [],
+            "timebefore": "1970-01-01 08:00:00",
+            "timeafter": "2099-12-31 23:59:59"
+        }
+    }
+}

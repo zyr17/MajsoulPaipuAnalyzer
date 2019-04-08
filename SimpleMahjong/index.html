@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+        <meta charset="utf-8" />
+        <title>SimpleMahjong</title>
+        <link rel="stylesheet" href="index.css" type="text/css" />
+        <link rel="stylesheet" href="tiles.css" type="text/css" />
+        <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+        <script src="../lib/jquery.js"></script>
+        <script>if (window.module) module = window.module;</script>
+</head>
+
+<body>
+        <div id="cornerinformation"></div>
+        <div>
+                <div>
+                        <div class="left hand">
+                                <div class="inhand"></div>
+                                <div class="get"></div>
+                                <div class="show"></div>
+                        </div>
+                        <div class="top hand">
+                                <div class="inhand"></div>
+                                <div class="get"></div>
+                                <div class="show"></div>
+                        </div>
+                        <div class="right hand">
+                                <div class="inhand"></div>
+                                <div class="get"></div>
+                                <div class="show"></div>
+                        </div>
+                        <div class="bottom hand">
+                                <div class="inhand"></div>
+                                <div class="get"></div>
+                                <div class="show"></div>
+                        </div>
+                        <div class="left table"></div>
+                        <div class="top table"></div>
+                        <div class="right table"></div>
+                        <div class="bottom table"></div>
+                        <div class="left reach"></div>
+                        <div class="top reach"></div>
+                        <div class="right reach"></div>
+                        <div class="bottom reach"></div>
+                        <div id="center">
+                                <div class="left score">25000</div>
+                                <div class="top score">25000</div>
+                                <div class="right score">25000</div>
+                                <div class="bottom score">25000</div>
+                                <div class="left corner">1m</div>
+                                <div class="top corner">2m</div>
+                                <div class="right corner">3m</div>
+                                <div class="bottom corner">4m</div>
+                                <div id="matchtitle">中0局</div>
+                                <div id="remaintile">余0</div>
+                                <div id="dora">?x?x?x?x?x</div>
+                                <div id="honbaicon"></div>
+                                <div id="kyoutakuicon"></div>
+                                <div id="honba">0</div>
+                                <div id="kyoutaku">0</div>
+                        </div>
+                </div>
+        </div>
+        <script src="const.js"></script>
+        <script src="index.js"></script>
+        <script src="algorithm.js"></script>
+        <script src="ipcr.js"></script>
+        <script src="paipu.js"></script>
+</body>
+
+</html>
