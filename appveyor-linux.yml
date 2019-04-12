@@ -1,0 +1,37 @@
+version: 0.1.{build}
+image: Ubuntu1804
+branches:
+  only:
+  - master
+build_script:
+- sh: >-
+    nvm install 8.1.0
+
+    nvm use 8.1.0
+
+    npm install
+
+    npm run-script package-linux
+
+    mkdir bin
+
+    mkdir bin/release
+
+    cd bin/release
+
+    cmake ../.. -DCMAKE_BUILD_TYPE=Release
+
+    make
+
+    cd ../..
+
+    cp -r dist/MajsoulPaipuCrawler-linux-x64 result
+
+    cp bin/release/PaipuAnalyzer result/
+
+    mkdir result/data
+
+    cp config.json result/data/
+artifacts:
+- path: result
+  name: MajsoulPaipuAnalyzer-linux-x64
