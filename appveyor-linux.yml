@@ -32,6 +32,10 @@ build_script:
     mkdir result/data
 
     cp config.json result/data/
+
+    mv result MajsoulPaipuAnalyzer-linux-x64
+
+    7z a MajsoulPaipuAnalyzer-linux-x64.7z MajsoulPaipuAnalyzer-linux-x64
 artifacts:
-- path: result
+- path: MajsoulPaipuAnalyzer-linux-x64.7z
   name: MajsoulPaipuAnalyzer-linux-x64
