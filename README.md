@@ -6,16 +6,20 @@
 
 ## 安装
 
-### 编译测试环境
+### 编译/测试环境
 
 Windows: Windows 10, nodejs v10.13.0, MinGW-W64 8.1.0
 
 Linux: Ubuntu 18.04 x64, nodejs v8.1.0, g++ 7.4.0
 
 ### 二进制文件
-可在[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中下载已经编译好的文件。提供的可执行文件在Windows 10和Ubuntu18.04编译及测试。
+
+Windows: [![Build status](https://ci.appveyor.com/api/projects/status/fyirnuhsunq73brc?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer) Linux: [![Build status](https://ci.appveyor.com/api/projects/status/i22ex7a644qasmxx?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer-ko5wy)
+
+也可在[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中下载已经编译好的文件。提供的可执行文件在Windows 10和Ubuntu18.04编译及测试。
 
 ### 依赖
+
 需要npm, g++, cmake, make/mingw32-make
 
 ### 安装
