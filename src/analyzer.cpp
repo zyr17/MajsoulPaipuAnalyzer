@@ -791,7 +791,7 @@ void AnalyzeData::outputonerect(const std::string &title, const std::string *res
     }
 
     assert(str.size() == data.size());
-    std::cout << title << "\n";
+    Out::cout << title << "\n";
     int maxwidth = 0, len = str.size();
     for (int i = 0; i < len; i ++ ){
         int noww = Algo::getdisplaywidth(str[i]) + Algo::getdisplaywidth(data[i]) + 1;
@@ -803,27 +803,27 @@ void AnalyzeData::outputonerect(const std::string &title, const std::string *res
     int iinline = (col - 1) / maxwidth;
     int lines = (len - 1) / iinline + 1;
     for (int i = 0; i < maxwidth * iinline; i ++ )
-        std::cout << (i ? '-' : ' ');
+        Out::cout << (i ? '-' : ' ');
     for (int I = 0; I < iinline * lines; I ++ ){
         if (!(I % iinline))
-            std::cout << "\n|";
+            Out::cout << "\n|";
         int i = I / iinline + lines * (I % iinline);
         if (i >= len){
             for (int i = 0; i < maxwidth; i ++ )
-                std::cout << (i == maxwidth - 1 ? '|' : ' ');
+                Out::cout << (i == maxwidth - 1 ? '|' : ' ');
             continue;
         }
         int width = Algo::getdisplaywidth(str[i]) + Algo::getdisplaywidth(data[i]) + 1;
-        std::cout << str[i];
+        Out::cout << str[i];
         for (int i = maxwidth - width; i; i -- )
-            std::cout << ' ';
-        isfinite(data[i]) ? std::cout << data[i] : std::cout << '-';
-        std::cout << '|';
+            Out::cout << ' ';
+        isfinite(data[i]) ? Out::cout << data[i] : Out::cout << '-';
+        Out::cout << '|';
     }
-    std::cout << '\n';
+    Out::cout << '\n';
     for (int i = 0; i < maxwidth * iinline; i ++ )
-        std::cout << (i ? '-' : ' ');
-    std::cout << '\n';
+        Out::cout << (i ? '-' : ' ');
+    Out::cout << '\n';
 
 }
 
@@ -2179,20 +2179,20 @@ void AnalyzeData::outputresult(){
     Algo::getconsolesize(row, col);
 /* 
     int nowcol = 4;
-    std::cout << I18N::get("ANALYZER", "BASEDATA") << I18N::get("MISC", "COLON") << "\n    ";
+    Out::cout << I18N::get("ANALYZER", "BASEDATA") << I18N::get("MISC", "COLON") << "\n    ";
     for (unsigned i = 0; i < BASEDATANUM; i ++ ){
         auto str = num2basedata[i] + ":";
         auto num = basedata[i];
         int width = Algo::getdisplaywidth(str) + Algo::getdisplaywidth(num) + 1;
         if (width + nowcol >= col){
-            std::cout << "\n    ";
+            Out::cout << "\n    ";
             nowcol = 4;
         }
         nowcol += width;
-        std::cout << str << num << ' ';
+        Out::cout << str << num << ' ';
     }
-    std::cout << '\n';
-    std::cout << I18N::get("MISC", "DASH") << "\n";
+    Out::cout << '\n';
+    Out::cout << I18N::get("MISC", "DASH") << "\n";
  */
     //outputonerect(I18N::get("ANALYZER", "ALLRESULT") + I18N::get("MISC", "COLON"), num2result, RESULTNAMENUM, col);
     outputonerect(I18N::get("ANALYZER", "OVRESULT") + I18N::get("MISC", "COLON"), overviewresult, OVERVIEWRESULTNUM, col);
@@ -2203,7 +2203,7 @@ void AnalyzeData::outputresult(){
     outputonerect(I18N::get("ANALYZER", "FULURESULT") + I18N::get("MISC", "COLON"), fuluresult, FULURESULTNUM, col);
     outputonerect(I18N::get("ANALYZER", "ALRESULT") + I18N::get("MISC", "COLON"), alresult, ALRESULTNUM, col);
 
-    PAUSE;
+    PAUSEEXIT;
 }
 
 void PaipuAnalyzer::initializeresult(){
@@ -2494,8 +2494,8 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     #ifdef SAVEMATCHDATASTEP
         std::cout << TotalStep.ToString();
     #endif
-    std::cout << I18N::get("ANALYZER", "ANALYZEPAIPUNUM") << paipunum << I18N::get("ANALYZER", "ANALYZEPAIPUNUMAFT") << '\n';
-    std::cout << I18N::get("MISC", "DASH") << '\n';
+    Out::cout << I18N::get("ANALYZER", "ANALYZEPAIPUNUM") << paipunum << I18N::get("ANALYZER", "ANALYZEPAIPUNUMAFT") << '\n';
+    Out::cout << I18N::get("MISC", "DASH") << '\n';
     pa.analyzedata -> calcresult();
     pa.analyzedata -> outputresult();
 }

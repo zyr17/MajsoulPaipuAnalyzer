@@ -376,7 +376,7 @@ int getdisplaywidth(long long num){
 
 int getdisplaywidth(double num){
     if (!isfinite(num)) return 1;
-    int res = (num < 0) + 5;
+    int res = (num < 0) + 1 + FLOATAFTERPOINTNUM;
     if (num < 0) num = - num;
     res += num < 1;
     for (; num >= 1; num /= 10)

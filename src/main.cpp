@@ -28,8 +28,8 @@ namespace MAIN{
             }
             closedir(dirptr);
         #else
-            std::cout << I18N::get("MAIN", "MACROUNDEFINED") << '\n';
-            PAUSE;
+            Out::cout << I18N::get("MAIN", "MACROUNDEFINED") << '\n';
+            PAUSEEXIT;
         #endif
         if (ids.size() && !id.size())
             id = ids[0];
@@ -41,8 +41,8 @@ namespace MAIN{
             system("chcp 65001");
         #endif
         if (access("config.json", 0) == -1){
-            std::cout << "Can't find config.json!\n";
-            PAUSE;
+            Out::cout << "Can't find config.json!\n";
+            PAUSEEXIT;
             return 1;
         }
         config = Algo::ReadJSON("config.json");
@@ -50,26 +50,26 @@ namespace MAIN{
         config.Get("language", lang);
         I18N::I18NInit(lang);
         if (access("data/", 0) == -1){
-            std::cout << I18N::get("MAIN", "CANTDATA/") << '\n';
-            PAUSE;
+            Out::cout << I18N::get("MAIN", "CANTDATA/") << '\n';
+            PAUSEEXIT;
             return 1;
         }
         config.Get("source", source);
         if (access(("data/" + source).c_str(), 0) == -1){
-            std::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC") + source + I18N::get("MAIN", "CANTDATA/SRCAFT") + "\n";
-            PAUSE;
+            Out::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC") + source + I18N::get("MAIN", "CANTDATA/SRCAFT") + "\n";
+            PAUSEEXIT;
             return 1;
         }
         config.Get("id", id);
         std::vector<std::string> ids = findid(source, id);
         if (!ids.size()){
-            std::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC/*") + source + I18N::get("MAIN", "CANTDATA/SRC/*AFT") + "\n";
-            PAUSE;
+            Out::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC/*") + source + I18N::get("MAIN", "CANTDATA/SRC/*AFT") + "\n";
+            PAUSEEXIT;
             return 1;
         }
-        std::cout << I18N::get("MISC", "DASH") + "\n";
-        std::cout << I18N::get("MAIN", "SRC") + I18N::get("MISC", "COLON") + source + "\n";
-        std::cout << I18N::get("MAIN", "ID") + I18N::get("MISC", "COLON") + id + "\n";
+        Out::cout << '\n';
+        Out::cout << I18N::get("MAIN", "SRC") + I18N::get("MISC", "COLON") + source + "\n";
+        Out::cout << I18N::get("MAIN", "ID") + I18N::get("MISC", "COLON") + id + "\n";
         return 0;
     }
 
