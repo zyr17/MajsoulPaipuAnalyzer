@@ -6,6 +6,10 @@
 
 namespace Algo{
 
+    #ifdef _WIN32
+        std::string UTF82GBK(const std::string &str);
+    #endif
+
     long long strptime(const std::string &str);
     std::vector<std::string> split(std::string &str, char c);
     void changevec(std::vector<int> &vec, int pos, int replace = INT_MAX);

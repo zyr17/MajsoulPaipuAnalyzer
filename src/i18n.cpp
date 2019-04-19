@@ -19,6 +19,9 @@ namespace I18N{
             while (jsonp.GetKey(word2)){
                 std::string s;
                 jsonp.Get(word2, s);
+                #ifdef _WIN32
+                    s = Algo::UTF82GBK(s);
+                #endif
                 langmap[word1 + "|" + word2] = s;
             }
         }

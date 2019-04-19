@@ -4,6 +4,24 @@ using namespace PA;
 
 namespace Algo{
 
+#ifdef _WIN32
+    std::string UTF82GBK(const std::string &str){
+        auto src_str = str.c_str();
+        int len = MultiByteToWideChar(CP_UTF8, 0, src_str, -1, NULL, 0);
+        wchar_t* wszGBK = new wchar_t[len + 1];
+        memset(wszGBK, 0, len * 2 + 2);
+        MultiByteToWideChar(CP_UTF8, 0, src_str, -1, wszGBK, len);
+        len = WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, NULL, 0, NULL, NULL);
+        char* szGBK = new char[len + 1];
+        memset(szGBK, 0, len + 1);
+        WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, szGBK, len, NULL, NULL);
+        std::string strTemp(szGBK);
+        if (wszGBK) delete[] wszGBK;
+        if (szGBK) delete[] szGBK;
+        return strTemp;
+    }
+#endif
+
 long long strptime(const std::string &str){
     int y, M, d, H, m, s;
     sscanf(str.c_str(), "%d-%d-%d %d:%d:%d", &y, &M, &d, &H, &m, &s);
@@ -352,6 +370,11 @@ void getconsolesize(int &row, int&col){
 }
 
 int getdisplaywidth(const std::string &str){
+
+    #ifdef _WIN32
+        return str.size();
+    #endif
+
     int res = 0, i = 0, j = 0;
     for (; i < (int)str.size(); i ++ , j -- ){
         if (j == 0){
