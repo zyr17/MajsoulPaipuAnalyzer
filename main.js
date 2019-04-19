@@ -22,7 +22,7 @@ let dataPath = 'data/';
 
 const ready = () => {
     var newWindow = new BrowserWindow({
-        width: 600,
+        width: 800,
         height: 600,
         title: `Simple Mahjong`,
         show: false

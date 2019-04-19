@@ -306,6 +306,27 @@ class Algo{
         return shanten;
     }
 
+    static testshanten(arr){
+        var cc = [
+            0, 1, 2, 3, 4, 6, 7, 8, 9,
+            10, 11, 12, 13, 14, 16, 17, 18, 19,
+            20, 21, 22, 23, 24, 26, 27, 28, 29,
+            30, 31, 32, 33, 34, 35, 36
+        ];
+        var data = this.emptycalcdata();
+        for (var i = 0; i < arr.length; i ++ ){
+            var res = arr[i].slice(14, 17);
+            data.hai = '';
+            for (var j = 0; j < 14; j ++ )
+                data.hai += num2tile[cc[arr[i][j]]];
+            console.log(data.hai);
+            var rr = [this.calcshanten(data, false), this.kokushishanten(data), this.chitoishanten(data)];
+            //console.log(rr, res);
+            for (var j = 0; j < 3; j ++ )
+                console.assert(rr[j] == res[j]);
+        }
+    }
+
     static calcyaku(data){
         var result = { 'yaku': 0, 'yakuname': [] };
         function getshun(str){

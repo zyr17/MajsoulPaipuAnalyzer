@@ -1,4 +1,4 @@
-version: 0.1.{build}
+version: 0.1.1.{build}
 image: Ubuntu1804
 branches:
   only:
@@ -31,7 +31,11 @@ build_script:
 
     mkdir result/data
 
-    cp config.json result/data/
+    cp config.json result/
+
+    cp doc/README.txt result/
+
+    cp -r i18n/ result/
 
     mv result MajsoulPaipuAnalyzer-linux-x64
 

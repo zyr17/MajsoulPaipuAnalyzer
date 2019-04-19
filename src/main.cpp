@@ -1,0 +1,90 @@
+#include "main.h"
+
+namespace MAIN{
+    
+    std::string source, id;
+    CJsonObject config;
+
+    std::vector<std::string> findid(const std::string &source, std::string &id){
+        std::vector<std::string> ids;
+        #ifdef _WIN32
+            _finddata_t finddata;
+            int findi1, findi2;
+            findi1 = findi2 = _findfirst(("data/" + source + "/*").c_str(), &finddata);
+            while (~findi1){
+                ids.push_back(finddata.name);
+                if (*ids.rbegin() == "." || *ids.rbegin() == "..")
+                    ids.pop_back();
+                findi1 = _findnext(findi2, &finddata);
+            }
+            _findclose(findi2);
+        #elif linux
+            DIR *dirptr = opendir(("data/" + source).c_str());
+            dirent *entry;
+            while (entry = readdir(dirptr)){
+                ids.push_back(entry -> d_name);
+                if (*ids.rbegin() == "." || *ids.rbegin() == "..")
+                    ids.pop_back();
+            }
+            closedir(dirptr);
+        #else
+            std::cout << I18N::get("MAIN", "MACROUNDEFINED") << '\n';
+            PAUSE;
+        #endif
+        if (ids.size() && !id.size())
+            id = ids[0];
+        return ids;
+    }
+
+    int readconfig(){
+        #ifdef _WIN32
+            system("chcp 65001");
+        #endif
+        if (access("config.json", 0) == -1){
+            std::cout << "Can't find config.json!\n";
+            PAUSE;
+            return 1;
+        }
+        config = Algo::ReadJSON("config.json");
+        std::string lang;
+        config.Get("language", lang);
+        I18N::I18NInit(lang);
+        if (access("data/", 0) == -1){
+            std::cout << I18N::get("MAIN", "CANTDATA/") << '\n';
+            PAUSE;
+            return 1;
+        }
+        config.Get("source", source);
+        if (access(("data/" + source).c_str(), 0) == -1){
+            std::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC") + source + I18N::get("MAIN", "CANTDATA/SRCAFT") + "\n";
+            PAUSE;
+            return 1;
+        }
+        config.Get("id", id);
+        std::vector<std::string> ids = findid(source, id);
+        if (!ids.size()){
+            std::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC/*") + source + I18N::get("MAIN", "CANTDATA/SRC/*AFT") + "\n";
+            PAUSE;
+            return 1;
+        }
+        std::cout << I18N::get("MISC", "DASH") + "\n";
+        std::cout << I18N::get("MAIN", "SRC") + I18N::get("MISC", "COLON") + source + "\n";
+        std::cout << I18N::get("MAIN", "ID") + I18N::get("MISC", "COLON") + id + "\n";
+        return 0;
+    }
+
+}
+
+using namespace MAIN;
+
+int main(){
+
+    //Algo::testshanten(); return 0;
+    //Algo::testtenpai(); return 0;
+
+    auto rcres = readconfig();
+    if (rcres == 1) return 0;
+    PA::analyzemain("data/", source, id, config);
+    //MatchDataCompare::mdatacomparemain();
+    return 0;
+}
