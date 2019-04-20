@@ -4,6 +4,18 @@
 
 目前仅支持四人麻将牌谱分析，分析项目参考天鳳の牌譜解析プログラム的项目实现。目前实现了和牌、放铳、立直、其他、终盘大类中的大部分数据，其他有待实现。
 
+## 界面
+
+工具分为两部分，MajsoulPaipuCrawler和PaipuAnalyzer。
+
+MajsoulPaipuCrawler使用Electron编写，用于从雀魂收集牌谱并转换成自用牌谱格式。
+
+![MajsoulPaipuCrawler](doc/img/MPC.png)
+
+PaipuAnalyzer使用C++编写，分析收集到的牌谱数据并在命令行窗口中展示数据。
+
+![PaipuAnalyzer](doc/img/PA.png)
+
 ## 安装
 
 ### 编译/测试环境

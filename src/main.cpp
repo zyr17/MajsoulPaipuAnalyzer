@@ -40,6 +40,7 @@ namespace MAIN{
         #ifdef _WIN32
             system("chcp 65001");
             system("chcp 936");
+            system("cls");
         #endif
         if (access("config.json", 0) == -1){
             Out::cout << "Can't find config.json!\n";
