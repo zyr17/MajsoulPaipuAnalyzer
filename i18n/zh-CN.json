@@ -1,4 +1,5 @@
 {
+    "CHCP": "chcp 936",
     "MAIN": {
         "MACROUNDEFINED": "宏 _WIN32 和 linux 均未被定义！请确认是否为Windows或者Linux平台。",
         "CANTDATA/SRC": "无法找到文件夹 data/",

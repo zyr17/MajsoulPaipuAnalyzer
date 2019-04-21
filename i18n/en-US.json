@@ -1,4 +1,5 @@
 {
+    "CHCP": "chcp 437",
     "MAIN": {
         "MACROUNDEFINED": "both macro _WIN32 and linux are not defined!",
         "CANTDATA/SRC": "Can't find data/",

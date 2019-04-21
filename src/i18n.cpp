@@ -14,6 +14,12 @@ namespace I18N{
         }
         auto json = Algo::ReadJSON("i18n/" + lang + ".json");
         std::string word1, word2;
+        json.Get("CHCP", word1);
+        #ifdef _WIN32
+            system("chcp 65001");
+            system(word1.c_str());
+            system("cls");
+        #endif
         while (json.GetKey(word1)){
             auto jsonp = json[word1];
             while (jsonp.GetKey(word2)){
