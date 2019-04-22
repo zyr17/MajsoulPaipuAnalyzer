@@ -528,22 +528,29 @@ class majsoulpaipuanalyze{
                     }
                     else if (arr[start] == 0x62){
                         //番种
+                        ////TODO: 出现牌谱使用编号代替役名。找到役和编号对应列表。
                         let len6, len, name;
                         [len6, start] = this.getnumber(arr, start + 1);
-                        [len, start] = this.getnumber(arr, start + 1);
-                        [name, start] = this.decodeUTF8(arr, start, len);
-                        let han = arr[start + 1];
-                        if (
-                            name == '四暗刻单骑' || 
-                            name == '国士无双十三面' || 
-                            name == '大四喜' || 
-                            name == '纯正九莲宝灯'
-                        )
-                            han = 2;
-                        if (yakumanyaku)
-                            han *= 13;
-                        agarires.han.push([name, han]);
-                        start += 2;
+                        if (arr[start] == 0x0a){
+                            [len, start] = this.getnumber(arr, start + 1);
+                            [name, start] = this.decodeUTF8(arr, start, len);
+                            let han = arr[start + 1];
+                            if (
+                                name == '四暗刻单骑' || 
+                                name == '国士无双十三面' || 
+                                name == '大四喜' || 
+                                name == '纯正九莲宝灯'
+                            )
+                                han = 2;
+                            if (yakumanyaku)
+                                han *= 13;
+                            agarires.han.push([name, han]);
+                            start += 2;
+                        }
+                        else{
+                            start += len6;
+                            this.rawdata = undefined;
+                        }
                     }
                     else if (arr[start] == 0x68){
                         //符
@@ -863,20 +870,25 @@ class majsoulpaipuanalyze{
                     arr.push(data[i]);
                 //console.log(arr, this.nowgamedata, this.gamedatas[this.nowgamedata].extra.id, this.gamedatas[this.nowgamedata]);
                 let d = new Date();
-                d.setTime(this.gamedatas[this.nowgamedata].endtime * 1000);
+                if (this.paipus != undefined) d.setTime(this.gamedatas[this.nowgamedata].endtime * 1000);
                 if (arr.length > 99){
                     //太短是因为牌谱未被归档导致返回错误信息
                     this.paipuanalyze(arr);
-                    this.onepaipu.record = JSON.parse(JSON.stringify(View.gamerecord));
-                    this.paipus.push(JSON.parse(JSON.stringify(this.onepaipu)));
+                    if (this.paipus != undefined){
+                        this.onepaipu.record = JSON.parse(JSON.stringify(View.gamerecord));
+                        this.paipus.push(JSON.parse(JSON.stringify(this.onepaipu)));
+                    }
                     console.log('paipu #' + this.nowgamedata + ' complete. ' + d.toString());
+                    if (this.rawdata == undefined){
+                        console.log("but it's new type paipu, skip it for now.");
+                    }
                 }
                 else{
                     this.rawdata = undefined;
                     console.log('paipu #' + this.nowgamedata + ' download failed. ' + d.toString());
                 }
                 this.nowgamedata ++ ;
-                this.converttoonepaipu();
+                if (this.paipus != undefined) this.converttoonepaipu();
             }
             reader.onload = rloadfunc.bind(this);
         }
