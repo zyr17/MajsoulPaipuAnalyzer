@@ -173,7 +173,7 @@ class majsoulpaipuanalyze{
         var discardtile = String.fromCharCode(arr[start]) + String.fromCharCode(arr[start + 1]);
         start += 2;
         var reach = 0, moqie = false, naki = false, dora = '';
-        var nakiwaynum = null, nakihandtile = null;
+        var nakiwaynum = null, nakihandtile = '';
         var unknownnumber = '';
         for (; start < arr.length; ){
             if (arr[start] == 0x18){
@@ -187,7 +187,7 @@ class majsoulpaipuanalyze{
                 var nakiend = start + nakilength;
                 var nakiwaynum = arr[start + 5];
                 [nakihandlength, start] = this.getnumber(arr, start + 7);
-                [nakihandtile, start] = this.getstring(arr, start, nakihandlength);
+                if (nakihandlength < 1000) [nakihandtile, start] = this.getstring(arr, start, nakihandlength);
                 start = nakiend;
             }
             else if (arr[start] == 0x28){
@@ -415,7 +415,7 @@ class majsoulpaipuanalyze{
             tiles: tiles
         };
         //console.log(this.onepaipu.gamedata.extra.id, whonum, typename[typenum], View.gamerecord.length);
-        if (typenum < 1 || typenum > 3) this.sendmessage(whonum + ' LiuJu, ' + typename[typenum], result);
+        this.sendmessage(whonum + ' LiuJu, ' + typename[typenum], result);
         return whonum;
     }
     
@@ -528,29 +528,41 @@ class majsoulpaipuanalyze{
                     }
                     else if (arr[start] == 0x62){
                         //番种
-                        ////TODO: 出现牌谱使用编号代替役名。找到役和编号对应列表。
-                        let len6, len, name;
+                        let len6, len, name, han;
                         [len6, start] = this.getnumber(arr, start + 1);
-                        if (arr[start] == 0x0a){
-                            [len, start] = this.getnumber(arr, start + 1);
-                            [name, start] = this.decodeUTF8(arr, start, len);
-                            let han = arr[start + 1];
-                            if (
-                                name == '四暗刻单骑' || 
-                                name == '国士无双十三面' || 
-                                name == '大四喜' || 
-                                name == '纯正九莲宝灯'
-                            )
-                                han = 2;
-                            if (yakumanyaku)
-                                han *= 13;
-                            agarires.han.push([name, han]);
-                            start += 2;
+                        for (let end6 = len6 + start; start < end6; ){
+                            if (arr[start] == 0x0a){
+                                [len, start] = this.getnumber(arr, start + 1);
+                                [name, start] = this.decodeUTF8(arr, start, len);
+                            }
+                            else if (arr[start] == 0x10){
+                                han = arr[start + 1];
+                                if (
+                                    name == '四暗刻单骑' || 
+                                    name == '国士无双十三面' || 
+                                    name == '大四喜' || 
+                                    name == '纯正九莲宝灯'
+                                )
+                                    han = 2;
+                                if (yakumanyaku)
+                                    han *= 13;
+                                start += 2;
+                            }
+                            else if (arr[start] == 0x18){
+                                name = majsoulfanid2name[arr[start + 1]];
+                                start += 2;
+                            }
+                            else{
+                                let cmd;
+                                [cmd, start] = this.getnumber(arr, start);
+                                let addlen = cmd % 8 == 2;
+                                unknownnumber += ' ' + cmd;
+                                [cmd, start] = this.getnumber(arr, start);
+                                if (addlen)
+                                    start += cmd;
+                            }
                         }
-                        else{
-                            start += len6;
-                            this.rawdata = undefined;
-                        }
+                        agarires.han.push([name, han]);
                     }
                     else if (arr[start] == 0x68){
                         //符
@@ -880,7 +892,7 @@ class majsoulpaipuanalyze{
                     }
                     console.log('paipu #' + this.nowgamedata + ' complete. ' + d.toString());
                     if (this.rawdata == undefined){
-                        console.log("but it's new type paipu, skip it for now.");
+                        console.log("but it's an unsupported paipu, skip it for now.");
                     }
                 }
                 else{

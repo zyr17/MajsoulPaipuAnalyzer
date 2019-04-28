@@ -12,7 +12,8 @@ const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 const path                                  = require('path').join,
       fs                                    = require('fs'),
       url                                   = require('url'),
-      { analyze, paipugamedata, getUserID } = require('./lib/majsoul/analyze')
+      { analyze, paipugamedata, getUserID } = require('./lib/majsoul/analyze'),
+      { config }                            = require('./lib/config.js');
 
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
@@ -30,6 +31,10 @@ const ready = () => {
     var browseWindow = new BrowserWindow({
         title: `browser`,
         show: false
+    });
+
+    browseWindow.webContents.on('did-stop-loading', function (){
+        browseinject();
     });
 
     function browseinject() {
@@ -50,6 +55,14 @@ const ready = () => {
                             browsedata = String(browsedata).replace(/\/\/%jqueryjs%/, jdata);
                             browsedata = browsedata.replace(/\/\/%wshookjs%/, wsdata);
                             browseWindow.webContents.executeJavaScript(browsedata);
+                            if (/https:\/\/open\.weixin\.qq\.com/.test(browseWindow.webContents.getURL()))
+                                browseWindow.webContents.executeJavaScript(`
+                                    console.log('try to run weixin script again');
+                                    ss = $('script');
+                                    for (let i = 0; i < ss.length; i ++ )
+                                        if (/majsoul/.test($(ss[i]).html()))
+                                            eval(ss[i].textContent);
+                                `);
                         }
 
                     });
@@ -57,19 +70,16 @@ const ready = () => {
             }
         });
     }
-
-    function bwindowreload() {
-        browseWindow.reload();
-        browseinject();
-    }
+    
+    const cantgetIDstr = '获取信息错误！无法获取用户ID，请确认已经进入大厅。也可尝试刷新页面，如果多次刷新依然无法进入请汇报BUG。';
     
     function checkpaipugamedata(){
         let msgstr = '', root, paipu4 = 0, paipu3 = 0, downloaded = 0, converted = 0, userid = getUserID();
-        if (userid == 0){
+        if (userid <= 0){
             dialog.showMessageBox({
                 type: 'error',
                 title: '错误',
-                message: '获取信息错误！无法获取用户ID。如果首次登陆请选择杂项-刷新来刷新页面。'
+                message: cantgetIDstr
             });
             return;
         }
@@ -95,11 +105,11 @@ const ready = () => {
 
     function downloadconvertpaipu(){
         let userid = getUserID();
-        if (userid == 0){
+        if (userid <= 0){
             dialog.showMessageBox({
                 type: 'error',
                 title: '错误',
-                message: '获取信息错误！无法获取用户ID。如果首次登陆请选择杂项-刷新来刷新页面。'
+                message: cantgetIDstr
             });
             return;
         }
@@ -183,6 +193,11 @@ const ready = () => {
         nextdownloadconvert();
     }
 
+    function gotonewpage(str){
+        config.set('DefaultURL', str);
+        browseWindow.loadURL(str);
+    }
+
     var menutemplate = [{
         label: '牌谱',
         submenu: [{
@@ -197,13 +212,47 @@ const ready = () => {
             }
         }]
     }, {
-        label: '杂项',
+        label: '网页',
         submenu: [{
             label: '刷新',
             click: function () {
-                bwindowreload();
+                browseWindow.reload();
             }
         }, {
+            label: '进入国服',
+            click: function () {
+                gotonewpage('https://majsoul.union-game.com/0/');
+            }
+        }, {
+            label: '进入日服',
+            click: function () {
+                gotonewpage('https://game.mahjongsoul.com');
+            }
+        }, {
+            label: '进入国际服',
+            click: function () {
+                gotonewpage('https://mahjongsoul.game.yo-star.com');
+                dialog.showMessageBox({
+                    type: 'info',
+                    title: '国际服提示',
+                    message: '由于技术原因，使用国际服时请确保当前网络能够较为通畅的访问Google, FaceBook等，否则很可能无法正确获取牌谱数据。'
+                });
+            }
+        }, {
+            label: '登录专用窗口',
+            click: function () {
+                var loginWindow = new BrowserWindow({
+                    title: `login`,
+                    show: false
+                });
+                let str = config.get('DefaultURL');
+                loginWindow.loadURL(str);
+                loginWindow.show();
+            }
+        }]
+    }, {
+        label: '关于',
+        submenu: [{
             label: '关于',
             click: function() {
                 dialog.showMessageBox({
@@ -225,7 +274,7 @@ const ready = () => {
     }));
     newWindow.show();
     newWindow.openDevTools();
-    browseWindow.loadURL('https://majsoul.union-game.com/0/');
+    browseWindow.loadURL(config.get('DefaultURL'));
     browseWindow.show();
     browseWindow.maximize();
     browseWindow.openDevTools();

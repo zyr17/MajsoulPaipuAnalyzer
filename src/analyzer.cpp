@@ -2369,6 +2369,8 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     for (int i = 0; i < 4; i ++ )
         if (accountid == pdata[i]["id"])
             adata.me = i;
+    //如果玩家数据中没找到对应ID就跳过该牌谱
+    if (adata.me == -1) return false;
     matchdata.INewGame(paipu);
     #ifdef SAVEMATCHDATASTEP
         GameStep = CJsonObject("[]");
