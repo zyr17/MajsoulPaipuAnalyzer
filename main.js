@@ -9,11 +9,11 @@ try {
 
 const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 
-const path                                  = require('path').join,
-      fs                                    = require('fs'),
-      url                                   = require('url'),
-      { analyze, paipugamedata, getUserID } = require('./lib/majsoul/analyze'),
-      { config }                            = require('./lib/config.js');
+const path                                               = require('path').join,
+      fs                                                 = require('fs'),
+      url                                                = require('url'),
+      { analyze, paipugamedata, getUserID, reporterror } = require('./lib/majsoul/analyze'),
+      { config }                                         = require('./lib/config.js');
 
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
@@ -309,6 +309,9 @@ const ready = () => {
     });
     ipcMain.on('downloadconvertresult', (event, data) => {
         downloadconvertcallback(data);
+    });
+    ipcMain.on('reporterror', (event, data) => {
+        reporterror(data);
     });
 }
 

@@ -1,4 +1,4 @@
-version: 0.2.0.{build}
+version: 0.2.1.{build}
 image: Ubuntu1804
 branches:
   only:
@@ -34,6 +34,8 @@ build_script:
     cp config.json result/
 
     cp doc/README.txt result/
+    
+    cp doc/release-notes.txt result/
 
     cp -r i18n/ result/
 

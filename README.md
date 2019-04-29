@@ -1,8 +1,10 @@
 # MajsoulPaipuAnalyzer
 
-自制雀魂牌谱分析工具。支持国服、日服、国际服。日服和国际服仅进行了少量测试。
+自制雀魂牌谱分析工具。支持国服、日服、国际服。日服和国际服未进行全面测试。
 
 目前仅支持四人麻将牌谱分析，分析项目参考天鳳の牌譜解析プログラム的项目实现。目前实现了和牌、放铳、立直、其他、终盘大类中的大部分数据，其他有待实现。
+
+[更新内容说明文件](doc/release-notes.txt)
 
 ## 界面
 
@@ -59,6 +61,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
     mkdir result/data
     cp config.json result/
     cp doc/README.txt result/
+    cp doc/release-notes.txt result/
     cp -r i18n/ result/
 
 #### Linux:
@@ -78,6 +81,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
     mkdir result/data
     cp config.json result/
     cp doc/README.txt result/
+    cp doc/release-notes.txt result/
     cp -r i18n/ result/
 
 result中即为结果。
@@ -130,4 +134,4 @@ Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的�
 
 [wssip](https://github.com/nccgroup/wssip)
 
-[牌面图像](https://mj-king.net/sozai/)
+<!-- [牌面图像](https://mj-king.net/sozai/) -->

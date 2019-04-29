@@ -874,30 +874,43 @@ class majsoulpaipuanalyze{
             let reader = new FileReader();
             reader.readAsArrayBuffer(request.response);
             function rloadfunc (e) {
-                let data = e.target.result;
-                data = new Uint8Array(data);
-                this.rawdata = data;
-                let arr = [];
-                for (let i = 0; i < data.byteLength; i ++ )
-                    arr.push(data[i]);
-                //console.log(arr, this.nowgamedata, this.gamedatas[this.nowgamedata].extra.id, this.gamedatas[this.nowgamedata]);
-                let d = new Date();
-                if (this.paipus != undefined) d.setTime(this.gamedatas[this.nowgamedata].endtime * 1000);
-                if (arr.length > 99){
-                    //太短是因为牌谱未被归档导致返回错误信息
-                    this.paipuanalyze(arr);
-                    if (this.paipus != undefined){
-                        this.onepaipu.record = JSON.parse(JSON.stringify(View.gamerecord));
-                        this.paipus.push(JSON.parse(JSON.stringify(this.onepaipu)));
+                try{
+                    let data = e.target.result;
+                    data = new Uint8Array(data);
+                    this.rawdata = data;
+                    let arr = [];
+                    for (let i = 0; i < data.byteLength; i ++ )
+                        arr.push(data[i]);
+                    //console.log(arr, this.nowgamedata, this.gamedatas[this.nowgamedata].extra.id, this.gamedatas[this.nowgamedata]);
+                    let d = new Date();
+                    if (this.paipus != undefined) d.setTime(this.gamedatas[this.nowgamedata].endtime * 1000);
+                    if (arr.length > 99){
+                        //太短是因为牌谱未被归档导致返回错误信息
+                        this.paipuanalyze(arr);
+                        if (this.paipus != undefined){
+                            this.onepaipu.record = JSON.parse(JSON.stringify(View.gamerecord));
+                            this.paipus.push(JSON.parse(JSON.stringify(this.onepaipu)));
+                        }
+                        console.log('paipu #' + this.nowgamedata + ' complete. ' + d.toString());
+                        if (this.rawdata == undefined){
+                            console.log("but it's an unsupported paipu, skip it for now.");
+                        }
                     }
-                    console.log('paipu #' + this.nowgamedata + ' complete. ' + d.toString());
-                    if (this.rawdata == undefined){
-                        console.log("but it's an unsupported paipu, skip it for now.");
+                    else{
+                        this.rawdata = undefined;
+                        console.log('paipu #' + this.nowgamedata + ' download failed. ' + d.toString());
                     }
                 }
-                else{
-                    this.rawdata = undefined;
-                    console.log('paipu #' + this.nowgamedata + ' download failed. ' + d.toString());
+                catch (err){
+                    if (this.ipcrsend != undefined && this.ipcrsend && ipcr != undefined){
+                        let data = {
+                            position: 'SimpleMahjong-paipu-majsoulpaipuanalyzer',
+                            message: '牌谱分析错误',
+                            gamedata: this.gamedatas[this.nowgamedata]
+                        };
+                        ipcr.send('reporterror', data);
+                    }
+                    console.error(err);
                 }
                 this.nowgamedata ++ ;
                 if (this.paipus != undefined) this.converttoonepaipu();
