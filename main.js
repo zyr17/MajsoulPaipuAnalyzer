@@ -13,7 +13,7 @@ const path                                               = require('path').join,
       fs                                                 = require('fs'),
       url                                                = require('url'),
       { analyze, paipugamedata, getUserID, reporterror } = require('./lib/majsoul/analyze'),
-      { config }                                         = require('./lib/config.js');
+      { config, checknewestversion }                     = require('./lib/config.js');
 
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
@@ -26,15 +26,35 @@ const ready = () => {
         width: 800,
         height: 600,
         title: `Simple Mahjong`,
-        show: false
+        show: false,
+        webPreferences: {
+            nodeIntegration: true
+        }
     });
     var browseWindow = new BrowserWindow({
         title: `browser`,
-        show: false
+        show: false,
+        webPreferences: {
+            nodeIntegration: true
+        }
     });
+
+    browseWindow.nowingamepage = true;
 
     browseWindow.webContents.on('did-stop-loading', function (){
         browseinject();
+        if (!/^https:\/\/(?:majsoul|game.mahjongsoul|mahjongsoul)/.test(browseWindow.webContents.getURL())){
+            if (browseWindow.nowingamepage)
+                dialog.showMessageBox({
+                    type: 'info',
+                    noLink: true,
+                    buttons: ['确定'],
+                    title: '第三方账户登录提示',
+                    message: '您已离开游戏页面进行第三方账户登录。如果出现无法正常登录的情况，请点击网页-登录专用窗口进行登录，在登录完成后关闭专用窗口并刷新本页面。'
+                });
+            browseWindow.nowingamepage = false;
+        }
+        else browseWindow.nowingamepage = true;
     });
 
     function browseinject() {
@@ -78,6 +98,8 @@ const ready = () => {
         if (userid <= 0){
             dialog.showMessageBox({
                 type: 'error',
+                noLink: true,
+                buttons: ['确定'],
                 title: '错误',
                 message: cantgetIDstr
             });
@@ -96,7 +118,9 @@ const ready = () => {
         msgstr = '用户ID: ' + userid + '\n4人牌谱: ' + paipu4 + '\n3人牌谱: ' + paipu3 + '\n已下载: ' + downloaded + '\n已转换: ' + converted;
         dialog.showMessageBox({
             type: 'info',
-            title: 'title',
+            noLink: true,
+            buttons: ['确定'],
+            title: '牌谱情报',
             message: msgstr
         });
     }
@@ -108,6 +132,8 @@ const ready = () => {
         if (userid <= 0){
             dialog.showMessageBox({
                 type: 'error',
+                noLink: true,
+                buttons: ['确定'],
                 title: '错误',
                 message: cantgetIDstr
             });
@@ -123,6 +149,8 @@ const ready = () => {
         if (downloadconvertlist != undefined){
             dialog.showMessageBox({
                 type: 'error',
+                noLink: true,
+                buttons: ['确定'],
                 title: '错误',
                 message: '存在正在执行的下载转换任务！'
             });
@@ -138,6 +166,8 @@ const ready = () => {
         }
         dialog.showMessageBox({
             type: 'info',
+            noLink: true,
+            buttons: ['确定'],
             title: '开始下载转换',
             message: '共有 ' + downloadconvertlist.length + ' 个牌谱需要下载转换\n在模拟窗口左上角可以看到进度'
         });
@@ -169,6 +199,8 @@ const ready = () => {
         let timestr = d.toString();
         dialog.showMessageBox({
             type: 'info',
+            noLink: true,
+            buttons: ['确定'],
             title: '下载转换完成',
             message: '完成 ' + downloadconvertresult[0] + '/' + downloadconvertresult[2] + ' 个下载转换任务。下载成功牌谱的最晚时间是' + timestr + '\n-----\n注意：由于技术原因，最近2-4天的牌谱可能暂时无法获取，请在几天后再次尝试。'
         });
@@ -234,6 +266,8 @@ const ready = () => {
                 gotonewpage('https://mahjongsoul.game.yo-star.com');
                 dialog.showMessageBox({
                     type: 'info',
+                    noLink: true,
+                    buttons: ['确定'],
                     title: '国际服提示',
                     message: '由于技术原因，使用国际服时请确保当前网络能够较为通畅的访问Google, FaceBook等，否则很可能无法正确获取牌谱数据。'
                 });
@@ -251,14 +285,32 @@ const ready = () => {
             }
         }]
     }, {
-        label: '关于',
+        label: '其他',
         submenu: [{
+            label: '清除配置数据',
+            click: function() {
+                dialog.showMessageBox({
+                    type: 'warning',
+                    title: '警告',
+                    message: '是否清除配置数据？\n错误上报、默认服务器、更新检查等相关配置会被清除，data文件夹和config.json不会改动。',
+                    cancelId: 1,
+                    noLink: true,
+                    buttons: ['是', '否']
+                }, function (response) {
+                    if (response == 0){
+                        config.clear();
+                    }
+                });
+            }
+        }, {
             label: '关于',
             click: function() {
                 dialog.showMessageBox({
                     type: 'info', 
                     title: '关于',
-                    message: 'Simple Mahjong V0.1\nContact: jzjqz17@gmail.com\nGithub: https://github.com/zyr17/MajsoulPaipuAnalyzer'
+                    noLink: true,
+                    buttons: ['确定'],
+                    message: `MajsoulPaipuCrawler v${config.get('Version')}\nContact: jzjqz17@gmail.com\nGithub: https://github.com/zyr17/MajsoulPaipuAnalyzer`
                 })
             }
         }]
@@ -278,7 +330,6 @@ const ready = () => {
     browseWindow.show();
     browseWindow.maximize();
     browseWindow.openDevTools();
-    browseinject();
     ipcMain.on('wshook', (event, sender, data) => {
         let oldid = getUserID();
         analyze(sender, data);
@@ -313,6 +364,8 @@ const ready = () => {
     ipcMain.on('reporterror', (event, data) => {
         reporterror(data);
     });
+    
+    setTimeout(checknewestversion, 3000);
 }
 
 app.on('ready', ready);

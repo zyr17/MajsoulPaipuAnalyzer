@@ -34,7 +34,9 @@ APPVeyor下载最新版本：
 
 Windows: [![Build status](https://ci.appveyor.com/api/projects/status/fyirnuhsunq73brc?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer) Linux: [![Build status](https://ci.appveyor.com/api/projects/status/i22ex7a644qasmxx?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer-ko5wy)
 
-也可在[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中下载已经编译好的文件。一般较大更新会在此上载文件包。
+[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中可下载已经编译好的文件。由于上传速度较慢可能不是很及时
+
+[百度网盘](https://pan.baidu.com/s/1mu31kzaF7aHkY2IeBjCLyg) 提取码：k34a
 
 ### 依赖
 
