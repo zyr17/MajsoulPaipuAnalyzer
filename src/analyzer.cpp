@@ -454,11 +454,11 @@ void MatchData::IHule(std::string &actstr){
 
         basenum = 27;
         assert(num2hulebasedata[basenum] == "ZHAZHUANG");
-        if (who != adata.me && who == east && tsumo) adata.hulebasedata[basenum][metype] ++ ;
+        if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
         basenum = 28;
         assert(num2hulebasedata[basenum] == "ZHAZHUANGPOINT");
-        if (who != adata.me && who == east && tsumo) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
+        if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
 
         basenum = 29;
         assert(num2hulebasedata[basenum] == "CHONGLEZHUANG");
