@@ -786,7 +786,7 @@ void MatchData::action(std::string &actstr){
 AnalyzeResultName::AnalyzeResultName(){
     json = Algo::ReadJSON("PAADData.json");
     std::string key;
-    
+
     //base
     auto basejson = json["base"];
     while (basejson.GetKey(key)){
@@ -855,10 +855,10 @@ void AnalyzeExpr::setoperator(){
 }
 
 std::string AnalyzeExpr::gettoken(const std::string &expr, int &k){
-    for (; oprprevilige[expr[k]] == SPACE; k ++ );
-    if (oprprevilige[expr[k]]) return std::string() + expr[k ++ ];
+    for (; oprprevilige[(unsigned)expr[k]] == SPACE; k ++ );
+    if (oprprevilige[(unsigned)expr[k]]) return std::string() + expr[k ++ ];
     std::string res;
-    for (; !oprprevilige[expr[k]]; res += expr[k ++ ]);
+    for (; !oprprevilige[(unsigned)expr[k]]; res += expr[k ++ ]);
     return res;
 }
 
@@ -897,7 +897,7 @@ AnalyzeExprNumberList AnalyzeExpr::getnumberlist(const std::vector<std::string> 
             if (i > 9) ss2 += '0' + i / 10;
             ss2 += '0' + i % 10;
             bool flag = false;
-            for (int j = 0; j < list.size(); j ++ )
+            for (unsigned j = 0; j < list.size(); j ++ )
                 if (ss2 == list[j]){
                     res.list.push_back(j);
                     flag = true;
@@ -912,7 +912,7 @@ AnalyzeExprNumberList AnalyzeExpr::getnumberlist(const std::vector<std::string> 
         res.startnum = startnum;
         return res;
     }
-    for (int i = 0; i < list.size(); i ++ )
+    for (unsigned i = 0; i < list.size(); i ++ )
         if (str == list[i]){
             res.list.push_back(i);
             break;
@@ -993,6 +993,8 @@ double AnalyzeExpr::getvalue(const std::string &s){
     else if (strs[0] == "HULEYAKU"){
         return getdata(adata -> huleyakubasedata, strs[1], adata -> ADN.base["HULEYAKUBASEDATA"], strs[2], adata -> ADN.base["YAKUDATA"], strs[3], adata -> ADN.base["HULEHANDTYPE"]);
     }
+    assert(0);
+    return 0;
 }
 
 AnalyzeExpr::AnalyzeExpr(AnalyzeData *adata) : adata(adata) {
@@ -1004,9 +1006,9 @@ double AnalyzeExpr::calcexpr(std::string expr){
     expr += '@';
     std::vector<double> num;
     std::vector<int> opr;
-    for (int i = 0; i < expr.size(); ){
+    for (int i = 0; i < (int)expr.size(); ){
         auto token = gettoken(expr, i);
-        if (oprprevilige[token[0]]){
+        if (oprprevilige[(unsigned)token[0]]){
             if (token[0] == '(')
                     opr.push_back(token[0]);
             else if (token[0] == ')'){
@@ -1014,7 +1016,7 @@ double AnalyzeExpr::calcexpr(std::string expr){
                     opr.pop_back();
             }
             else{
-                    for (; opr.size() && oprprevilige[*opr.rbegin()] >= oprprevilige[token[0]]; makecalc(num, opr));
+                    for (; opr.size() && oprprevilige[*opr.rbegin()] >= oprprevilige[(unsigned)token[0]]; makecalc(num, opr));
                     opr.push_back(token[0]);
             }
         }
