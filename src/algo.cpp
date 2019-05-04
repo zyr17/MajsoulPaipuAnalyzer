@@ -324,10 +324,16 @@ void testshanten(){
     std::cout <<  makecc << ' ' << calccc << '-' << tiles.size();
 }
 
-CJsonObject ReadJSON(std::string filename){
+std::string dataprefix = "";
+
+int Access(const char *filename, int mode){
+    return access((dataprefix + filename).c_str(), mode);
+}
+
+CJsonObject ReadJSON(const std::string &filename){
     std::string jsonstr;
     char *buffer = new char[JSONBUFFERSIZE];
-    auto f = fopen(filename.c_str(), "r");
+    auto f = fopen((dataprefix + filename).c_str(), "r");
     for (; ; ){
         int length = fread(buffer, 1, JSONBUFFERSIZE - 1, f);
         buffer[length] = '\0';
@@ -341,7 +347,7 @@ CJsonObject ReadJSON(std::string filename){
 }
 
 std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::string &prefix, const std::string &suffix){
-    auto f = fopen(filename.c_str(), "r");
+    auto f = fopen((dataprefix + filename).c_str(), "r");
     std::vector<CJsonObject> res;
     for (; ; ){
         std::string ts = prefix;

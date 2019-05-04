@@ -1,6 +1,7 @@
 {
     "language": "zh-CN",
     "source": "majsoul",
+    "dataprefix": "",
     "id": "",
     "filter":{
         "include": {

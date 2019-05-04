@@ -8,7 +8,7 @@ namespace I18N{
 
     void I18NInit(const std::string &lang){
         language = lang;
-        if (access(("i18n/" + lang + ".json").c_str(), 0) == -1){
+        if (Algo::Access(("i18n/" + lang + ".json").c_str(), 0) == -1){
             std::cout << "Error: i18n/" + lang + ".json not exist! language translation won't work.\n";
             return;
         }
