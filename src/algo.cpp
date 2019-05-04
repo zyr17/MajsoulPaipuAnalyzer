@@ -35,7 +35,7 @@ long long strptime(const std::string &str){
     return mktime(&time);
 }
 
-std::vector<std::string> split(std::string &str, char c){
+std::vector<std::string> split(const std::string &str, char c){
     std::vector<std::string> res;
     std::string ts = "";
     for (auto i : str)

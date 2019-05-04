@@ -29,207 +29,72 @@ namespace PA{
 
 namespace PA{
 
-    //计算数据及结果的名称
-    namespace AnalyzeResultName{
 
-        //自己立直时，判断是愚形还是好形
-        const int REACHTYPENUM = 3;
-        const std::string num2reachtype[REACHTYPENUM] = {
-            "GOOD", "BAD", "ALL"
-        };
-
-        //自己立直时相关的数据
-        const int REACHBASEDATANUM = 36;
-        const std::string num2reachbasedata[REACHBASEDATANUM] = {
-            //0
-            "REACH", "CIRCLE", "REACHDECLEARRON", "TANYAO", "PINFU", 
-            "DORA0", "DORA1", "DORA2", "DORA3", "DORA4", 
-            //10
-            "DORA5", "DORA6", "DORA7", "DORA8", "DORA9", 
-            "DORA10", "DORA11", "DORA12", "DORA13", "DORA14", 
-            //20
-            "DORA15", "DORA16", "DORA17", "DORA18", "DORA19", 
-            "DORA20", "DORA21", "DORA22", "DORA23", "DORA24", 
-            //30
-            "DORA25", "DORA26", "#1", "#2", "#3", 
-            "#4"
-        };
+    //PAADData.json中数据：基础数据名称，统计量名称表达式，统计量展示分组信息。
+    class AnalyzeResultName{
+    private: 
+        CJsonObject json;
+        const std::string DESCRIPTION = "description";
+    public:
+        std::map<std::string, std::vector<std::string>> base;
         
-        //有人和牌时对于一副手牌类型的判断；12个之后为将某些类型求和
-        const int HULEHANDTYPENUM = 18;
-        const std::string num2hulehandtype[HULEHANDTYPENUM] = {
-            //0
-            "REACHGOOD", "REACHBAD", 
-            //2
-            "DAMA", "FULU1", "FULU2", "FULU3", "FULU4", 
-            //7
-            "NTDAMA", "NTFULU1", "NTFULU2", "NTFULU3", "NTFULU4", 
-            //12
-            "FULU", "NTFULU", "ALLFULU", "ALLDAMA", "ALLREACH", "ALL"
-        };
+        std::vector<std::string> result, resultexpr;
 
-        //有人和牌时需要考虑的基础数据类型，并按照玩家不同手牌类型统计
-        const int HULEBASEDATANUM = 44;
-        const std::string num2hulebasedata[HULEBASEDATANUM] = {
-            //0
-            "HULE", "FANGCHONG", "ZIMO", "BEIZIMO", "HULEPOINT", 
-            "HULESUDIAN", "FANGCHONGPOINT", "FANGCHONGSUDIAN", "ZIMOPOINT", "ZIMOSUDIAN", 
-            //10
-            "BEIZIMOPOINT", "BEIZIMOSUDIAN", "HULE3900+", "HULE7700+", "HULE11600+", 
-            "FANGCHONG3900+", "FANGCHONG7700+", "FANGCHONG11600+", "HULECIRCLE", "FANGCHONGMYCIRCLE", 
-            //20
-            "ZIMOCIRCLE", "BEIZIMOMYCIRCLE", "DORATIME", "URATIME", "AKATIME", 
-            "ZHUANGHULE", "ZHUANGZIMO", "ZHAZHUANG", "ZHAZHUANGPOINT", "CHONGLEZHUANG", 
-            //30
-            "CHONGLEZHUANGPOINT", "FANGCHONGHISCIRCLE", "BEIZIMOHISCIRCLE", "CHONGLEDAMA", "CHONGLEFULU1", 
-            "CHONGLEFULU2", "CHONGLEFULU3", "CHONGLEFULU4", "CHONGLEDAMAPOINT", "CHONGLEFULU1POINT", 
-            //40
-            "CHONGLEFULU2POINT", "CHONGLEFULU3POINT", "CHONGLEFULU4POINT", "ZHUANGMEIHU"
-        };
+        const std::string ALLRESULT = "ALLRESULT";
+        std::map<std::string, std::vector<std::string>> resultgroupmap;
+        std::vector<std::string> resultgrouporder;
 
-        //和牌时统计的役的分布
-        const int HULEYAKUBASEDATANUM = 3;
-        const std::string num2huleyakubasedata[HULEYAKUBASEDATANUM] = {
-            "HULEYAKU", "CHONGLEYAKU", "BEIZIMOYAKU"
-        };
+        AnalyzeResultName();
+    };
 
-        //基础数据
-        const int BASEDATANUM = 33;
-        const std::string num2basedata[BASEDATANUM] = {
-            //0
-            "TOTALGAME", "#1", "#2", "#3", "#4", 
-            "ALBAO1", "ALNI1", "ALBI4", "ALMULTITIME", "TOTALROUND", 
-            //10
-            "REACH", "FULU1", "FULU2", "FULU3", "FULU4", 
-            "FANGCHONGSHANTEN0", "FANGCHONGSHANTEN1", "FANGCHONGSHANTEN2", "FANGCHONGSHANTEN3", "FANGCHONGSHANTEN4", 
-            //20
-            "FANGCHONGSHANTEN5", "FANGCHONGSHANTEN6", "AL#1", "AL#2", "AL#3", 
-            "AL#4", "NORMALLIUJU", "LIUJUTENPAI", "LIUJUNOTEN", "LIUJUTENPAIPOINT",
-            //30
-            "LIUJUNOTENPOINT", "LIUJUPOINT", "ALLPOINT"
-        };
+    class AnalyzeData;
 
-        //役名称
-        const int YAKUDATANUM = 55;
-        const std::string num2yakudata[YAKUDATANUM] = {
-            //0
-            "ZIMO", "REACH", "YIPATSU", "CHANKAN", "RINSHAN", 
-            "HAITEI", "HOUTEI", "PINFU", "TANYAO", "YIPEIKOU", 
-            //10
-            "JIFUDON", "JIFUNAN", "JIFUSHA", "JIFUPEI", "BAFUDON", 
-            "BAFUNAN", "BAFUSHA", "BAFUPEI", "HAKU", "HATSU", 
-            //20
-            "CHUN", "WREACH", "CHITOITSU", "CHANTA", "YITSU", 
-            "SANSHOKU", "SANSHOKUDOUKO", "SANKANTSU", "TOITOI", "SANANKO", 
-            //30
-            "SHOUSANGEN", "HONROUTOU", "RYANPEIKOU", "JUNCHAN", "HONYITSU", 
-            "CHINYITSU", "RENHOU", "TENHOU", "CHIHOU", "DAISANGEN", 
-            //40
-            "SUANKO", "SUANKOTANKI", "TSUYISOU", "RYOUYISOU", "CHINROUTOU", 
-            "CHUREN", "JUNSEICHUREN", "KOKUSHI", "KOKUSHIJUSAN", "DAISUSHI", 
-            //50
-            "SHOUSUSHI", "SUKANTSU", "DORA", "URA", "AKA"
-        };
+    //基本统计结果对应的项目分析结果
+    struct AnalyzeExprNumberList{
+        bool QQ;
+        int startnum;
+        std::vector<int> list;
+        AnalyzeExprNumberList();
+    };
 
-        //分析结果
-        const int RESULTNAMENUM = 101;
-        //上次结果：90
-        //增加后需要变动：以下分类数据；语言json；加入计算；图片上标记已计算
-        //               1            1        0        0
-        const std::string num2result[RESULTNAMENUM] = {
-            //0
-            "#1R", "#2R", "#3R", "#4R", "AL#1#1R", 
-            "AL#234#1R", "AL#4#123R", "ALAL+R", "HULER", "ZIMOR",
-            //10
-            "CHONGR", "REACHR", "FULUR", "DAMAHULER", "CHONGLEDAMAR", 
-            "FULUHULER", "FULUCHONGR", "HULEP", "CHONGP", "HULESU",
-            //20
-            "CHONGSU", "DAMAHULEP", "CHONGLEDAMAP", "HULE3900+R", "HULE7700+R",
-            "HULE11600+R", "CHONG3900+R", "CHONG7700+R", "CHONG11600+R", "HULECC",
-            //30
-            "CHONGMYCC", "CHONGHISCC", "CHONGSHANTEN", "FULUHULECC", "MENQINGHULECC", 
-            "REACHINHULER", "TANYAOHULER", "PINFUHULER", "CHITOIHULER", "TOITOIHULER", 
-            //40
-            "RANSHOUHULER", "AKAA", "DORAA", "URAA", "ALLDORAA", 
-            "YIPATSUHULER", "OYAHULER", "CHONGLEREACHR", "CHONGLEPINFUR", "CHONGLECHITOIR", 
-            //50
-            "CHONGLETOITOIR", "CHONGLETANYAOR", "CHONGLERANSHOUR", "REACHINCHONGR", "CHONGLEOYAR", 
-            "CHONGLEYIPATSUR", "CHONGLEFULUR", "BEIZIMOR", "BEIZIMOP", "BEIZIMOMYCC", 
-            //60
-            "ZHAZHUANGR", "ZHAZHUANGP", "REACHHULEP", "REACHHULESU", "REACH3900+R", 
-            "REACH7700+R", "REACH11600+R", "REACHCC", "REACHPINFUR", "REACHTANYAOR", 
-            //70
-            "REACHDORA2+R", "REACHDORA3+R", "REACHDORAA", "FIRSTREACHR", "ZIMOINREACHHULER", 
-            "REACHGOODR", "REACHGOODHULER", "REACHGOODHULEP", "REACHGOODCHONGR","REACHGOODCHONGP", 
-            //80
-            "REACHGOODPROFIT", "REACHBADR", "REACHBADHULER", "REACHBADHULEP", "REACHBADCHONGR", 
-            "REACHBADCHONGP", "REACHBADPROFIT", "REACHPROFIT", "CHONGINREACHR", "HULEINREACHR",
-            //90
-            "LIUJUTENPAIR", "LIUJUINP", "LIUJUNOTENR", "LIUJUOUTP", "LIUJUPROFIT", 
-            "#A", "TOTALROUND", "TOTALGAME", "ROUNDPROFIT", "GAMEPROFIT", 
-            //100
-            "LIUJUR"
-        };
-        //综合数据
-        const int OVERVIEWRESULTNUM = 15;
-        const std::string overviewresult[OVERVIEWRESULTNUM] = {
-            "TOTALGAME", "TOTALROUND", "#1R", "#2R", "#3R", 
-            "#4R", "#A", "HULER", "ZIMOR", "CHONGR", 
-            "REACHR", "FULUR", "LIUJUTENPAIR", "GAMEPROFIT", "ROUNDPROFIT"
-        };
-        //和牌相关数据
-        const int HULERESULTNUM = 25;
-        const std::string huleresult[HULERESULTNUM] = {
-            "HULER", "ZIMOR", "DAMAHULER", "FULUHULER", "HULEP", 
-            "HULESU", "DAMAHULEP", "HULE3900+R", "HULE7700+R", "HULE11600+R",
-            "HULECC", "FULUHULECC", "MENQINGHULECC", "REACHINHULER", "TANYAOHULER", 
-            "PINFUHULER", "CHITOIHULER", "TOITOIHULER", "RANSHOUHULER", "AKAA", 
-            "DORAA", "URAA", "ALLDORAA", "YIPATSUHULER", "OYAHULER"
-        };
-        //放铳相关数据
-        const int CHONGRESULTNUM = 27;
-        const std::string chongresult[CHONGRESULTNUM] = {
-            "CHONGR", "CHONGLEDAMAR", "FULUCHONGR", "CHONGP", "CHONGSU", 
-            "CHONGLEDAMAP", "CHONG3900+R", "CHONG7700+R", "CHONG11600+R", "CHONGMYCC", 
-            "CHONGHISCC", "CHONGSHANTEN", "CHONGLEREACHR", "CHONGLEPINFUR", "CHONGLECHITOIR", 
-            "CHONGLETOITOIR", "CHONGLETANYAOR", "CHONGLERANSHOUR", "REACHINCHONGR", "CHONGLEOYAR", 
-            "CHONGLEYIPATSUR", "CHONGLEFULUR", "BEIZIMOR", "BEIZIMOP", "BEIZIMOMYCC", 
-            "ZHAZHUANGR", "ZHAZHUANGP"
-        };
-        //立直相关数据
-        const int REACHRESULTNUM = 29;
-        const std::string reachresult[REACHRESULTNUM] = {
-            "REACHR", "REACHHULEP", "REACHHULESU", "REACH3900+R", "REACH7700+R", 
-            "REACH11600+R", "REACHCC", "REACHPINFUR", "REACHTANYAOR", "REACHDORA2+R", 
-            "REACHDORA3+R", "REACHDORAA", "FIRSTREACHR", "HULEINREACHR", "CHONGINREACHR", 
-            "ZIMOINREACHHULER", "REACHGOODR", "REACHGOODHULER", "REACHGOODHULEP", "REACHGOODCHONGR", 
-            "REACHGOODCHONGP", "REACHGOODPROFIT", "REACHBADR", "REACHBADHULER", "REACHBADHULEP", 
-            "REACHBADCHONGR", "REACHBADCHONGP", "REACHBADPROFIT", "REACHPROFIT"
-        };
-        //流局相关数据
-        const int LIUJURESULTNUM = 6;
-        const std::string liujuresult[LIUJURESULTNUM] = {
-            "LIUJUR", "LIUJUTENPAIR", "LIUJUINP", "LIUJUNOTENR", "LIUJUOUTP", 
-            "LIUJUPROFIT"
-        };
-        //副露相关数据。需要做不同副露数量区分
-        const int FULURESULTNUM = 4;
-        const std::string fuluresult[FULURESULTNUM] = {
-            "FULUR", "FULUHULER", "FULUCHONGR", "FULUHULECC"
-        };
-        //AL数据
-        const int ALRESULTNUM = 4;
-        const std::string alresult[ALRESULTNUM] = {
-            "AL#1#1R", "AL#234#1R", "AL#4#123R", "ALAL+R"
-        };
-    }
+    //对结果表达式求值
+    class AnalyzeExpr{
+    private:
+        const int SPACE = -1;
+        int oprprevilige[256];
+        AnalyzeData *adata;
+
+        void setoperator();
+        std::string gettoken(const std::string &expr, int &k);
+        void makecalc(std::vector<double> &num, std::vector<int> &opr);
+        AnalyzeExprNumberList getnumberlist(const std::vector<std::string> &list, const std::string &str);
+        double getdata(std::vector<long long> &data, std::string kw1, const std::vector<std::string> &kw1list);
+        double getdata(std::vector<std::vector<long long>> &data, std::string kw1, const std::vector<std::string> &kw1list, std::string kw2, const std::vector<std::string> &kw2list);
+        double getdata(std::vector<std::vector<std::vector<long long>>> &data, std::string kw1, const std::vector<std::string> &kw1list, std::string kw2, const std::vector<std::string> &kw2list, std::string kw3, const std::vector<std::string> &kw3list);
+        /* 
+        基本统计结果格式说明
+        根据下划线拆分变量名称；由若干部分组成。基本统计来源_统计名称1_统计名称2_...
+        基本统计来源自行在PAADData.json和该函数中统一。推荐取代码相关位置或者设计基本量数组名为名字
+        例：BASE_AL#1 REACH_TANYAO_ALL HULE_ZHAZHUANG_DAMA HULEYAKU_BEIZIMOYAKU_SUANKO_FULU4
+        特别的，对于副露，宝牌，顺位等由数字结尾的名称可用?代指所有名称和，??代指自乘和
+        例：[#? = #1 + #2 + #3 + #4] [DORA?? = DORA0 * 0 + DORA1 * 1 + DORA2 * 2 + ... ]
+        */
+        //根据输入返回数值或基本统计结果
+        double getvalue(const std::string &s);
+    public:
+        AnalyzeExpr(AnalyzeData *adata);
+        double calcexpr(std::string expr);
+    };
 
     //数据分析
     class AnalyzeData{
     private:
-        void outputonerect(const std::string &title, const std::string *res, const int length, int col);
+        AnalyzeExpr AE;
+
+        void outputonerect(const std::string &title, const std::vector<std::string> &res, int col);
         void makehanddata(std::vector<long long> &vec);
     public:
+        AnalyzeResultName ADN;
         int me;
         std::vector<long long> basedata;
         std::vector<std::vector<long long>> yakudata;

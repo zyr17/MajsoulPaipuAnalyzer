@@ -1,0 +1,289 @@
+{
+    "description": [
+        "该文件存储了PaipuAnalyzer PA::AnalyzeData中基本统计量的名称，结果统计量的名称和算式，结果分组等信息。",
+        "0. description即为该内容，描述文件格式信息。", 
+        "1. base中为基本统计量名称。",
+        "   key为分组，value为一个数组，内为该key下的所有基本统计量。",
+        "   特别的，key为description为基本统计量相关的描述。",
+        "2. result中为统计量名称和算式。",
+        "   key为统计量名称，value为该统计量算式。",
+        "   算式支持四则运算和括号，全程使用double，可以输入浮点数或基本统计量名称（及其扩展）。",
+        "   对于基本统计量名称命名方法在analyzer.h中，相关函数为PA::AnalyzeExpr::getvalue。",
+        "   特别的，key为description为统计量相关的描述。",
+        "3. resultgroup中为结果分组。包含description，order和data两个key。",
+        "   order的value为结果分组相关的描述。",
+        "   order的value为一个数组，记录输出结果时各个分组的展现顺序。",
+        "   data的value中，key为分组名称，value为一个数组，其中的元素为一个统计量的名称。"
+    ],
+    "base": {
+        "description": [
+            "在牌谱模拟中基本统计量统计时涉及的类别名称。",
+            "大类一般是同一统计地点(和牌时，一局结束时等)相关的一系列基本统计量。",
+            "同一地点因为统计维度不同会有多个类别。",
+            "",
+            "*** 添加新基本统计量时需要完成的操作： ****",
+            "1. （如果需要）新建一个类别",
+            "2. 在类别中添加新的基本统计量名称，注意不要用到四则运算相关符号和空白符号",
+            "3. 在AnalyzeData及其构造函数中加入新基本统计量的数组",
+            "4. 在对应位置添加代码，注意一定要assert统计量名称是否正确，同时在该描述下方增加代码添加位置",
+            "5. 在AnalyzeData::calcresult中进行后处理，如REACHTYPE-ALL这种累加型基本统计量",
+            "6. 在AnalyzeExpr::getvalue中对于result表达式计算时引用该类别统计量时指定相关基本统计量名称",
+            "",
+            "立直时：[REACHBASEDATA立直统计值, REACHTYPE立直类型]",
+            "有人和牌时：[HULEBASEDATA和牌统计值, HULEHANDTYPE玩家手牌类型]",
+            "有人和牌时：[HULEYAKUBASEDATA和牌役种相关统计值, YAKUDATA役名称, HULEHANDTYPE玩家手牌类型]",
+            "荒牌流局时：BASEDATA部分项",
+            "一局结束时：BASEDATA部分项",
+            "一场结束时：BASEDATA部分项"
+        ],
+        "REACHTYPE": [
+            "GOOD", "BAD", "ALL"
+        ],
+        "REACHBASEDATA": [
+            "REACH", "CIRCLE", "REACHDECLEARRON", "TANYAO", "PINFU", 
+            "DORA0", "DORA1", "DORA2", "DORA3", "DORA4", 
+
+            "DORA5", "DORA6", "DORA7", "DORA8", "DORA9", 
+            "DORA10", "DORA11", "DORA12", "DORA13", "DORA14", 
+
+            "DORA15", "DORA16", "DORA17", "DORA18", "DORA19", 
+            "DORA20", "DORA21", "DORA22", "DORA23", "DORA24", 
+            
+            "DORA25", "DORA26", "#1", "#2", "#3", 
+            "#4"
+        ],
+        "HULEHANDTYPE": [
+            "REACHGOOD", "REACHBAD", "DAMA", "FULU1", "FULU2", 
+            "FULU3", "FULU4", "NTDAMA", "NTFULU1", "NTFULU2", 
+
+            "NTFULU3", "NTFULU4", "FULU", "NTFULU", "ALLFULU", 
+            "ALLDAMA", "ALLREACH", "ALL"
+        ],
+        "HULEBASEDATA": [
+            "HULE", "FANGCHONG", "ZIMO", "BEIZIMO", "HULEPOINT", 
+            "HULESUDIAN", "FANGCHONGPOINT", "FANGCHONGSUDIAN", "ZIMOPOINT", "ZIMOSUDIAN", 
+
+            "BEIZIMOPOINT", "BEIZIMOSUDIAN", "HULE3900", "HULE7700", "HULE11600", 
+            "FANGCHONG3900", "FANGCHONG7700", "FANGCHONG11600", "HULECIRCLE", "FANGCHONGMYCIRCLE", 
+            
+            "ZIMOCIRCLE", "BEIZIMOMYCIRCLE", "DORATIME", "URATIME", "AKATIME", 
+            "ZHUANGHULE", "ZHUANGZIMO", "ZHAZHUANG", "ZHAZHUANGPOINT", "CHONGLEZHUANG", 
+            
+            "CHONGLEZHUANGPOINT", "FANGCHONGHISCIRCLE", "BEIZIMOHISCIRCLE", "CHONGLEDAMA", "CHONGLEFULU1", 
+            "CHONGLEFULU2", "CHONGLEFULU3", "CHONGLEFULU4", "CHONGLEDAMAPOINT", "CHONGLEFULU1POINT", 
+            
+            "CHONGLEFULU2POINT", "CHONGLEFULU3POINT", "CHONGLEFULU4POINT", "ZHUANGMEIHU"
+        ],
+        "HULEYAKUBASEDATA": [
+            "HULEYAKU", "CHONGLEYAKU", "BEIZIMOYAKU"
+        ],
+        "BASEDATA": [
+            "TOTALGAME", "#1", "#2", "#3", "#4", 
+            "ALBAO1", "ALNI1", "ALBI4", "ALMULTITIME", "TOTALROUND", 
+
+            "REACH", "FULU1", "FULU2", "FULU3", "FULU4", 
+            "FANGCHONGSHANTEN0", "FANGCHONGSHANTEN1", "FANGCHONGSHANTEN2", "FANGCHONGSHANTEN3", "FANGCHONGSHANTEN4", 
+            
+            "FANGCHONGSHANTEN5", "FANGCHONGSHANTEN6", "AL#1", "AL#2", "AL#3", 
+            "AL#4", "NORMALLIUJU", "LIUJUTENPAI", "LIUJUNOTEN", "LIUJUTENPAIPOINT",
+            
+            "LIUJUNOTENPOINT", "LIUJUPOINT", "ALLPOINT", "ZHUANG"
+        ],
+        "YAKUDATA": [
+            "ZIMO", "REACH", "YIPATSU", "CHANKAN", "RINSHAN", 
+            "HAITEI", "HOUTEI", "PINFU", "TANYAO", "YIPEIKOU", 
+            
+            "JIFUDON", "JIFUNAN", "JIFUSHA", "JIFUPEI", "BAFUDON", 
+            "BAFUNAN", "BAFUSHA", "BAFUPEI", "HAKU", "HATSU", 
+            
+            "CHUN", "WREACH", "CHITOITSU", "CHANTA", "YITSU", 
+            "SANSHOKU", "SANSHOKUDOUKO", "SANKANTSU", "TOITOI", "SANANKO", 
+            
+            "SHOUSANGEN", "HONROUTOU", "RYANPEIKOU", "JUNCHAN", "HONYITSU", 
+            "CHINYITSU", "RENHOU", "TENHOU", "CHIHOU", "DAISANGEN", 
+            
+            "SUANKO", "SUANKOTANKI", "TSUYISOU", "RYOUYISOU", "CHINROUTOU", 
+            "CHUREN", "JUNSEICHUREN", "KOKUSHI", "KOKUSHIJUSAN", "DAISUSHI", 
+            
+            "SHOUSUSHI", "SUKANTSU", "DORA", "URA", "AKA"
+        ]
+    },
+    "result": {
+        "description": [
+            "所有统计量的名称及其计算方式。",
+            "",
+            "*** 添加新统计量时的操作 ***",
+            "1. 添加新统计量名称及其表达式",
+            "2. 确认涉及的基本统计量已经完成统计",
+            "3. 将该统计量添加至某一个展示分组中，或新建一个展示分组",
+            "4. 在语言json文件ADRESULT中添加该统计量对应名称",
+            "5. 如果是天鳳の牌譜解析プログラム中的项目，对其进行完成标记"
+        ],
+        "#1R": "BASE_#1 / BASE_TOTALGAME", 
+        "#2R": "BASE_#2 / BASE_TOTALGAME", 
+        "#3R": "BASE_#3 / BASE_TOTALGAME", 
+        "#4R": "BASE_#4 / BASE_TOTALGAME", 
+        "AL#1#1R": "BASE_ALBAO1 / BASE_AL#1", 
+        "AL#234#1R": "BASE_ALNI1 / (BASE_AL#? - BASE_AL#1)", 
+        "AL#4#123R": "BASE_ALBI4 / BASE_AL#4", 
+        "ALAL+R": "BASE_ALMULTITIME / BASE_TOTALGAME", 
+        "HULER": "HULE_HULE_ALL / BASE_TOTALROUND", 
+        "ZIMOR": "HULE_ZIMO_ALL / HULE_HULE_ALL",
+        "CHONGR": "HULE_FANGCHONG_ALL / BASE_TOTALROUND", 
+        "REACHR": "BASE_REACH / BASE_TOTALROUND", 
+        "FULUR": "BASE_FULU? / BASE_TOTALROUND", 
+        "DAMAHULER": "HULE_HULE_DAMA / HULE_HULE_ALL", 
+        "CHONGLEDAMAR": "HULE_CHONGLEDAMA_ALL / HULE_FANGCHONG_ALL", 
+        "FULUHULER": "HULE_HULE_FULU / HULE_HULE_ALL", 
+        "FULUCHONGR": "HULE_FANGCHONG_ALLFULU / HULE_FANGCHONG_ALL", 
+        "HULEP": "HULE_HULEPOINT_ALL / HULE_HULE_ALL", 
+        "CHONGP": "HULE_FANGCHONGPOINT_ALL / HULE_FANGCHONG_ALL", 
+        "HULESU": "HULE_HULESUDIAN_ALL / HULE_HULE_ALL",
+        "CHONGSU": "HULE_FANGCHONGSUDIAN_ALL / HULE_FANGCHONG_ALL", 
+        "DAMAHULEP": "HULE_HULEPOINT_DAMA / HULE_HULE_DAMA", 
+        "CHONGLEDAMAP": "HULE_CHONGLEDAMAPOINT_ALL / HULE_CHONGLEDAMA_ALL", 
+        "HULE3900R": "(HULE_HULE3900_ALL + HULE_HULE7700_ALL + HULE_HULE11600_ALL) / HULE_HULE_ALL", 
+        "HULE7700R": "(HULE_HULE7700_ALL + HULE_HULE11600_ALL) / HULE_HULE_ALL",
+        "HULE11600R": "HULE_HULE11600_ALL / HULE_HULE_ALL", 
+        "CHONG3900R": "(HULE_FANGCHONG3900_ALL + HULE_FANGCHONG7700_ALL + HULE_FANGCHONG11600_ALL) / HULE_FANGCHONG_ALL", 
+        "CHONG7700R": "(HULE_FANGCHONG7700_ALL + HULE_FANGCHONG11600_ALL) / HULE_FANGCHONG_ALL", 
+        "CHONG11600R": "HULE_FANGCHONG11600_ALL / HULE_FANGCHONG_ALL", 
+        "HULECC": "HULE_HULECIRCLE_ALL / HULE_HULE_ALL",
+        "CHONGMYCC": "HULE_FANGCHONGMYCIRCLE_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGHISCC": "HULE_FANGCHONGHISCIRCLE_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGSHANTEN": "BASE_FANGCHONGSHANTEN?? / HULE_FANGCHONG_ALL",
+        "FULUHULECC": "HULE_HULECIRCLE_FULU / HULE_HULE_FULU", 
+        "MENQINGHULECC": "(HULE_HULECIRCLE_DAMA + HULE_HULECIRCLE_ALLREACH) / (HULE_HULE_DAMA + HULE_HULE_ALLREACH)", 
+        "REACHINHULER": "HULE_HULE_ALLREACH / HULE_HULE_ALL", 
+        "TANYAOHULER": "HULEYAKU_HULEYAKU_TANYAO_ALL / HULE_HULE_ALL", 
+        "PINFUHULER": "HULEYAKU_HULEYAKU_PINFU_ALL / HULE_HULE_ALL", 
+        "CHITOIHULER": "HULEYAKU_HULEYAKU_CHITOITSU_ALL / HULE_HULE_ALL", 
+        "TOITOIHULER": "HULEYAKU_HULEYAKU_TOITOI_ALL / HULE_HULE_ALL", 
+        "RANSHOUHULER": "(HULEYAKU_HULEYAKU_HONYITSU_ALL + HULEYAKU_HULEYAKU_CHINYITSU_ALL) / HULE_HULE_ALL", 
+        "AKAA": "HULEYAKU_HULEYAKU_AKA_ALL / HULE_HULE_ALL", 
+        "DORAA": "HULEYAKU_HULEYAKU_DORA_ALL / HULE_HULE_ALL", 
+        "URAA": "HULEYAKU_HULEYAKU_URA_ALL / HULE_HULE_ALLREACH",
+        "ALLDORAA": "(HULEYAKU_HULEYAKU_AKA_ALL + HULEYAKU_HULEYAKU_DORA_ALL + HULEYAKU_HULEYAKU_URA_ALL) / HULE_HULE_ALL",
+        "YIPATSUHULER": "HULEYAKU_HULEYAKU_YIPATSU_ALL / HULE_HULE_ALLREACH", 
+        "OYAHULER": "HULE_ZHUANGHULE_ALL / BASE_ZHUANG", 
+        "CHONGLEREACHR": "(HULEYAKU_CHONGLEYAKU_REACH_ALL + HULEYAKU_CHONGLEYAKU_WREACH_ALL) / HULE_FANGCHONG_ALL", 
+        "CHONGLEPINFUR": "HULEYAKU_CHONGLEYAKU_PINFU_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGLECHITOIR": "HULEYAKU_CHONGLEYAKU_CHITOITSU_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGLETOITOIR": "HULEYAKU_CHONGLEYAKU_TOITOI_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGLETANYAOR": "HULEYAKU_CHONGLEYAKU_TANYAO_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGLERANSHOUR": "(HULEYAKU_CHONGLEYAKU_HONYITSU_ALL + HULEYAKU_CHONGLEYAKU_CHINYITSU_ALL) / HULE_FANGCHONG_ALL", 
+        "REACHINCHONGR": "HULE_FANGCHONG_ALLREACH / HULE_FANGCHONG_ALL", 
+        "CHONGLEOYAR": "HULE_CHONGLEZHUANG_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGLEYIPATSUR": "HULEYAKU_CHONGLEYAKU_YIPATSU_ALL / HULE_FANGCHONG_ALL", 
+        "CHONGLEFULUR": "HULE_CHONGLEFULU?_ALL / HULE_FANGCHONG_ALL", 
+        "BEIZIMOR": "HULE_BEIZIMO_ALL / BASE_TOTALROUND", 
+        "BEIZIMOP": "HULE_BEIZIMOPOINT_ALL / HULE_BEIZIMO_ALL", 
+        "BEIZIMOMYCC": "HULE_BEIZIMOMYCIRCLE_ALL / HULE_BEIZIMO_ALL", 
+        "ZHAZHUANGR": "HULE_ZHAZHUANG_ALL / HULE_ZHUANGMEIHU_ALL", 
+        "ZHAZHUANGP": "HULE_ZHAZHUANGPOINT_ALL / HULE_ZHAZHUANG_ALL",
+        "REACHHULEP": "HULE_HULEPOINT_ALLREACH / HULE_HULE_ALLREACH", 
+        "REACHHULESU": "HULE_HULESUDIAN_ALLREACH / HULE_HULE_ALLREACH", 
+        "REACH3900R": "(HULE_HULE3900_ALLREACH + HULE_HULE7700_ALLREACH + HULE_HULE11600_ALLREACH) / HULE_HULE_ALLREACH", 
+        "REACH7700R": "(HULE_HULE7700_ALLREACH + HULE_HULE11600_ALLREACH) / HULE_HULE_ALLREACH", 
+        "REACH11600R": "HULE_HULE11600_ALLREACH / HULE_HULE_ALLREACH", 
+        "REACHCC": "REACH_CIRCLE_ALL / REACH_REACH_ALL", 
+        "REACHPINFUR": "REACH_PINFU_ALL / REACH_REACH_ALL", 
+        "REACHTANYAOR": "REACH_TANYAO_ALL / REACH_REACH_ALL", 
+        "REACHDORA2+R": "(REACH_DORA?_ALL - REACH_DORA0_ALL - REACH_DORA1_ALL) / REACH_REACH_ALL", 
+        "REACHDORA3+R": "(REACH_DORA?_ALL - REACH_DORA0_ALL - REACH_DORA1_ALL - REACH_DORA2_ALL) / REACH_REACH_ALL", 
+        "REACHDORAA": "REACH_DORA??_ALL / REACH_REACH_ALL", 
+        "FIRSTREACHR": "REACH_#1_ALL / REACH_REACH_ALL", 
+        "ZIMOINREACHHULER": "HULE_ZIMO_ALLREACH / HULE_HULE_ALLREACH", 
+        "REACHGOODR": "REACH_REACH_GOOD / REACH_REACH_ALL", 
+        "REACHGOODHULER": "HULE_HULE_REACHGOOD / REACH_REACH_GOOD", 
+        "REACHGOODHULEP": "HULE_HULEPOINT_REACHGOOD / HULE_HULE_REACHGOOD", 
+        "REACHGOODCHONGR": "HULE_FANGCHONG_REACHGOOD / REACH_REACH_GOOD",
+        "REACHGOODCHONGP": "HULE_FANGCHONGPOINT_REACHGOOD / HULE_FANGCHONG_REACHGOOD",
+        "REACHGOODPROFIT": "(1000 * REACH_REACHDECLEARRON_GOOD + HULE_HULEPOINT_REACHGOOD + HULE_FANGCHONGPOINT_REACHGOOD) / REACH_REACH_GOOD - 1000", 
+        "REACHBADR": "REACH_REACH_BAD / REACH_REACH_ALL", 
+        "REACHBADHULER": "HULE_HULE_REACHBAD / REACH_REACH_BAD", 
+        "REACHBADHULEP": "HULE_HULEPOINT_REACHBAD / HULE_HULE_REACHBAD", 
+        "REACHBADCHONGR": "HULE_FANGCHONG_REACHBAD / REACH_REACH_BAD",
+        "REACHBADCHONGP": "HULE_FANGCHONGPOINT_REACHBAD / HULE_FANGCHONG_REACHBAD",
+        "REACHBADPROFIT": "(1000 * REACH_REACHDECLEARRON_BAD + HULE_HULEPOINT_REACHBAD + HULE_FANGCHONGPOINT_REACHBAD) / REACH_REACH_BAD - 1000", 
+        "REACHPROFIT": "(1000 * REACH_REACHDECLEARRON_ALL + HULE_HULEPOINT_ALLREACH + HULE_FANGCHONGPOINT_ALLREACH) / REACH_REACH_ALL - 1000",
+        "CHONGINREACHR": "HULE_FANGCHONG_ALLREACH / REACH_REACH_ALL",
+        "HULEINREACHR": "HULE_HULE_ALLREACH / REACH_REACH_ALL",
+        "LIUJUTENPAIR": "BASE_LIUJUTENPAI / BASE_NORMALLIUJU", 
+        "LIUJUINP": "BASE_LIUJUTENPAIPOINT / BASE_LIUJUTENPAI", 
+        "LIUJUNOTENR": "1 - BASE_LIUJUTENPAI / BASE_NORMALLIUJU", 
+        "LIUJUOUTP": "BASE_LIUJUNOTENPOINT / (BASE_NORMALLIUJU - BASE_LIUJUTENPAI)", 
+        "LIUJUPROFIT": "(BASE_LIUJUTENPAIPOINT + BASE_LIUJUNOTENPOINT) / BASE_NORMALLIUJU", 
+        "#A": "BASE_#?? / BASE_TOTALGAME", 
+        "TOTALROUND": "BASE_TOTALROUND", 
+        "TOTALGAME": "BASE_TOTALGAME", 
+        "ROUNDPROFIT": "BASE_ALLPOINT / BASE_TOTALROUND", 
+        "GAMEPROFIT": "BASE_ALLPOINT / BASE_TOTALGAME",
+        "LIUJUR": "BASE_NORMALLIUJU / BASE_TOTALROUND"
+    },
+    "resultgroup":{
+        "description": [
+            "统计量展示的分组信息。展示可以有重复，也可以不在任何一个分组中展示。",
+            "order中的分组名称即为data中的key。data中的统计量名称即为前面result中的key。",
+            "特别的，保留分组名称ALLRESULT用于展示所有统计量。data中以该名称命名的分组会无效。该名称不一定必须出现在order中。",
+            "目前分组名称TODOLIST中是完成了统计量算式但是程序功能上没有实现的统计量，仅作名称收集用，请勿展示。",
+            "",
+            "*** 添加新展示分组时的操作 ***",
+            "1. 添加新展示分组及相关统计量",
+            "2. 确认涉及的统计量已经完成统计",
+            "3. 在语言json文件ADRESULT中添加该展示分组对应名称"
+        ],
+        "order": [
+            "OVRESULT",
+            "HULERESULT",
+            "CHONGRESULT",
+            "REACHRESULT",
+            "LIUJURESULT",
+            "FULURESULT",
+            "ALRESULT"
+        ],
+        "data": {
+            "TODOLIST": [
+                "REACHPINFUR"
+            ],
+            "OVRESULT": [
+                "TOTALGAME", "TOTALROUND", "#1R", "#2R", "#3R", 
+                "#4R", "#A", "HULER", "ZIMOR", "CHONGR", 
+                "REACHR", "FULUR", "LIUJUTENPAIR", "GAMEPROFIT", "ROUNDPROFIT"
+            ],
+            "HULERESULT": [
+                "HULER", "ZIMOR", "DAMAHULER", "FULUHULER", "HULEP", 
+                "HULESU", "DAMAHULEP", "HULE3900R", "HULE7700R", "HULE11600R",
+                "HULECC", "FULUHULECC", "MENQINGHULECC", "REACHINHULER", "TANYAOHULER", 
+                "PINFUHULER", "CHITOIHULER", "TOITOIHULER", "RANSHOUHULER", "AKAA", 
+                "DORAA", "URAA", "ALLDORAA", "YIPATSUHULER", "OYAHULER"
+            ],
+            "CHONGRESULT": [
+                "CHONGR", "CHONGLEDAMAR", "FULUCHONGR", "CHONGP", "CHONGSU", 
+                "CHONGLEDAMAP", "CHONG3900R", "CHONG7700R", "CHONG11600R", "CHONGMYCC", 
+                "CHONGHISCC", "CHONGSHANTEN", "CHONGLEREACHR", "CHONGLEPINFUR", "CHONGLECHITOIR", 
+                "CHONGLETOITOIR", "CHONGLETANYAOR", "CHONGLERANSHOUR", "REACHINCHONGR", "CHONGLEOYAR", 
+                "CHONGLEYIPATSUR", "CHONGLEFULUR", "BEIZIMOR", "BEIZIMOP", "BEIZIMOMYCC", 
+                "ZHAZHUANGR", "ZHAZHUANGP"
+            ],
+            "REACHRESULT": [
+                "REACHR", "REACHHULEP", "REACHHULESU", "REACH3900R", "REACH7700R", 
+                "REACH11600R", "REACHCC", "REACHTANYAOR", "REACHDORA2+R", 
+                "REACHDORA3+R", "REACHDORAA", "FIRSTREACHR", "HULEINREACHR", "CHONGINREACHR", 
+                "ZIMOINREACHHULER", "REACHGOODR", "REACHGOODHULER", "REACHGOODHULEP", "REACHGOODCHONGR", 
+                "REACHGOODCHONGP", "REACHGOODPROFIT", "REACHBADR", "REACHBADHULER", "REACHBADHULEP", 
+                "REACHBADCHONGR", "REACHBADCHONGP", "REACHBADPROFIT", "REACHPROFIT"
+            ],
+            "LIUJURESULT": [
+                "LIUJUR", "LIUJUTENPAIR", "LIUJUINP", "LIUJUNOTENR", "LIUJUOUTP", 
+                "LIUJUPROFIT"
+            ],
+            "FULURESULT": [
+                "FULUR", "FULUHULER", "FULUCHONGR", "FULUHULECC"
+            ],
+            "ALRESULT": [
+                "AL#1#1R", "AL#234#1R", "AL#4#123R", "ALAL+R"
+            ]
+        }
+    }
+}

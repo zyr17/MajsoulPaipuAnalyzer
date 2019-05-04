@@ -2,8 +2,6 @@
 
 namespace PA{
 
-using namespace AnalyzeResultName;
-
 #ifdef SAVEMATCHDATASTEP
     CJsonObject TotalStep("[]"), GameStep("[]"), RoundStep("[]");
 #endif
@@ -98,6 +96,8 @@ void MatchData::IDiscardTile(std::string &str){
 
     //reachbasedata
     auto &adata = *analyzedata;
+    auto &num2reachbasedata = adata.ADN.base["REACHBASEDATA"];
+    auto &num2reachtype = adata.ADN.base["REACHTYPE"];
     if (reach && who == adata.me){
 
         int reachtype = 1 - Algo::tenpaiquality(data[who]), basenum;
@@ -336,7 +336,12 @@ void MatchData::IHule(std::string &actstr){
     int pointlevel[] = {3900, 7700, 11600, INT_MAX};
 
     auto &adata = *analyzedata;
-
+    auto num2hulebasedata = adata.ADN.base["HULEBASEDATA"];
+    auto num2yakudata = adata.ADN.base["YAKUDATA"];
+    auto num2basedata = adata.ADN.base["BASEDATA"];
+    auto num2huleyakubasedata = adata.ADN.base["HULEYAKUBASEDATA"];
+    auto num2reachbasedata = adata.ADN.base["REACHBASEDATA"];
+    auto num2reachtype = adata.ADN.base["REACHTYPE"];
     {
         auto whotype = adata.gethandtype(data[who]), fromtype = tsumo ? -1 : adata.gethandtype(data[from]);
         auto metype = adata.gethandtype(data[adata.me]);
@@ -393,7 +398,7 @@ void MatchData::IHule(std::string &actstr){
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dsudian[adata.me];
 
         basenum = 12;
-        assert(num2hulebasedata[basenum] == "HULE3900+");
+        assert(num2hulebasedata[basenum] == "HULE3900");
         if (adata.me == who){
             int nowpoint = dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
@@ -401,7 +406,7 @@ void MatchData::IHule(std::string &actstr){
         }
 
         basenum = 15;
-        assert(num2hulebasedata[basenum] == "FANGCHONG3900+");
+        assert(num2hulebasedata[basenum] == "FANGCHONG3900");
         if (adata.me == from){
             int nowpoint = - dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
@@ -549,6 +554,7 @@ void MatchData::INoTile(std::string &str){
         tenpainum += i;
 
     auto &adata = *analyzedata;
+    auto num2basedata = adata.ADN.base["BASEDATA"];
     {
         int basenum;
 
@@ -777,14 +783,256 @@ void MatchData::action(std::string &actstr){
         IFinalScore(actstr);
 }
 
-void AnalyzeData::outputonerect(const std::string &title, const std::string *res, const int length, int col){
+AnalyzeResultName::AnalyzeResultName(){
+    json = Algo::ReadJSON("PAADData.json");
+    std::string key;
+    
+    //base
+    auto basejson = json["base"];
+    while (basejson.GetKey(key)){
+        if (key == DESCRIPTION) continue;
+        auto arr = basejson[key];
+        std::vector<std::string> vec;
+        for (int i = 0; i < arr.GetArraySize(); i ++ ){
+            std::string s;
+            arr.Get(i, s);
+            vec.push_back(s);
+        }
+        base[key] = vec;
+    }
+
+    //result
+    auto resultjson = json["result"];
+    while (resultjson.GetKey(key)){
+        if (key == DESCRIPTION) continue;
+        std::string value;
+        resultjson.Get(key, value);
+        result.push_back(key);
+        resultexpr.push_back(value);
+    }
+
+    //resultgroup
+    auto grouporderjson = json["resultgroup"]["order"];
+    for (int i = 0; i < grouporderjson.GetArraySize(); i ++ ){
+        std::string s;
+        grouporderjson.Get(i, s);
+        resultgrouporder.push_back(s);
+    }
+    auto groupdatajson = json["resultgroup"]["data"];
+    while (groupdatajson.GetKey(key)){
+        auto arr = groupdatajson[key];
+        std::vector<std::string> vec;
+        for (int i = 0; i < arr.GetArraySize(); i ++ ){
+            std::string s;
+            arr.Get(i, s);
+            vec.push_back(s);
+        }
+        resultgroupmap[key] = vec;
+    }
+    resultgroupmap[ALLRESULT] = result;
+}
+
+AnalyzeExprNumberList::AnalyzeExprNumberList(){
+    QQ = false;
+    startnum = -1;
+}
+
+void AnalyzeExpr::setoperator(){
+    oprprevilige['+'] = 1;
+    oprprevilige['-'] = 1;
+    oprprevilige['*'] = 2;
+    oprprevilige['/'] = 2;
+    
+    oprprevilige['('] = -100;
+    oprprevilige[')'] = -100;
+
+    oprprevilige['@'] = -100;
+
+    oprprevilige[' '] = SPACE;
+    oprprevilige['\r'] = SPACE;
+    oprprevilige['\n'] = SPACE;
+    oprprevilige['\t'] = SPACE;
+}
+
+std::string AnalyzeExpr::gettoken(const std::string &expr, int &k){
+    for (; oprprevilige[expr[k]] == SPACE; k ++ );
+    if (oprprevilige[expr[k]]) return std::string() + expr[k ++ ];
+    std::string res;
+    for (; !oprprevilige[expr[k]]; res += expr[k ++ ]);
+    return res;
+}
+
+void AnalyzeExpr::makecalc(std::vector<double> &num, std::vector<int> &opr){
+    assert(num.size() > 1 && opr.size());
+    int o = *opr.rbegin();
+    opr.pop_back();
+    double num2 = *num.rbegin();
+    num.pop_back();
+    double num1 = *num.rbegin();
+    num.pop_back();
+    if (o == '+')
+        num.push_back(num1 + num2);
+    else if (o == '-')
+        num.push_back(num1 - num2);
+    else if (o == '*')
+        num.push_back(num1 * num2);
+    else if (o == '/')
+        num.push_back(num1 / num2);
+    else assert(0);
+}
+
+AnalyzeExprNumberList AnalyzeExpr::getnumberlist(const std::vector<std::string> &list, const std::string &str){
+    AnalyzeExprNumberList res;
+    if (*str.rbegin() == '?'){
+        auto ss = str;
+        ss.pop_back();
+        if (*ss.rbegin() == '?'){
+            res.QQ = true;
+            ss.pop_back();
+        }
+        int startnum = -1;
+        for (int i = 0; ; i ++ ){
+            auto ss2 = ss;
+            //假设不会出现三位数。应该不会吧。。
+            if (i > 9) ss2 += '0' + i / 10;
+            ss2 += '0' + i % 10;
+            bool flag = false;
+            for (int j = 0; j < list.size(); j ++ )
+                if (ss2 == list[j]){
+                    res.list.push_back(j);
+                    flag = true;
+                    break;
+                }
+            if (flag && startnum == -1) startnum = i;
+            //如果没有找到项目，且i不为0（假设序列连续，且以0或1开始），那么结束查找
+            if (!flag && i) break;
+        }
+        if (!res.list.size()) std::cout << str << '\n';
+        assert(res.list.size());
+        res.startnum = startnum;
+        return res;
+    }
+    for (int i = 0; i < list.size(); i ++ )
+        if (str == list[i]){
+            res.list.push_back(i);
+            break;
+        }
+    if (!res.list.size()) std::cout << str << '\n';
+    assert(res.list.size());
+    return res;
+}
+
+double AnalyzeExpr::getdata(std::vector<long long> &data, std::string kw1, const std::vector<std::string> &kw1list){
+    auto list = getnumberlist(kw1list, kw1);
+    if (list.list.size() == 1) return data[list.list[0]];
+    double res = 0;
+    for (unsigned i = 0; i < list.list.size(); i ++ )
+        res += data[list.list[i]] * (list.QQ ? i + list.startnum : 1);
+    return res;
+}
+
+double AnalyzeExpr::getdata(std::vector<std::vector<long long>> &data, std::string kw1, const std::vector<std::string> &kw1list, std::string kw2, const std::vector<std::string> &kw2list){
+    auto list1 = getnumberlist(kw1list, kw1);
+    auto list2 = getnumberlist(kw2list, kw2);
+    double res = 0;
+    for (unsigned i = 0; i < list1.list.size(); i ++ ){
+        double mul = 1;
+        if (list1.QQ) mul *= list1.startnum + i;
+        for (unsigned j = 0; j < list2.list.size(); j ++ ){
+            if (list2.QQ) mul *= list2.startnum + j;
+            res += mul * data[list1.list[i]][list2.list[j]];
+        }
+    }
+    return res;
+}
+
+double AnalyzeExpr::getdata(std::vector<std::vector<std::vector<long long>>> &data, std::string kw1, const std::vector<std::string> &kw1list, std::string kw2, const std::vector<std::string> &kw2list, std::string kw3, const std::vector<std::string> &kw3list){
+    auto list1 = getnumberlist(kw1list, kw1);
+    auto list2 = getnumberlist(kw2list, kw2);
+    auto list3 = getnumberlist(kw3list, kw3);
+    double res = 0;
+    for (unsigned i = 0; i < list1.list.size(); i ++ ){
+        double mul = 1;
+        if (list1.QQ) mul *= list1.startnum + i;
+        for (unsigned j = 0; j < list2.list.size(); j ++ ){
+            if (list2.QQ) mul *= list2.startnum + j;
+            for (unsigned k = 0; k < list3.list.size(); k ++ ){
+                if (list3.QQ) mul *= list3.startnum + k;
+                res += mul * data[list1.list[i]][list2.list[j]][list3.list[k]];
+            }
+        }
+    }
+    return res;
+}
+
+double AnalyzeExpr::getvalue(const std::string &s){
+    assert(s.size());
+    double res = 0, divide = 0;
+    //数字
+    if (s[0] >= '0' && s[0] <= '9'){
+        for (auto i : s)
+            if (i == '.') divide = 1;
+            else{
+                res = res * 10 + i - '0';
+                divide *= 10;
+            }
+        if (divide) res /= divide;
+        return res;
+    }
+    //引用基本统计结果
+    auto strs = Algo::split(s, '_');
+    if (strs[0] == "BASE"){
+        return getdata(adata -> basedata, strs[1], adata -> ADN.base["BASEDATA"]);
+    }
+    else if (strs[0] == "REACH"){
+        return getdata(adata -> reachbasedata, strs[1], adata -> ADN.base["REACHBASEDATA"], strs[2], adata -> ADN.base["REACHTYPE"]);
+    }
+    else if (strs[0] == "HULE"){
+        return getdata(adata -> hulebasedata, strs[1], adata -> ADN.base["HULEBASEDATA"], strs[2], adata -> ADN.base["HULEHANDTYPE"]);
+    }
+    else if (strs[0] == "HULEYAKU"){
+        return getdata(adata -> huleyakubasedata, strs[1], adata -> ADN.base["HULEYAKUBASEDATA"], strs[2], adata -> ADN.base["YAKUDATA"], strs[3], adata -> ADN.base["HULEHANDTYPE"]);
+    }
+}
+
+AnalyzeExpr::AnalyzeExpr(AnalyzeData *adata) : adata(adata) {
+    memset(oprprevilige, 0, sizeof oprprevilige);
+    setoperator();
+}
+
+double AnalyzeExpr::calcexpr(std::string expr){
+    expr += '@';
+    std::vector<double> num;
+    std::vector<int> opr;
+    for (int i = 0; i < expr.size(); ){
+        auto token = gettoken(expr, i);
+        if (oprprevilige[token[0]]){
+            if (token[0] == '(')
+                    opr.push_back(token[0]);
+            else if (token[0] == ')'){
+                    for (; *opr.rbegin() != '('; makecalc(num, opr));
+                    opr.pop_back();
+            }
+            else{
+                    for (; opr.size() && oprprevilige[*opr.rbegin()] >= oprprevilige[token[0]]; makecalc(num, opr));
+                    opr.push_back(token[0]);
+            }
+        }
+        else{
+            num.push_back(getvalue(token));
+        }
+    }
+    assert(num.size() == 1);
+    return num[0];
+}
+
+void AnalyzeData::outputonerect(const std::string &title, const std::vector<std::string> &res, int col){
     std::vector<std::string> str;
     std::vector<double> data;
-    for (int I = 0; I < length; I ++ ){
-        auto &i = res[I];
+    for (auto &i : res){
         str.push_back(I18N::get("ADRESULT", i) + I18N::get("MISC", "COLON"));
-        for (unsigned j = 0; j < RESULTNAMENUM; j ++ )
-            if (i == num2result[j]){
+        for (unsigned j = 0; j < ADN.result.size(); j ++ )
+            if (i == ADN.result[j]){
                 data.push_back(result[j]);
                 break;
             }
@@ -827,28 +1075,28 @@ void AnalyzeData::outputonerect(const std::string &title, const std::string *res
 
 }
 
-AnalyzeData::AnalyzeData(){
+AnalyzeData::AnalyzeData() : AE(this) {
     basedata.clear();
-    basedata.resize(BASEDATANUM);
+    basedata.resize(ADN.base["BASEDATA"].size());
     yakudata.clear();
-    yakudata.resize(YAKUDATANUM);
+    yakudata.resize(ADN.base["YAKUDATA"].size());
     for (auto &i : yakudata)
-        i.resize(YAKUDATANUM);
+        i.resize(ADN.base["YAKUDATA"].size());
     
     hulebasedata.clear();
-    hulebasedata.resize(HULEBASEDATANUM);
+    hulebasedata.resize(ADN.base["HULEBASEDATA"].size());
     for (auto &i : hulebasedata)
-        i.resize(HULEHANDTYPENUM);
+        i.resize(ADN.base["HULEHANDTYPE"].size());
     reachbasedata.clear();
-    reachbasedata.resize(REACHBASEDATANUM);
+    reachbasedata.resize(ADN.base["REACHBASEDATA"].size());
     for (auto &i : reachbasedata)
-        i.resize(REACHTYPENUM);
+        i.resize(ADN.base["REACHTYPE"].size());
     huleyakubasedata.clear();
-    huleyakubasedata.resize(HULEYAKUBASEDATANUM);
+    huleyakubasedata.resize(ADN.base["HULEYAKUBASEDATA"].size());
     for (auto &i : huleyakubasedata){
-        i.resize(YAKUDATANUM);
+        i.resize(ADN.base["YAKUDATA"].size());
         for (auto &j : i)
-            j.resize(HULEHANDTYPENUM);
+            j.resize(ADN.base["HULEHANDTYPE"].size());
     }
     me = -1;
 }
@@ -856,6 +1104,7 @@ AnalyzeData::AnalyzeData(){
 int AnalyzeData::gethandtype(const MatchPlayerData &pdata){
     int res = -1;
     int tenpaiq = Algo::tenpaiquality(pdata);
+    auto num2hulehandtype = ADN.base["HULEHANDTYPE"];
     if (pdata.reach){
         if (tenpaiq == 1){
             res = 0;
@@ -878,6 +1127,7 @@ int AnalyzeData::gethandtype(const MatchPlayerData &pdata){
 
 void AnalyzeData::makehanddata(std::vector<long long> &vec){
     int calcnum, fromnum;
+    auto num2hulehandtype = ADN.base["HULEHANDTYPE"];
 
     calcnum = 12;
     assert(num2hulehandtype[calcnum] == "FULU");
@@ -944,13 +1194,14 @@ void AnalyzeData::makehanddata(std::vector<long long> &vec){
 
 void AnalyzeData::calcresult(){
     result.clear();
-    result.resize(RESULTNAMENUM);
+    result.resize(ADN.result.size());
 
     for (auto &i : hulebasedata)
         makehanddata(i);
     for (auto &i : huleyakubasedata)
         for (auto &j : i)
             makehanddata(j);
+    auto num2reachtype = ADN.base["REACHTYPE"];
     for (auto &i : reachbasedata){
         int b0 = 0, b1 = 1, b2 = 2;
         assert(num2reachtype[b0] == "GOOD");
@@ -958,1251 +1209,17 @@ void AnalyzeData::calcresult(){
         assert(num2reachtype[b2] == "ALL");
         i[b2] = i[b0] + i[b1];
     }
-    
-    int resnum, bnum1, bnum2;
-    int hunum11, hunum12, hunum21, hunum22, yakunum1, yakunum2, yakunum3;
-    int rnum11, rnum12, rnum21, rnum22;
 
-    resnum = 0;
-    bnum1 = 0;
-    bnum2 = 1;
-    assert(num2result[resnum] == "#1R");
-    assert(num2basedata[bnum1] == "TOTALGAME");
-    assert(num2basedata[bnum2] == "#1");
-    for (int i = 0; i < 4; i ++ )
-        result[resnum + i] = 1.0 * basedata[bnum2 + i] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 4;
-    bnum1 = 22;
-    bnum2 = 5;
-    assert(num2result[resnum] == "AL#1#1R");
-    assert(num2basedata[bnum1] == "AL#1");
-    assert(num2basedata[bnum2] == "ALBAO1");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 5;
-    bnum1 = 23;
-    bnum2 = 6;
-    assert(num2result[resnum] == "AL#234#1R");
-    assert(num2basedata[bnum1] == "AL#2");
-    assert(num2basedata[bnum2] == "ALNI1");
-    result[resnum] = 1.0 * basedata[bnum2] / (basedata[bnum1] + basedata[bnum1 + 1] + basedata[bnum1 + 2]);
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 6;
-    bnum1 = 25;
-    bnum2 = 7;
-    assert(num2result[resnum] == "AL#4#123R");
-    assert(num2basedata[bnum1] == "AL#4");
-    assert(num2basedata[bnum2] == "ALBI4");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 7;
-    bnum1 = 0;
-    bnum2 = 8;
-    assert(num2result[resnum] == "ALAL+R");
-    assert(num2basedata[bnum1] == "TOTALGAME");
-    assert(num2basedata[bnum2] == "ALMULTITIME");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 8;
-    bnum1 = 9;
-    hunum11 = 0;
-    hunum12 = 17;
-    assert(num2result[resnum] == "HULER");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum11][hunum12] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 9;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 2;
-    hunum22 = 17;
-    assert(num2result[resnum] == "ZIMOR");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "ZIMO");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 10;
-    bnum1 = 9;
-    hunum11 = 1;
-    hunum12 = 17;
-    assert(num2result[resnum] == "CHONGR");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum11][hunum12] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 11;
-    bnum1 = 9;
-    bnum2 = 10;
-    assert(num2result[resnum] == "REACHR");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    assert(num2basedata[bnum2] == "REACH");
-    result[resnum] += 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 12;
-    bnum1 = 9;
-    bnum2 = 11;
-    assert(num2result[resnum] == "FULUR");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    assert(num2basedata[bnum2] == "FULU1");
-    for (int i = 0; i < 4; i ++ )
-        result[resnum] += 1.0 * basedata[bnum2 + i] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 13;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 0;
-    hunum22 = 2;
-    assert(num2result[resnum] == "DAMAHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "HULE");
-    assert(num2hulehandtype[hunum22] == "DAMA");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 14;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 33;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGLEDAMAR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "CHONGLEDAMA");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 15;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 0;
-    hunum22 = 12;
-    assert(num2result[resnum] == "FULUHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "HULE");
-    assert(num2hulehandtype[hunum22] == "FULU");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-        
-    resnum = 16;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 1;
-    hunum22 = 14;
-    assert(num2result[resnum] == "FULUCHONGR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "FANGCHONG");
-    assert(num2hulehandtype[hunum22] == "ALLFULU");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 17;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 4;
-    hunum22 = 17;
-    assert(num2result[resnum] == "HULEP");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "HULEPOINT");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 18;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 6;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGP");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "FANGCHONGPOINT");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 19;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 5;
-    hunum22 = 17;
-    assert(num2result[resnum] == "HULESU");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "HULESUDIAN");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 20;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 7;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGSU");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "FANGCHONGSUDIAN");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 21;
-    hunum11 = 0;
-    hunum12 = 2;
-    hunum21 = 4;
-    hunum22 = 2;
-    assert(num2result[resnum] == "DAMAHULEP");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "DAMA");
-    assert(num2hulebasedata[hunum21] == "HULEPOINT");
-    assert(num2hulehandtype[hunum22] == "DAMA");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 22;
-    hunum11 = 33;
-    hunum12 = 17;
-    hunum21 = 38;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGLEDAMAP");
-    assert(num2hulebasedata[hunum11] == "CHONGLEDAMA");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "CHONGLEDAMAPOINT");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 23;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 12;
-    hunum22 = 17;
-    assert(num2result[resnum] == "HULE3900+R");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "HULE3900+");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    for (int i = 0; i < 3; i ++ )
-        result[resnum + i] = 1.0 * hulebasedata[hunum21 + i][hunum22] / hulebasedata[hunum11][hunum12];
-    for (int i = 2; i >= 0; i -- )
-        result[resnum + i] += result[resnum + i + 1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 26;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 15;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONG3900+R");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "FANGCHONG3900+");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    for (int i = 0; i < 3; i ++ )
-        result[resnum + i] = 1.0 * hulebasedata[hunum21 + i][hunum22] / hulebasedata[hunum11][hunum12];
-    for (int i = 2; i >= 0; i -- )
-        result[resnum + i] += result[resnum + i + 1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 29;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 18;
-    hunum22 = 17;
-    assert(num2result[resnum] == "HULECC");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "HULECIRCLE");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 30;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 19;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGMYCC");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "FANGCHONGMYCIRCLE");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 31;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 31;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGHISCC");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "FANGCHONGHISCIRCLE");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 32;
-    hunum11 = 1;
-    hunum12 = 17;
-    bnum2 = 15;
-    assert(num2result[resnum] == "CHONGSHANTEN");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2basedata[bnum2] == "FANGCHONGSHANTEN0");
-    for (int i = 0; i <= 6; i ++ )
-        result[resnum] += 1.0 * i * basedata[bnum2 + i] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 33;
-    hunum11 = 0;
-    hunum12 = 12;
-    hunum21 = 18;
-    hunum22 = 12;
-    assert(num2result[resnum] == "FULUHULECC");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "FULU");
-    assert(num2hulebasedata[hunum21] == "HULECIRCLE");
-    assert(num2hulehandtype[hunum22] == "FULU");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 34;
-    hunum11 = 0;
-    hunum12 = 15;
-    hunum21 = 18;
-    hunum22 = 15;
-    assert(num2result[resnum] == "MENQINGHULECC");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALLDAMA");
-    assert(num2hulebasedata[hunum21] == "HULECIRCLE");
-    assert(num2hulehandtype[hunum22] == "ALLDAMA");
-    result[resnum] = 1.0 * (hulebasedata[hunum21][hunum22] + hulebasedata[hunum21][hunum22 + 1]) / 
-                           (hulebasedata[hunum11][hunum12] + hulebasedata[hunum11][hunum12 + 1]);
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 35;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 0;
-    hunum22 = 16;
-    assert(num2result[resnum] == "REACHINHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "HULE");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    result[resnum] += 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 36;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 8;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "TANYAOHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "TANYAO");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 37;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 7;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "PINFUHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "PINFU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 38;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 22;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHITOIHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "CHITOITSU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 39;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 28;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "TOITOIHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "TOITOI");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 40;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 34;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "RANSHOUHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "HONYITSU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * (huleyakubasedata[yakunum1][yakunum2][yakunum3] + huleyakubasedata[yakunum1][yakunum2 + 1][yakunum3])
-                         / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 41;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 54;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "AKAA");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "AKA");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 42;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 52;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "DORAA");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "DORA");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 43;
-    hunum11 = 0;
-    hunum12 = 16;
-    yakunum1 = 0;
-    yakunum2 = 53;
-    yakunum3 = 16;
-    assert(num2result[resnum] == "URAA");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "URA");
-    assert(num2hulehandtype[yakunum3] == "ALLREACH");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 44;
-    hunum11 = 0;
-    hunum12 = 17;
-    yakunum1 = 0;
-    yakunum2 = 52;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "ALLDORAA");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "DORA");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    for (int i = 0; i < 3; i ++ )
-        result[resnum] += 1.0 * huleyakubasedata[yakunum1][yakunum2 + i][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 45;
-    hunum11 = 0;
-    hunum12 = 16;
-    yakunum1 = 0;
-    yakunum2 = 2;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "YIPATSUHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    assert(num2huleyakubasedata[yakunum1] == "HULEYAKU");
-    assert(num2yakudata[yakunum2] == "YIPATSU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 46;
-    hunum11 = 0;
-    hunum12 = 17;
-    hunum21 = 25;
-    hunum22 = 17;
-    assert(num2result[resnum] == "OYAHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "ZHUANGHULE");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 47;
-    hunum11 = 1;
-    hunum12 = 17;
-    yakunum1 = 1;
-    yakunum2 = 1;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHONGLEREACHR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "CHONGLEYAKU");
-    assert(num2yakudata[yakunum2] == "REACH");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 48;
-    hunum11 = 1;
-    hunum12 = 17;
-    yakunum1 = 1;
-    yakunum2 = 7;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHONGLEPINFUR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "CHONGLEYAKU");
-    assert(num2yakudata[yakunum2] == "PINFU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 49;
-    hunum11 = 1;
-    hunum12 = 17;
-    yakunum1 = 1;
-    yakunum2 = 22;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHONGLECHITOIR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "CHONGLEYAKU");
-    assert(num2yakudata[yakunum2] == "CHITOITSU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 50;
-    hunum11 = 1;
-    hunum12 = 17;
-    yakunum1 = 1;
-    yakunum2 = 28;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHONGLETOITOIR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "CHONGLEYAKU");
-    assert(num2yakudata[yakunum2] == "TOITOI");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 51;
-    hunum11 = 1;
-    hunum12 = 17;
-    yakunum1 = 1;
-    yakunum2 = 8;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHONGLETANYAOR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "CHONGLEYAKU");
-    assert(num2yakudata[yakunum2] == "TANYAO");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 52;
-    hunum11 = 1;
-    hunum12 = 17;
-    yakunum1 = 1;
-    yakunum2 = 34;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHONGLERANSHOUR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "CHONGLEYAKU");
-    assert(num2yakudata[yakunum2] == "HONYITSU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * (huleyakubasedata[yakunum1][yakunum2][yakunum3] + huleyakubasedata[yakunum1][yakunum2 + 1][yakunum3])
-                         / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 53;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 1;
-    hunum22 = 16;
-    assert(num2result[resnum] == "REACHINCHONGR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "FANGCHONG");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    result[resnum] += 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 54;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 29;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGLEOYAR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "CHONGLEZHUANG");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 55;
-    hunum11 = 1;
-    hunum12 = 17;
-    yakunum1 = 1;
-    yakunum2 = 2;
-    yakunum3 = 17;
-    assert(num2result[resnum] == "CHONGLEYIPATSUR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2huleyakubasedata[yakunum1] == "CHONGLEYAKU");
-    assert(num2yakudata[yakunum2] == "YIPATSU");
-    assert(num2hulehandtype[yakunum3] == "ALL");
-    result[resnum] = 1.0 * huleyakubasedata[yakunum1][yakunum2][yakunum3] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 56;
-    hunum11 = 1;
-    hunum12 = 17;
-    hunum21 = 34;
-    hunum22 = 17;
-    assert(num2result[resnum] == "CHONGLEFULUR");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "CHONGLEFULU1");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    for (int i = 0; i < 4; i ++ )
-        result[resnum] += 1.0 * hulebasedata[hunum21 + i][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
-    resnum = 57;
-    bnum1 = 9;
-    hunum11 = 3;
-    hunum12 = 17;
-    assert(num2result[resnum] == "BEIZIMOR");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    assert(num2hulebasedata[hunum11] == "BEIZIMO");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum11][hunum12] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 58;
-    hunum11 = 3;
-    hunum12 = 17;
-    hunum21 = 10;
-    hunum22 = 17;
-    assert(num2result[resnum] == "BEIZIMOP");
-    assert(num2hulebasedata[hunum11] == "BEIZIMO");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "BEIZIMOPOINT");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 59;
-    hunum11 = 3;
-    hunum12 = 17;
-    hunum21 = 21;
-    hunum22 = 17;
-    assert(num2result[resnum] == "BEIZIMOMYCC");
-    assert(num2hulebasedata[hunum11] == "BEIZIMO");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "BEIZIMOMYCIRCLE");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 60;
-    hunum11 = 43;
-    hunum12 = 17;
-    hunum21 = 27;
-    hunum22 = 17;
-    assert(num2result[resnum] == "ZHAZHUANGR");
-    assert(num2hulebasedata[hunum11] == "ZHUANGMEIHU");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "ZHAZHUANG");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 61;
-    hunum11 = 27;
-    hunum12 = 17;
-    hunum21 = 28;
-    hunum22 = 17;
-    assert(num2result[resnum] == "ZHAZHUANGP");
-    assert(num2hulebasedata[hunum11] == "ZHAZHUANG");
-    assert(num2hulehandtype[hunum12] == "ALL");
-    assert(num2hulebasedata[hunum21] == "ZHAZHUANGPOINT");
-    assert(num2hulehandtype[hunum22] == "ALL");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    bnum1 = 10;
-    rnum21 = 0;
-    rnum22 = 2;
-    assert(num2basedata[bnum1] == "REACH");
-    assert(num2reachbasedata[rnum21] == "REACH");
-    assert(num2reachtype[rnum22] == "ALL");
-    assert(basedata[bnum1] == reachbasedata[rnum21][rnum22]);
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 62;
-    hunum11 = 0;
-    hunum12 = 16;
-    hunum21 = 4;
-    hunum22 = 16;
-    assert(num2result[resnum] == "REACHHULEP");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    assert(num2hulebasedata[hunum21] == "HULEPOINT");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 63;
-    hunum11 = 0;
-    hunum12 = 16;
-    hunum21 = 5;
-    hunum22 = 16;
-    assert(num2result[resnum] == "REACHHULESU");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    assert(num2hulebasedata[hunum21] == "HULESUDIAN");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 64;
-    hunum11 = 0;
-    hunum12 = 16;
-    hunum21 = 12;
-    hunum22 = 16;
-    assert(num2result[resnum] == "REACH3900+R");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    assert(num2hulebasedata[hunum21] == "HULE3900+");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    for (int i = 0; i < 3; i ++ )
-        result[resnum + i] = 1.0 * hulebasedata[hunum21 + i][hunum22] / hulebasedata[hunum11][hunum12];
-    for (int i = 2; i >= 0; i -- )
-        result[resnum + i] += result[resnum + i + 1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 67;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 1;
-    rnum22 = 2;
-    assert(num2result[resnum] == "REACHCC");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "CIRCLE");
-    assert(num2reachtype[rnum22] == "ALL");
-    result[resnum] = 1.0 * reachbasedata[rnum21][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 68;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 4;
-    rnum22 = 2;
-    assert(num2result[resnum] == "REACHPINFUR");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "PINFU");
-    assert(num2reachtype[rnum22] == "ALL");
-    result[resnum] = 1.0 * reachbasedata[rnum21][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 69;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 3;
-    rnum22 = 2;
-    assert(num2result[resnum] == "REACHTANYAOR");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "TANYAO");
-    assert(num2reachtype[rnum22] == "ALL");
-    result[resnum] = 1.0 * reachbasedata[rnum21][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 70;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 5;
-    rnum22 = 2;
-    assert(num2result[resnum] == "REACHDORA2+R");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "DORA0");
-    assert(num2reachtype[rnum22] == "ALL");
-    for (int i = 2; i <= 26; i ++ )
-        result[resnum] += 1.0 * reachbasedata[rnum21 + i][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 71;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 5;
-    rnum22 = 2;
-    assert(num2result[resnum] == "REACHDORA3+R");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "DORA0");
-    assert(num2reachtype[rnum22] == "ALL");
-    for (int i = 3; i <= 26; i ++ )
-        result[resnum] += 1.0 * reachbasedata[rnum21 + i][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 72;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 5;
-    rnum22 = 2;
-    assert(num2result[resnum] == "REACHDORAA");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "DORA0");
-    assert(num2reachtype[rnum22] == "ALL");
-    for (int i = 0; i <= 26; i ++ )
-        result[resnum] += 1.0 * i * reachbasedata[rnum21 + i][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 73;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 32;
-    rnum22 = 2;
-    assert(num2result[resnum] == "FIRSTREACHR");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "#1");
-    assert(num2reachtype[rnum22] == "ALL");
-    result[resnum] = 1.0 * reachbasedata[rnum21][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 74;
-    hunum11 = 0;
-    hunum12 = 16;
-    hunum21 = 2;
-    hunum22 = 16;
-    assert(num2result[resnum] == "ZIMOINREACHHULER");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    assert(num2hulebasedata[hunum21] == "ZIMO");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 75;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 0;
-    rnum22 = 0;
-    assert(num2result[resnum] == "REACHGOODR");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "REACH");
-    assert(num2reachtype[rnum22] == "GOOD");
-    result[resnum] = 1.0 * reachbasedata[rnum21][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 76;
-    rnum11 = 0;
-    rnum12 = 0;
-    hunum21 = 0;
-    hunum22 = 0;
-    assert(num2result[resnum] == "REACHGOODHULER");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "GOOD");
-    assert(num2hulebasedata[hunum21] == "HULE");
-    assert(num2hulehandtype[hunum22] == "REACHGOOD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 77;
-    hunum11 = 0;
-    hunum12 = 0;
-    hunum21 = 4;
-    hunum22 = 0;
-    assert(num2result[resnum] == "REACHGOODHULEP");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "REACHGOOD");
-    assert(num2hulebasedata[hunum21] == "HULEPOINT");
-    assert(num2hulehandtype[hunum22] == "REACHGOOD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 78;
-    rnum11 = 0;
-    rnum12 = 0;
-    hunum21 = 1;
-    hunum22 = 0;
-    assert(num2result[resnum] == "REACHGOODCHONGR");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "GOOD");
-    assert(num2hulebasedata[hunum21] == "FANGCHONG");
-    assert(num2hulehandtype[hunum22] == "REACHGOOD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 79;
-    hunum11 = 1;
-    hunum12 = 0;
-    hunum21 = 6;
-    hunum22 = 0;
-    assert(num2result[resnum] == "REACHGOODCHONGP");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "REACHGOOD");
-    assert(num2hulebasedata[hunum21] == "FANGCHONGPOINT");
-    assert(num2hulehandtype[hunum22] == "REACHGOOD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 80;
-    assert(num2result[resnum] == "REACHGOODPROFIT");
-    rnum11 = 2;
-    rnum12 = 0;
-    assert(num2reachbasedata[rnum11] == "REACHDECLEARRON");
-    assert(num2reachtype[rnum12] == "GOOD");
-    result[resnum] += 1000.0 * reachbasedata[rnum11][rnum12];
-    hunum11 = 4;
-    hunum12 = 0;
-    assert(num2hulebasedata[hunum11] == "HULEPOINT");
-    assert(num2hulehandtype[hunum12] == "REACHGOOD");
-    result[resnum] += 1.0 * hulebasedata[hunum11][hunum12];
-    hunum11 = 6;
-    hunum12 = 0;
-    assert(num2hulebasedata[hunum11] == "FANGCHONGPOINT");
-    assert(num2hulehandtype[hunum12] == "REACHGOOD");
-    result[resnum] += 1.0 * hulebasedata[hunum11][hunum12];
-    rnum11 = 0;
-    rnum12 = 0;
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "GOOD");
-    result[resnum] /= reachbasedata[rnum11][rnum12];
-    result[resnum] -= 1000;
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 81;
-    rnum11 = 0;
-    rnum12 = 2;
-    rnum21 = 0;
-    rnum22 = 1;
-    assert(num2result[resnum] == "REACHBADR");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    assert(num2reachbasedata[rnum21] == "REACH");
-    assert(num2reachtype[rnum22] == "BAD");
-    result[resnum] = 1.0 * reachbasedata[rnum21][rnum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 82;
-    rnum11 = 0;
-    rnum12 = 1;
-    hunum21 = 0;
-    hunum22 = 1;
-    assert(num2result[resnum] == "REACHBADHULER");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "BAD");
-    assert(num2hulebasedata[hunum21] == "HULE");
-    assert(num2hulehandtype[hunum22] == "REACHBAD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 83;
-    hunum11 = 0;
-    hunum12 = 1;
-    hunum21 = 4;
-    hunum22 = 1;
-    assert(num2result[resnum] == "REACHBADHULEP");
-    assert(num2hulebasedata[hunum11] == "HULE");
-    assert(num2hulehandtype[hunum12] == "REACHBAD");
-    assert(num2hulebasedata[hunum21] == "HULEPOINT");
-    assert(num2hulehandtype[hunum22] == "REACHBAD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 84;
-    rnum11 = 0;
-    rnum12 = 1;
-    hunum21 = 1;
-    hunum22 = 1;
-    assert(num2result[resnum] == "REACHBADCHONGR");
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "BAD");
-    assert(num2hulebasedata[hunum21] == "FANGCHONG");
-    assert(num2hulehandtype[hunum22] == "REACHBAD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / reachbasedata[rnum11][rnum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 85;
-    hunum11 = 1;
-    hunum12 = 1;
-    hunum21 = 6;
-    hunum22 = 1;
-    assert(num2result[resnum] == "REACHBADCHONGP");
-    assert(num2hulebasedata[hunum11] == "FANGCHONG");
-    assert(num2hulehandtype[hunum12] == "REACHBAD");
-    assert(num2hulebasedata[hunum21] == "FANGCHONGPOINT");
-    assert(num2hulehandtype[hunum22] == "REACHBAD");
-    result[resnum] = 1.0 * hulebasedata[hunum21][hunum22] / hulebasedata[hunum11][hunum12];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 86;
-    assert(num2result[resnum] == "REACHBADPROFIT");
-    rnum11 = 2;
-    rnum12 = 1;
-    assert(num2reachbasedata[rnum11] == "REACHDECLEARRON");
-    assert(num2reachtype[rnum12] == "BAD");
-    result[resnum] += 1000.0 * reachbasedata[rnum11][rnum12];
-    hunum11 = 4;
-    hunum12 = 1;
-    assert(num2hulebasedata[hunum11] == "HULEPOINT");
-    assert(num2hulehandtype[hunum12] == "REACHBAD");
-    result[resnum] += 1.0 * hulebasedata[hunum11][hunum12];
-    hunum11 = 6;
-    hunum12 = 1;
-    assert(num2hulebasedata[hunum11] == "FANGCHONGPOINT");
-    assert(num2hulehandtype[hunum12] == "REACHBAD");
-    result[resnum] += 1.0 * hulebasedata[hunum11][hunum12];
-    rnum11 = 0;
-    rnum12 = 1;
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "BAD");
-    result[resnum] /= reachbasedata[rnum11][rnum12];
-    result[resnum] -= 1000;
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 87;
-    assert(num2result[resnum] == "REACHPROFIT");
-    rnum11 = 2;
-    rnum12 = 2;
-    assert(num2reachbasedata[rnum11] == "REACHDECLEARRON");
-    assert(num2reachtype[rnum12] == "ALL");
-    result[resnum] += 1000.0 * reachbasedata[rnum11][rnum12];
-    hunum11 = 4;
-    hunum12 = 16;
-    assert(num2hulebasedata[hunum11] == "HULEPOINT");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    result[resnum] += 1.0 * hulebasedata[hunum11][hunum12];
-    hunum11 = 6;
-    hunum12 = 16;
-    assert(num2hulebasedata[hunum11] == "FANGCHONGPOINT");
-    assert(num2hulehandtype[hunum12] == "ALLREACH");
-    result[resnum] += 1.0 * hulebasedata[hunum11][hunum12];
-    rnum11 = 0;
-    rnum12 = 2;
-    assert(num2reachbasedata[rnum11] == "REACH");
-    assert(num2reachtype[rnum12] == "ALL");
-    result[resnum] /= reachbasedata[rnum11][rnum12];
-    result[resnum] -= 1000;
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 88;
-    bnum1 = 10;
-    hunum21 = 1;
-    hunum22 = 16;
-    assert(num2result[resnum] == "CHONGINREACHR");
-    assert(num2basedata[bnum1] == "REACH");
-    assert(num2hulebasedata[hunum21] == "FANGCHONG");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    result[resnum] += 1.0 * hulebasedata[hunum21][hunum22] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 89;
-    bnum1 = 10;
-    hunum21 = 0;
-    hunum22 = 16;
-    assert(num2result[resnum] == "HULEINREACHR");
-    assert(num2basedata[bnum1] == "REACH");
-    assert(num2hulebasedata[hunum21] == "HULE");
-    assert(num2hulehandtype[hunum22] == "ALLREACH");
-    result[resnum] += 1.0 * hulebasedata[hunum21][hunum22] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = rnum11 = rnum12 = rnum21 = rnum22 = INT_MAX;
-
-    resnum = 90;
-    bnum1 = 26;
-    bnum2 = 27;
-    assert(num2result[resnum] == "LIUJUTENPAIR");
-    assert(num2basedata[bnum1] == "NORMALLIUJU");
-    assert(num2basedata[bnum2] == "LIUJUTENPAI");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 91;
-    bnum1 = 27;
-    bnum2 = 29;
-    assert(num2result[resnum] == "LIUJUINP");
-    assert(num2basedata[bnum1] == "LIUJUTENPAI");
-    assert(num2basedata[bnum2] == "LIUJUTENPAIPOINT");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 92;
-    bnum1 = 26;
-    bnum2 = 28;
-    assert(num2result[resnum] == "LIUJUNOTENR");
-    assert(num2basedata[bnum1] == "NORMALLIUJU");
-    assert(num2basedata[bnum2] == "LIUJUNOTEN");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 93;
-    bnum1 = 28;
-    bnum2 = 30;
-    assert(num2result[resnum] == "LIUJUOUTP");
-    assert(num2basedata[bnum1] == "LIUJUNOTEN");
-    assert(num2basedata[bnum2] == "LIUJUNOTENPOINT");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 94;
-    bnum1 = 26;
-    bnum2 = 31;
-    assert(num2result[resnum] == "LIUJUPROFIT");
-    assert(num2basedata[bnum1] == "NORMALLIUJU");
-    assert(num2basedata[bnum2] == "LIUJUPOINT");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 95;
-    bnum1 = 0;
-    bnum2 = 1;
-    assert(num2result[resnum] == "#A");
-    assert(num2basedata[bnum1] == "TOTALGAME");
-    assert(num2basedata[bnum2] == "#1");
-    for (int i = 1; i <= 4; i ++ )
-        result[resnum] += 1.0 * i * basedata[bnum2 + i - 1] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 96;
-    bnum1 = 9;
-    assert(num2result[resnum] == "TOTALROUND");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    result[resnum] = basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 97;
-    bnum1 = 0;
-    assert(num2result[resnum] == "TOTALGAME");
-    assert(num2basedata[bnum1] == "TOTALGAME");
-    result[resnum] = basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 98;
-    bnum1 = 9;
-    bnum2 = 32;
-    assert(num2result[resnum] == "ROUNDPROFIT");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    assert(num2basedata[bnum2] == "ALLPOINT");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 99;
-    bnum1 = 0;
-    bnum2 = 32;
-    assert(num2result[resnum] == "GAMEPROFIT");
-    assert(num2basedata[bnum1] == "TOTALGAME");
-    assert(num2basedata[bnum2] == "ALLPOINT");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-
-    resnum = 100;
-    bnum1 = 9;
-    bnum2 = 26;
-    assert(num2result[resnum] == "LIUJUR");
-    assert(num2basedata[bnum1] == "TOTALROUND");
-    assert(num2basedata[bnum2] == "NORMALLIUJU");
-    result[resnum] = 1.0 * basedata[bnum2] / basedata[bnum1];
-    resnum = bnum1 = bnum2 = hunum11 = hunum12 = hunum21 = hunum22 = yakunum1 = yakunum2 = yakunum3 = INT_MAX;
-    
+    for (unsigned i = 0; i < ADN.result.size(); i ++ )
+        result[i] = AE.calcexpr(ADN.resultexpr[i]);
 }
 
 void AnalyzeData::outputresult(){
     std::cout << std::fixed << std::setprecision(4);
     int row, col;
     Algo::getconsolesize(row, col);
-/* 
-    int nowcol = 4;
-    Out::cout << I18N::get("ANALYZER", "BASEDATA") << I18N::get("MISC", "COLON") << "\n    ";
-    for (unsigned i = 0; i < BASEDATANUM; i ++ ){
-        auto str = num2basedata[i] + ":";
-        auto num = basedata[i];
-        int width = Algo::getdisplaywidth(str) + Algo::getdisplaywidth(num) + 1;
-        if (width + nowcol >= col){
-            Out::cout << "\n    ";
-            nowcol = 4;
-        }
-        nowcol += width;
-        Out::cout << str << num << ' ';
-    }
-    Out::cout << '\n';
-    Out::cout << I18N::get("MISC", "DASH") << "\n";
- */
-    //outputonerect(I18N::get("ANALYZER", "ALLRESULT") + I18N::get("MISC", "COLON"), num2result, RESULTNAMENUM, col);
-    outputonerect(I18N::get("ANALYZER", "OVRESULT") + I18N::get("MISC", "COLON"), overviewresult, OVERVIEWRESULTNUM, col);
-    outputonerect(I18N::get("ANALYZER", "HULERESULT") + I18N::get("MISC", "COLON"), huleresult, HULERESULTNUM, col);
-    outputonerect(I18N::get("ANALYZER", "CHONGRESULT") + I18N::get("MISC", "COLON"), chongresult, CHONGRESULTNUM, col);
-    outputonerect(I18N::get("ANALYZER", "REACHRESULT") + I18N::get("MISC", "COLON"), reachresult, REACHRESULTNUM, col);
-    outputonerect(I18N::get("ANALYZER", "LIUJURESULT") + I18N::get("MISC", "COLON"), liujuresult, LIUJURESULTNUM, col);
-    outputonerect(I18N::get("ANALYZER", "FULURESULT") + I18N::get("MISC", "COLON"), fuluresult, FULURESULTNUM, col);
-    outputonerect(I18N::get("ANALYZER", "ALRESULT") + I18N::get("MISC", "COLON"), alresult, ALRESULTNUM, col);
-
+    for (auto key : ADN.resultgrouporder)
+        outputonerect(I18N::get("ANALYZER", key) + I18N::get("MISC", "COLON"), ADN.resultgroupmap[key], col);
     PAUSEEXIT;
 }
 
@@ -2363,6 +1380,7 @@ bool PaipuAnalyzer::analyze(std::string &paipu){
 bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     if (!filtercheck(paipu)) return false;
     auto &adata = *analyzedata;
+    auto num2basedata = adata.ADN.base["BASEDATA"];
     adata.me = -1;
     auto accountid = paipu["gamedata"]["accountid"];
     auto pdata = paipu["gamedata"]["playerdata"];
@@ -2400,7 +1418,6 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
             GameStep.Add(RoundStep);
         #endif
 
-        auto &adata = *analyzedata;
         {
             int basenum = 9;
             assert(num2basedata[basenum] == "TOTALROUND");
@@ -2414,6 +1431,10 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
             assert(num2basedata[basenum] == "FULU1");
             int fulu = matchdata.data[adata.me].fulu();
             if (fulu) adata.basedata[basenum - 1 + fulu] ++ ;
+
+            basenum = 33;
+            assert(num2basedata[basenum] == "ZHUANG");
+            if (matchdata.east == adata.me) adata.basedata[basenum] ++ ;
             
         }
 
@@ -2491,7 +1512,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
     for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
         paipus.push_back(paipuarr[i]);
-    PA::PaipuAnalyzer pa = PA::PaipuAnalyzer(filter);
+    PaipuAnalyzer pa = PaipuAnalyzer(filter);
     int paipunum = pa.analyze(paipus);
     #ifdef SAVEMATCHDATASTEP
         std::cout << TotalStep.ToString();

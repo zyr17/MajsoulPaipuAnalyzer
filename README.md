@@ -62,6 +62,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
     cp bin/release/PaipuAnalyzer.exe result/
     mkdir result/data
     cp config.json result/
+    cp PAADData.json result/
     cp doc/README.txt result/
     cp doc/release-notes.txt result/
     cp -r i18n/ result/
@@ -82,6 +83,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
     cp bin/release/PaipuAnalyzer result/
     mkdir result/data
     cp config.json result/
+    cp PAADData.json result/
     cp doc/README.txt result/
     cp doc/release-notes.txt result/
     cp -r i18n/ result/

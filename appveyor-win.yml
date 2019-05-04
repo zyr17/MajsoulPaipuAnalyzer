@@ -34,6 +34,8 @@ build_script:
     
     cp config.json result/
 
+    cp PAADData.json result/
+
     cp doc/README.txt result/
     
     cp doc/release-notes.txt result/

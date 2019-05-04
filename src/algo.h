@@ -11,7 +11,7 @@ namespace Algo{
     #endif
 
     long long strptime(const std::string &str);
-    std::vector<std::string> split(std::string &str, char c);
+    std::vector<std::string> split(const std::string &str, char c);
     void changevec(std::vector<int> &vec, int pos, int replace = INT_MAX);
     //返回一个包含三个元素的数组，0为和牌人得点，1为庄家失点，2为闲家失点。庄家和牌1为0，闲家荣牌12一样。
     std::vector<int> calctensu(int fu, int han, int honba, int kyoutaku, bool oya, bool tsumo);
