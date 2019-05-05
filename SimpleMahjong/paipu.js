@@ -960,7 +960,7 @@ class majsoulpaipuanalyze{
         this.converttoonepaipu();
     }
 
-    getgamedatafromlink(filelink, startnum = 0, endnum = 10){
+    getgamedatafromlink(filelink, startnum = 0, endnum = 10, linkprefix = 'https://mj-srv-3.majsoul.com:7343/majsoul/game_record/'){
         let request = new XMLHttpRequest();
         request.open('GET', filelink, true);
         function loadfunc () {
@@ -971,7 +971,7 @@ class majsoulpaipuanalyze{
                     gamedatas.push(JSON.parse(ss[i]));
             gamedatas = gamedatas.slice(startnum, endnum);
             //console.log(gamedatas);
-            this.convertsomepaipu(gamedatas, 't');
+            this.convertsomepaipu(gamedatas, linkprefix);
         }
         request.onload = loadfunc.bind(this);
         request.send();

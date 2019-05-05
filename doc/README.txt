@@ -1,6 +1,9 @@
 MajsoulPaipuAnalyzer简易使用说明
 这里给出简易使用说明(虽然也很麻烦)，详细的说明和设置请前往https://github.com/zyr17/MajsoulPaipuAnalyzer
 
+功能介绍
+获取分析雀魂牌谱。
+由于是个人制作，难免出现BUG，如果发现某些数据不合情况请通知作者。
 
 操作流程
 1. 运行MajsoulPaipuCrawler。会出现两个窗口，雀魂网页窗口和数据分析窗口。
