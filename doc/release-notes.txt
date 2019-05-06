@@ -1,3 +1,6 @@
+0.2.4
+1.PaipuAnalyzer运行速度优化
+
 0.2.3
 1.重构analyzer.cpp代码
 2.config.json中增加数据文件定位（方便调试用）

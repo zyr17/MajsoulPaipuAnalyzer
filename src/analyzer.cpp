@@ -104,28 +104,22 @@ void MatchData::IDiscardTile(std::string &str){
         assert(reachtype == 0 || reachtype == 1);
         assert(num2reachtype[0] == "GOOD");
 
-        basenum = 0;
-        assert(num2reachbasedata[basenum] == "REACH");
+        BASENUM2VECEVAL(basenum, 0, num2reachbasedata, "REACH");
         adata.reachbasedata[basenum][reachtype] ++ ;
 
-        basenum = 1;
-        assert(num2reachbasedata[basenum] == "CIRCLE");
+        BASENUM2VECEVAL(basenum, 1, num2reachbasedata, "CIRCLE");
         adata.reachbasedata[basenum][reachtype] += data[who].table.size();
 
-        basenum = 3;
-        assert(num2reachbasedata[basenum] == "TANYAO");
+        BASENUM2VECEVAL(basenum, 3, num2reachbasedata, "TANYAO");
         if (Algo::istanyao(data[who])) adata.reachbasedata[basenum][reachtype] ++ ;
 
-        basenum = 4;
-        assert(num2reachbasedata[basenum] == "PINFU");
+        BASENUM2VECEVAL(basenum, 4, num2reachbasedata, "PINFU");
         if (Algo::ispinfu(data[who])) adata.reachbasedata[basenum][reachtype] ++ ;
 
-        basenum = 5;
-        assert(num2reachbasedata[basenum] == "DORA0");
+        BASENUM2VECEVAL(basenum, 5, num2reachbasedata, "DORA0");
         adata.reachbasedata[basenum + Algo::countdora(data[who], this -> dora)][reachtype] ++ ;
 
-        basenum = 32;
-        assert(num2reachbasedata[basenum] == "#1");
+        BASENUM2VECEVAL(basenum, 32, num2reachbasedata, "#1");
         int nowmany = 0;
         for (int i = 0; i < 4; i ++ )
             if (data[i].reach) nowmany ++ ;
@@ -336,106 +330,87 @@ void MatchData::IHule(std::string &actstr){
     int pointlevel[] = {3900, 7700, 11600, INT_MAX};
 
     auto &adata = *analyzedata;
-    auto num2hulebasedata = adata.ADN.base["HULEBASEDATA"];
-    auto num2yakudata = adata.ADN.base["YAKUDATA"];
-    auto num2basedata = adata.ADN.base["BASEDATA"];
-    auto num2huleyakubasedata = adata.ADN.base["HULEYAKUBASEDATA"];
-    auto num2reachbasedata = adata.ADN.base["REACHBASEDATA"];
-    auto num2reachtype = adata.ADN.base["REACHTYPE"];
+    auto &num2hulebasedata = adata.ADN.base["HULEBASEDATA"];
+    auto &num2yakudata = adata.ADN.base["YAKUDATA"];
+    auto &num2basedata = adata.ADN.base["BASEDATA"];
+    auto &num2huleyakubasedata = adata.ADN.base["HULEYAKUBASEDATA"];
+    auto &num2reachbasedata = adata.ADN.base["REACHBASEDATA"];
+    auto &num2reachtype = adata.ADN.base["REACHTYPE"];
     {
         auto whotype = adata.gethandtype(data[who]), fromtype = tsumo ? -1 : adata.gethandtype(data[from]);
         auto metype = adata.gethandtype(data[adata.me]);
         //int whotype = 0, fromtype = 0, metype = 0;
         int basenum;
 
-        basenum = 0;
-        assert(num2hulebasedata[basenum] == "HULE");
+        BASENUM2VECEVAL(basenum, 0, num2hulebasedata, "HULE");
         if (who == adata.me) adata.hulebasedata[basenum][whotype] ++ ;
         //if (who == adata.me) std::cout << whotype;
 
-        basenum = 1;
-        assert(num2hulebasedata[basenum] == "FANGCHONG");
+        BASENUM2VECEVAL(basenum, 1, num2hulebasedata, "FANGCHONG");
         if (from == adata.me) adata.hulebasedata[basenum][fromtype] ++ ;
 
-        basenum = 2;
-        assert(num2hulebasedata[basenum] == "ZIMO");
+        BASENUM2VECEVAL(basenum, 2, num2hulebasedata, "ZIMO");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] ++ ;
 
-        basenum = 3;
-        assert(num2hulebasedata[basenum] == "BEIZIMO");
+        BASENUM2VECEVAL(basenum, 3, num2hulebasedata, "BEIZIMO");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
-        basenum = 4;
-        assert(num2hulebasedata[basenum] == "HULEPOINT");
+        BASENUM2VECEVAL(basenum, 4, num2hulebasedata, "HULEPOINT");
         if (who == adata.me) adata.hulebasedata[basenum][whotype] += dpoint[who];
 
-        basenum = 5;
-        assert(num2hulebasedata[basenum] == "HULESUDIAN");
+        BASENUM2VECEVAL(basenum, 5, num2hulebasedata, "HULESUDIAN");
         if (who == adata.me) adata.hulebasedata[basenum][whotype] += dsudian[who];
 
-        basenum = 6;
-        assert(num2hulebasedata[basenum] == "FANGCHONGPOINT");
+        BASENUM2VECEVAL(basenum, 6, num2hulebasedata, "FANGCHONGPOINT");
         if (from == adata.me) adata.hulebasedata[basenum][fromtype] += dpoint[from];
 
-        basenum = 7;
-        assert(num2hulebasedata[basenum] == "FANGCHONGSUDIAN");
+        BASENUM2VECEVAL(basenum, 7, num2hulebasedata, "FANGCHONGSUDIAN");
         if (from == adata.me) adata.hulebasedata[basenum][fromtype] += dsudian[from];
 
-        basenum = 8;
-        assert(num2hulebasedata[basenum] == "ZIMOPOINT");
+        BASENUM2VECEVAL(basenum, 8, num2hulebasedata, "ZIMOPOINT");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dpoint[who];
 
-        basenum = 9;
-        assert(num2hulebasedata[basenum] == "ZIMOSUDIAN");
+        BASENUM2VECEVAL(basenum, 9, num2hulebasedata, "ZIMOSUDIAN");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dsudian[who];
 
-        basenum = 10;
-        assert(num2hulebasedata[basenum] == "BEIZIMOPOINT");
+        BASENUM2VECEVAL(basenum, 10, num2hulebasedata, "BEIZIMOPOINT");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dpoint[adata.me];
 
-        basenum = 11;
-        assert(num2hulebasedata[basenum] == "BEIZIMOSUDIAN");
+        BASENUM2VECEVAL(basenum, 11, num2hulebasedata, "BEIZIMOSUDIAN");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dsudian[adata.me];
 
-        basenum = 12;
-        assert(num2hulebasedata[basenum] == "HULE3900");
+        BASENUM2VECEVAL(basenum, 12, num2hulebasedata, "HULE3900");
         if (adata.me == who){
             int nowpoint = dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
             if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][whotype] ++ ;
         }
 
-        basenum = 15;
-        assert(num2hulebasedata[basenum] == "FANGCHONG3900");
+        BASENUM2VECEVAL(basenum, 15, num2hulebasedata, "FANGCHONG3900");
         if (adata.me == from){
             int nowpoint = - dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
             if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][fromtype] ++ ;
         }
 
-        basenum = 18;
-        assert(num2hulebasedata[basenum] == "HULECIRCLE");
+        BASENUM2VECEVAL(basenum, 18, num2hulebasedata, "HULECIRCLE");
         if (who == adata.me) adata.hulebasedata[basenum][whotype] += data[who].table.size();
 
-        basenum = 19;
-        assert(num2hulebasedata[basenum] == "FANGCHONGMYCIRCLE");
+        BASENUM2VECEVAL(basenum, 19, num2hulebasedata, "FANGCHONGMYCIRCLE");
         if (from == adata.me) adata.hulebasedata[basenum][fromtype] += data[from].table.size();
 
-        basenum = 20;
-        assert(num2hulebasedata[basenum] == "ZIMOCIRCLE");
+        BASENUM2VECEVAL(basenum, 20, num2hulebasedata, "ZIMOCIRCLE");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] += data[who].table.size();
 
-        basenum = 21;
-        assert(num2hulebasedata[basenum] == "BEIZIMOMYCIRCLE");
+        BASENUM2VECEVAL(basenum, 21, num2hulebasedata, "BEIZIMOMYCIRCLE");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[adata.me].table.size();
 
-        basenum = 22;
-        assert(num2hulebasedata[basenum] == "DORATIME");
+        BASENUM2VECEVAL(basenum, 22, num2hulebasedata, "DORATIME");
         if (who == adata.me){
         bool hasdoras[3] = {0};
             for (auto &i : han){
-                int hannum = 52;
-                assert(num2yakudata[hannum] == "DORA");
+                int hannum;
+                BASENUM2VECEVAL(hannum, 52, num2yakudata, "DORA");
                 if (i.first >= hannum && i.first < hannum + 3) hasdoras[i.first - hannum] = true;
             }
             for (int i = 0; i < 3; i ++ ){
@@ -444,62 +419,49 @@ void MatchData::IHule(std::string &actstr){
             }
         }
 
-        basenum = 25;
-        assert(num2hulebasedata[basenum] == "ZHUANGHULE");
+        BASENUM2VECEVAL(basenum, 25, num2hulebasedata, "ZHUANGHULE");
         if (who == adata.me && who == east) adata.hulebasedata[basenum][whotype] ++ ;
 
-        basenum = 26;
-        assert(num2hulebasedata[basenum] == "ZHUANGZIMO");
+        BASENUM2VECEVAL(basenum, 26, num2hulebasedata, "ZHUANGZIMO");
         if (who == adata.me && who == east && tsumo) adata.hulebasedata[basenum][whotype] ++ ;
 
-        basenum = 27;
-        assert(num2hulebasedata[basenum] == "ZHAZHUANG");
+        BASENUM2VECEVAL(basenum, 27, num2hulebasedata, "ZHAZHUANG");
         if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
-        basenum = 28;
-        assert(num2hulebasedata[basenum] == "ZHAZHUANGPOINT");
+        BASENUM2VECEVAL(basenum, 28, num2hulebasedata, "ZHAZHUANGPOINT");
         if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
 
-        basenum = 29;
-        assert(num2hulebasedata[basenum] == "CHONGLEZHUANG");
+        BASENUM2VECEVAL(basenum, 29, num2hulebasedata, "CHONGLEZHUANG");
         if (from == adata.me && who == east) adata.hulebasedata[basenum][fromtype] ++ ;
 
-        basenum = 30;
-        assert(num2hulebasedata[basenum] == "CHONGLEZHUANGPOINT");
+        BASENUM2VECEVAL(basenum, 30, num2hulebasedata, "CHONGLEZHUANGPOINT");
         if (from == adata.me && who == east) adata.hulebasedata[basenum][fromtype] += dpoint[from];
 
-        basenum = 31;
-        assert(num2hulebasedata[basenum] == "FANGCHONGHISCIRCLE");
+        BASENUM2VECEVAL(basenum, 31, num2hulebasedata, "FANGCHONGHISCIRCLE");
         if (from == adata.me) adata.hulebasedata[basenum][fromtype] += data[who].table.size();
 
-        basenum = 32;
-        assert(num2hulebasedata[basenum] == "BEIZIMOHISCIRCLE");
+        BASENUM2VECEVAL(basenum, 32, num2hulebasedata, "BEIZIMOHISCIRCLE");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
-        basenum = 33;
-        assert(num2hulebasedata[basenum] == "CHONGLEDAMA");
+        BASENUM2VECEVAL(basenum, 33, num2hulebasedata, "CHONGLEDAMA");
         if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][fromtype] ++ ;
 
-        basenum = 38;
-        assert(num2hulebasedata[basenum] == "CHONGLEDAMAPOINT");
+        BASENUM2VECEVAL(basenum, 38, num2hulebasedata, "CHONGLEDAMAPOINT");
         if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][fromtype] += dpoint[from];
 
-        basenum = 43;
-        assert(num2hulebasedata[basenum] == "ZHUANGMEIHU");
+        BASENUM2VECEVAL(basenum, 43, num2hulebasedata, "ZHUANGMEIHU");
         if (east == adata.me && who != adata.me) adata.hulebasedata[basenum][fromtype] ++ ;
 
         //向听仍使用basedata
-        basenum = 15;
-        assert(num2basedata[basenum] == "FANGCHONGSHANTEN0");
+        BASENUM2VECEVAL(basenum, 15, num2basedata, "FANGCHONGSHANTEN0");
         if (from == adata.me) adata.basedata[basenum + Algo::calcshanten(data[from])] ++ ;
 
         //统计役种
-        int doranum = 52, akanum = 54, uranum = 53;
-        basenum = 0;
-        assert(num2huleyakubasedata[basenum] == "HULEYAKU");
-        assert(num2yakudata[doranum] == "DORA");
-        assert(num2yakudata[akanum] == "AKA");
-        assert(num2yakudata[uranum] == "URA");
+        int doranum, akanum, uranum;
+        BASENUM2VECEVAL(basenum, 0, num2huleyakubasedata, "HULEYAKU");
+        BASENUM2VECEVAL(doranum, 52, num2yakudata, "DORA");
+        BASENUM2VECEVAL(akanum, 54, num2yakudata, "AKA");
+        BASENUM2VECEVAL(uranum, 53, num2yakudata, "URA");
         if (who == adata.me)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
@@ -507,8 +469,7 @@ void MatchData::IHule(std::string &actstr){
                 else adata.huleyakubasedata[basenum][i.first][whotype] ++ ;
             }
 
-        basenum = 1;
-        assert(num2huleyakubasedata[basenum] == "CHONGLEYAKU");
+        BASENUM2VECEVAL(basenum, 1, num2huleyakubasedata, "CHONGLEYAKU");
         if (from == adata.me)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
@@ -516,8 +477,7 @@ void MatchData::IHule(std::string &actstr){
                 else adata.huleyakubasedata[basenum][i.first][whotype] ++ ;
             }
 
-        basenum = 2;
-        assert(num2huleyakubasedata[basenum] == "BEIZIMOYAKU");
+        BASENUM2VECEVAL(basenum, 2, num2huleyakubasedata, "BEIZIMOYAKU");
         if (who != adata.me && tsumo)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
@@ -526,8 +486,7 @@ void MatchData::IHule(std::string &actstr){
             }
 
         //立直宣言牌放铳，需要在Hule中判定
-        basenum = 2;
-        assert(num2reachbasedata[basenum] == "REACHDECLEARRON");
+        BASENUM2VECEVAL(basenum, 2, num2reachbasedata, "REACHDECLEARRON");
         if (needkyoutaku == from && from == adata.me){
             int reachtype = 1 - Algo::tenpaiquality(data[who]);
             assert(reachtype == 0 || reachtype == 1);
@@ -554,32 +513,26 @@ void MatchData::INoTile(std::string &str){
         tenpainum += i;
 
     auto &adata = *analyzedata;
-    auto num2basedata = adata.ADN.base["BASEDATA"];
+    auto &num2basedata = adata.ADN.base["BASEDATA"];
     {
         int basenum;
 
-        basenum = 26;
-        assert(num2basedata[basenum] == "NORMALLIUJU");
+        BASENUM2VECEVAL(basenum, 26, num2basedata, "NORMALLIUJU");
         adata.basedata[basenum] ++ ;
 
-        basenum = 27;
-        assert(num2basedata[basenum] == "LIUJUTENPAI");
+        BASENUM2VECEVAL(basenum, 27, num2basedata, "LIUJUTENPAI");
         if (tenpai[adata.me]) adata.basedata[basenum] ++ ;
 
-        basenum = 28;
-        assert(num2basedata[basenum] == "LIUJUNOTEN");
+        BASENUM2VECEVAL(basenum, 28, num2basedata, "LIUJUNOTEN");
         if (!tenpai[adata.me]) adata.basedata[basenum] ++ ;
 
-        basenum = 29;
-        assert(num2basedata[basenum] == "LIUJUTENPAIPOINT");
+        BASENUM2VECEVAL(basenum, 29, num2basedata, "LIUJUTENPAIPOINT");
         if (tenpai[adata.me]) adata.basedata[basenum] += in[tenpainum];
 
-        basenum = 30;
-        assert(num2basedata[basenum] == "LIUJUNOTENPOINT");
+        BASENUM2VECEVAL(basenum, 30, num2basedata, "LIUJUNOTENPOINT");
         if (!tenpai[adata.me]) adata.basedata[basenum] += out[tenpainum];
 
-        basenum = 31;
-        assert(num2basedata[basenum] == "LIUJUPOINT");
+        BASENUM2VECEVAL(basenum, 31, num2basedata, "LIUJUPOINT");
         if (tenpai[adata.me]) adata.basedata[basenum] += in[tenpainum];
         if (!tenpai[adata.me]) adata.basedata[basenum] += out[tenpainum];
 
@@ -690,7 +643,7 @@ void MatchData::INewRound(CJsonObject &record){
     record.Get("yama", yamastr);
     for (unsigned i = 0; i < yamastr.size(); i += 2)
         yama.push_back(Tiles::tile2num(yamastr.substr(i, 2)));
-    auto pointarr = record["point"];
+    auto &pointarr = record["point"];
     for (int i = 0; i < pointarr.GetArraySize(); i ++ ){
         int pp;
         pointarr.Get(i, pp);
@@ -700,7 +653,7 @@ void MatchData::INewRound(CJsonObject &record){
     record.Get("dora", dorastr);
     for (unsigned i = 0; i < dorastr.size(); i += 2)
         dora.push_back(Tiles::tile2num(dorastr.substr(i, 2)));
-    auto jsonhand = record["hand"];
+    auto &jsonhand = record["hand"];
     for (int i = 0; i < jsonhand.GetArraySize(); i ++ ){
         std::vector<int> vec;
         std::string hstr;
@@ -788,10 +741,10 @@ AnalyzeResultName::AnalyzeResultName(){
     std::string key;
 
     //base
-    auto basejson = json["base"];
+    auto &basejson = json["base"];
     while (basejson.GetKey(key)){
         if (key == DESCRIPTION) continue;
-        auto arr = basejson[key];
+        auto &arr = basejson[key];
         std::vector<std::string> vec;
         for (int i = 0; i < arr.GetArraySize(); i ++ ){
             std::string s;
@@ -802,7 +755,7 @@ AnalyzeResultName::AnalyzeResultName(){
     }
 
     //result
-    auto resultjson = json["result"];
+    auto &resultjson = json["result"];
     while (resultjson.GetKey(key)){
         if (key == DESCRIPTION) continue;
         std::string value;
@@ -812,15 +765,15 @@ AnalyzeResultName::AnalyzeResultName(){
     }
 
     //resultgroup
-    auto grouporderjson = json["resultgroup"]["order"];
+    auto &grouporderjson = json["resultgroup"]["order"];
     for (int i = 0; i < grouporderjson.GetArraySize(); i ++ ){
         std::string s;
         grouporderjson.Get(i, s);
         resultgrouporder.push_back(s);
     }
-    auto groupdatajson = json["resultgroup"]["data"];
+    auto &groupdatajson = json["resultgroup"]["data"];
     while (groupdatajson.GetKey(key)){
-        auto arr = groupdatajson[key];
+        auto &arr = groupdatajson[key];
         std::vector<std::string> vec;
         for (int i = 0; i < arr.GetArraySize(); i ++ ){
             std::string s;
@@ -1106,91 +1059,75 @@ AnalyzeData::AnalyzeData() : AE(this) {
 int AnalyzeData::gethandtype(const MatchPlayerData &pdata){
     int res = -1;
     int tenpaiq = Algo::tenpaiquality(pdata);
-    auto num2hulehandtype = ADN.base["HULEHANDTYPE"];
+    auto &num2hulehandtype = ADN.base["HULEHANDTYPE"];
     if (pdata.reach){
         if (tenpaiq == 1){
-            res = 0;
-            assert(num2hulehandtype[res] == "REACHGOOD");
+            BASENUM2VECEVAL(res, 0, num2hulehandtype, "REACHGOOD");
             return res;
         }
-        res = 1;
-        assert(num2hulehandtype[res] == "REACHBAD");
+        BASENUM2VECEVAL(res, 1, num2hulehandtype, "REACHBAD");
         return res;
     }
     if (tenpaiq != -1){
-        res = 2 + pdata.fulu();
-        assert(num2hulehandtype[res] == (res == 2 ? "DAMA" : (std::string("FULU") + char('0' - 2 + res))));
+        BASENUM2VECEVAL(res, 2 + pdata.fulu(), num2hulehandtype, (res == 2 ? "DAMA" : (std::string("FULU") + char('0' - 2 + res))));
         return res;
     }
-    res = 7 + pdata.fulu();
-    assert(num2hulehandtype[res] == (res == 7 ? "NTDAMA" : (std::string("NTFULU") + char('0' - 7 + res))));
+    BASENUM2VECEVAL(res, 7 + pdata.fulu(), num2hulehandtype, (res == 7 ? "NTDAMA" : (std::string("NTFULU") + char('0' - 7 + res))));
     return res;
 }
 
 void AnalyzeData::makehanddata(std::vector<long long> &vec){
     int calcnum, fromnum;
-    auto num2hulehandtype = ADN.base["HULEHANDTYPE"];
+    auto &num2hulehandtype = ADN.base["HULEHANDTYPE"];
 
-    calcnum = 12;
-    assert(num2hulehandtype[calcnum] == "FULU");
+    BASENUM2VECEVAL(calcnum, 12, num2hulehandtype, "FULU");
     for (int j = calcnum; j < (int)vec.size(); j ++ )
         vec[j] = 0;
 
-    calcnum = 12;
-    fromnum = 3;
-    assert(num2hulehandtype[calcnum] == "FULU" && num2hulehandtype[fromnum] == "FULU1");
+    BASENUM2VECEVAL(calcnum, 12, num2hulehandtype, "FULU");
+    BASENUM2VECEVAL(fromnum, 3, num2hulehandtype, "FULU1");
     for (int j = 0; j < 4; j ++ )
         vec[calcnum] += vec[fromnum + j];
 
-    calcnum = 13;
-    fromnum = 8;
-    assert(num2hulehandtype[calcnum] == "NTFULU" && num2hulehandtype[fromnum] == "NTFULU1");
+    BASENUM2VECEVAL(calcnum, 13, num2hulehandtype, "NTFULU");
+    BASENUM2VECEVAL(fromnum, 8, num2hulehandtype, "NTFULU1");
     for (int j = 0; j < 4; j ++ )
         vec[calcnum] += vec[fromnum + j];
 
-    calcnum = 14;
-    fromnum = 12;
-    assert(num2hulehandtype[calcnum] == "ALLFULU" && num2hulehandtype[fromnum] == "FULU");
+    BASENUM2VECEVAL(calcnum, 14, num2hulehandtype, "ALLFULU");
+    BASENUM2VECEVAL(fromnum, 12, num2hulehandtype, "FULU");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 14;
-    fromnum = 13;
-    assert(num2hulehandtype[calcnum] == "ALLFULU" && num2hulehandtype[fromnum] == "NTFULU");
+    BASENUM2VECEVAL(calcnum, 14, num2hulehandtype, "ALLFULU");
+    BASENUM2VECEVAL(fromnum, 13, num2hulehandtype, "NTFULU");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 15;
-    fromnum = 2;
-    assert(num2hulehandtype[calcnum] == "ALLDAMA" && num2hulehandtype[fromnum] == "DAMA");
+    BASENUM2VECEVAL(calcnum, 15, num2hulehandtype, "ALLDAMA");
+    BASENUM2VECEVAL(fromnum, 2, num2hulehandtype, "DAMA");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 15;
-    fromnum = 7;
-    assert(num2hulehandtype[calcnum] == "ALLDAMA" && num2hulehandtype[fromnum] == "NTDAMA");
+    BASENUM2VECEVAL(calcnum, 15, num2hulehandtype, "ALLDAMA");
+    BASENUM2VECEVAL(fromnum, 7, num2hulehandtype, "NTDAMA");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 16;
-    fromnum = 0;
-    assert(num2hulehandtype[calcnum] == "ALLREACH" && num2hulehandtype[fromnum] == "REACHGOOD");
+    BASENUM2VECEVAL(calcnum, 16, num2hulehandtype, "ALLREACH");
+    BASENUM2VECEVAL(fromnum, 0, num2hulehandtype, "REACHGOOD");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 16;
-    fromnum = 1;
-    assert(num2hulehandtype[calcnum] == "ALLREACH" && num2hulehandtype[fromnum] == "REACHBAD");
+    BASENUM2VECEVAL(calcnum, 16, num2hulehandtype, "ALLREACH");
+    BASENUM2VECEVAL(fromnum, 1, num2hulehandtype, "REACHBAD");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 17;
-    fromnum = 14;
-    assert(num2hulehandtype[calcnum] == "ALL" && num2hulehandtype[fromnum] == "ALLFULU");
+    BASENUM2VECEVAL(calcnum, 17, num2hulehandtype, "ALL");
+    BASENUM2VECEVAL(fromnum, 14, num2hulehandtype, "ALLFULU");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 17;
-    fromnum = 15;
-    assert(num2hulehandtype[calcnum] == "ALL" && num2hulehandtype[fromnum] == "ALLDAMA");
+    BASENUM2VECEVAL(calcnum, 17, num2hulehandtype, "ALL");
+    BASENUM2VECEVAL(fromnum, 15, num2hulehandtype, "ALLDAMA");
     vec[calcnum] += vec[fromnum];
 
-    calcnum = 17;
-    fromnum = 16;
-    assert(num2hulehandtype[calcnum] == "ALL" && num2hulehandtype[fromnum] == "ALLREACH");
+    BASENUM2VECEVAL(calcnum, 17, num2hulehandtype, "ALL");
+    BASENUM2VECEVAL(fromnum, 16, num2hulehandtype, "ALLREACH");
     vec[calcnum] += vec[fromnum];
 }
 
@@ -1203,12 +1140,12 @@ void AnalyzeData::calcresult(){
     for (auto &i : huleyakubasedata)
         for (auto &j : i)
             makehanddata(j);
-    auto num2reachtype = ADN.base["REACHTYPE"];
+    auto &num2reachtype = ADN.base["REACHTYPE"];
     for (auto &i : reachbasedata){
-        int b0 = 0, b1 = 1, b2 = 2;
-        assert(num2reachtype[b0] == "GOOD");
-        assert(num2reachtype[b1] == "BAD");
-        assert(num2reachtype[b2] == "ALL");
+        int b0, b1, b2;
+        BASENUM2VECEVAL(b0, 0, num2reachtype, "GOOD");
+        BASENUM2VECEVAL(b1, 1, num2reachtype, "BAD");
+        BASENUM2VECEVAL(b2, 2, num2reachtype, "ALL");
         i[b2] = i[b0] + i[b1];
     }
 
@@ -1230,50 +1167,50 @@ void PaipuAnalyzer::initializeresult(){
     matchdata.analyzedata = analyzedata;
 }
 
-bool PaipuAnalyzer::filterinclude(const CJsonObject &p, CJsonObject &f, bool emptyresult){
-    assert(f.IsArray());
-    int arrsize = f.GetArraySize();
+bool PaipuAnalyzer::filterinclude(CJsonObject *p, CJsonObject *f, bool emptyresult){
+    assert(f -> IsArray());
+    int arrsize = f -> GetArraySize();
     bool result = (arrsize == 0 ? emptyresult : false);
     for (int i = 0; i < arrsize; i ++ )
-        result = result || (p == f[i]);
+        result = result || (p->StrictEqual((*f)[i]));
     return result;
 }
 
-bool PaipuAnalyzer::filterexclude(const CJsonObject &p, CJsonObject &f){
+bool PaipuAnalyzer::filterexclude(CJsonObject *p, CJsonObject *f){
     return filterinclude(p, f, false);
 }
 
-bool PaipuAnalyzer::filtercheck(const CJsonObject &paipu){
+bool PaipuAnalyzer::filtercheck(CJsonObject &paipu){
     bool result = true, excluderesult = false;
     
-    CJsonObject gamedata, roomdata, include, exclude, p, f;
-    paipu.Get("gamedata", gamedata);
-    roomdata = gamedata["roomdata"];
-    include = filter["include"];
-    exclude = filter["exclude"];
+    CJsonObject *p, *f;
+    auto &gamedata = paipu["gamedata"];
+    auto &roomdata = gamedata["roomdata"];
+    auto &include = filter["include"];
+    auto &exclude = filter["exclude"];
     
-    p = gamedata["source"];
-    f = include["source"];
+    p = &gamedata["source"];
+    f = &include["source"];
     result = result && filterinclude(p, f);
-    f = exclude["source"];
+    f = &exclude["source"];
     excluderesult = excluderesult || filterexclude(p, f);
     
-    p = roomdata["room"];
-    f = include["room"];
+    p = &roomdata["room"];
+    f = &include["room"];
     result = result && filterinclude(p, f);
-    f = exclude["room"];
+    f = &exclude["room"];
     excluderesult = excluderesult || filterexclude(p, f);
     
-    p = roomdata["player"];
-    f = include["player"];
+    p = &roomdata["player"];
+    f = &include["player"];
     result = result && filterinclude(p, f);
-    f = exclude["player"];
+    f = &exclude["player"];
     excluderesult = excluderesult || filterexclude(p, f);
     
-    p = roomdata["round"];
-    f = include["round"];
+    p = &roomdata["round"];
+    f = &include["round"];
     result = result && filterinclude(p, f);
-    f = exclude["round"];
+    f = &exclude["round"];
     excluderesult = excluderesult || filterexclude(p, f);
     
     long long tb, ta, time;
@@ -1298,39 +1235,39 @@ bool PaipuAnalyzer::filtercheck(const CJsonObject &paipu){
     map[60] = "slow";
     roomdata.Get("timeone", tll);
     CJsonObject tone("\"" + map[tll] + "\"");
-    f = include["speed"];
-    result = result && filterinclude(tone, f);
-    f = exclude["speed"];
-    excluderesult = excluderesult || filterexclude(tone, f);
+    f = &include["speed"];
+    result = result && filterinclude(&tone, f);
+    f = &exclude["speed"];
+    excluderesult = excluderesult || filterexclude(&tone, f);
 
-    CJsonObject playerdata = gamedata["playerdata"];
+    CJsonObject &playerdata = gamedata["playerdata"];
     bool bb;
-    f = include["id"];
+    f = &include["id"];
     bb = playerdata.GetArraySize() == 0;
     for (int i = 0, gsize = playerdata.GetArraySize(); i < gsize; i ++ ){
-        CJsonObject p = playerdata[i]["id"];
+        CJsonObject *p = &playerdata[i]["id"];
         bb = bb || filterinclude(p, f);
     }
     result = result && bb;
-    f = exclude["id"];
+    f = &exclude["id"];
     bb = false;
     for (int i = 0, gsize = playerdata.GetArraySize(); i < gsize; i ++ ){
-        CJsonObject p = playerdata[i]["id"];
+        CJsonObject *p = &playerdata[i]["id"];
         bb = bb || filterexclude(p, f);
     }
     excluderesult = excluderesult || bb;
 
-    f = include["name"];
+    f = &include["name"];
     bb = false;
     for (int i = 0, gsize = playerdata.GetArraySize(); i < gsize; i ++ ){
-        CJsonObject p = playerdata[i]["name"];
+        CJsonObject *p = &playerdata[i]["name"];
         bb = bb || filterinclude(p, f);
     }
     result = result && bb;
-    f = exclude["name"];
+    f = &exclude["name"];
     bb = false;
     for (int i = 0, gsize = playerdata.GetArraySize(); i < gsize; i ++ ){
-        CJsonObject p = playerdata[i]["name"];
+        CJsonObject *p = &playerdata[i]["name"];
         bb = bb || filterexclude(p, f);
     }
     excluderesult = excluderesult || bb;
@@ -1374,20 +1311,31 @@ int PaipuAnalyzer::analyze(std::vector<CJsonObject> &paipus){
     return count;
 }
 
+int PaipuAnalyzer::analyze(std::vector<CJsonObject*> &paipus){
+    int count = 0;
+    for (auto &i : paipus)
+        if (analyze(i)) count ++ ;
+    return count;
+}
+
 bool PaipuAnalyzer::analyze(std::string &paipu){
     auto paipujson = CJsonObject(paipu);
     return analyze(paipujson);
 }
 
+bool PaipuAnalyzer::analyze(CJsonObject *paipu){
+    return analyze(*paipu);
+}
+
 bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     if (!filtercheck(paipu)) return false;
     auto &adata = *analyzedata;
-    auto num2basedata = adata.ADN.base["BASEDATA"];
+    auto &num2basedata = adata.ADN.base["BASEDATA"];
     adata.me = -1;
-    auto accountid = paipu["gamedata"]["accountid"];
-    auto pdata = paipu["gamedata"]["playerdata"];
+    auto &accountid = paipu["gamedata"]["accountid"];
+    auto &pdata = paipu["gamedata"]["playerdata"];
     for (int i = 0; i < 4; i ++ )
-        if (accountid == pdata[i]["id"])
+        if (accountid.StrictEqual(pdata[i]["id"]))
             adata.me = i;
     //如果玩家数据中没找到对应ID就跳过该牌谱
     if (adata.me == -1) return false;
@@ -1395,16 +1343,16 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     #ifdef SAVEMATCHDATASTEP
         GameStep = CJsonObject("[]");
     #endif
-    auto records = paipu["record"];
+    auto &records = paipu["record"];
     auto rlen = records.GetArraySize();
     for (int i = 0; i < rlen; i ++ ){
-        auto oner = records[i];
+        auto &oner = records[i];
         matchdata.INewRound(oner);
         #ifdef SAVEMATCHDATASTEP
             RoundStep = CJsonObject("[]");
             RoundStep.Add(matchdata.tojson());
         #endif
-        auto action = oner["action"];
+        auto &action = oner["action"];
         auto actlen = action.GetArraySize();
         for (int i = 0; i < actlen; i ++ ){
             std::string actstr;
@@ -1421,21 +1369,19 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         #endif
 
         {
-            int basenum = 9;
-            assert(num2basedata[basenum] == "TOTALROUND");
+            int basenum;
+
+            BASENUM2VECEVAL(basenum, 9, num2basedata, "TOTALROUND");
             adata.basedata[basenum] ++ ;
 
-            basenum = 10;
-            assert(num2basedata[basenum] == "REACH");
+            BASENUM2VECEVAL(basenum, 10, num2basedata, "REACH");
             adata.basedata[basenum] += !!matchdata.data[adata.me].reach;
 
-            basenum = 11;
-            assert(num2basedata[basenum] == "FULU1");
+            BASENUM2VECEVAL(basenum, 11, num2basedata, "FULU1");
             int fulu = matchdata.data[adata.me].fulu();
             if (fulu) adata.basedata[basenum - 1 + fulu] ++ ;
 
-            basenum = 33;
-            assert(num2basedata[basenum] == "ZHUANG");
+            BASENUM2VECEVAL(basenum, 33, num2basedata, "ZHUANG");
             if (matchdata.east == adata.me) adata.basedata[basenum] ++ ;
             
         }
@@ -1446,12 +1392,12 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     #endif
 
     {
-        int basenum = 0;
-        assert(num2basedata[basenum] == "TOTALGAME");
+        int basenum; 
+        
+        BASENUM2VECEVAL(basenum, 0, num2basedata, "TOTALGAME");
         adata.basedata[basenum] ++ ;
         
-        basenum = 1;
-        assert(num2basedata[basenum] == "#1");
+        BASENUM2VECEVAL(basenum, 1, num2basedata, "#1");
         std::vector<int> vec;
         for (auto i : matchdata.data)
             vec.push_back(i.score);
@@ -1466,7 +1412,7 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
             if (nowround >= totalround - 1){
                 altime ++ ;
                 vec.clear();
-                auto points = records[i]["point"];
+                auto &points = records[i]["point"];
                 for (int j = 0; j < points.GetArraySize(); j ++ ){
                     int point;
                     points.Get(j, point);
@@ -1477,28 +1423,22 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         }
         auto alrank = Algo::getrank(vec, adata.me);
 
-        basenum = 5;
-        assert(num2basedata[basenum] == "ALBAO1");
+        BASENUM2VECEVAL(basenum, 5, num2basedata, "ALBAO1");
         adata.basedata[basenum] += alrank == 1 && finalrank == 1;
 
-        basenum = 6;
-        assert(num2basedata[basenum] == "ALNI1");
+        BASENUM2VECEVAL(basenum, 6, num2basedata, "ALNI1");
         adata.basedata[basenum] += alrank != 1 && finalrank == 1;
         
-        basenum = 7;
-        assert(num2basedata[basenum] == "ALBI4");
+        BASENUM2VECEVAL(basenum, 7, num2basedata, "ALBI4");
         adata.basedata[basenum] += alrank == 4 && finalrank != 4;
 
-        basenum = 8;
-        assert(num2basedata[basenum] == "ALMULTITIME");
+        BASENUM2VECEVAL(basenum, 8, num2basedata, "ALMULTITIME");
         adata.basedata[basenum] += altime > 1;
 
-        basenum = 22;
-        assert(num2basedata[basenum] == "AL#1");
+        BASENUM2VECEVAL(basenum, 22, num2basedata, "AL#1");
         adata.basedata[basenum - 1 + alrank] ++ ;
 
-        basenum = 32;
-        assert(num2basedata[basenum] == "ALLPOINT");
+        BASENUM2VECEVAL(basenum, 32, num2basedata, "ALLPOINT");
         int stp, endp;
         paipu["gamedata"]["roomdata"].Get("startpoint", stp);
         pdata[adata.me].Get("finalpoint", endp);
@@ -1509,11 +1449,11 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
 }
 
 void analyzemain(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
-    auto filter = config["filter"];
-    std::vector<CJsonObject> paipus;
+    auto &filter = config["filter"];
+    std::vector<CJsonObject*> paipus;
     auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
     for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
-        paipus.push_back(paipuarr[i]);
+        paipus.push_back(&paipuarr[i]);
     PaipuAnalyzer pa = PaipuAnalyzer(filter);
     int paipunum = pa.analyze(paipus);
     #ifdef SAVEMATCHDATASTEP

@@ -4,6 +4,8 @@
 #include "header.h"
 #include "tiles.h"
 
+#define BASENUM2VECEVAL(base, num, num2vec, str) base = num; assert(num2vec[base] == str);
+
 namespace PA{
 
     //对局用户数据
@@ -147,9 +149,9 @@ namespace PA{
         CJsonObject filter;
         MatchData matchdata;
         void initializeresult();
-        bool filterinclude(const CJsonObject &p, CJsonObject &f, bool emptyresult = true);
-        bool filterexclude(const CJsonObject &p, CJsonObject &f);
-        bool filtercheck(const CJsonObject &paipu);
+        bool filterinclude(CJsonObject *p, CJsonObject *f, bool emptyresult = true);
+        bool filterexclude(CJsonObject *p, CJsonObject *f);
+        bool filtercheck(CJsonObject &paipu);
 
     public:
         AnalyzeData *analyzedata;
@@ -159,8 +161,10 @@ namespace PA{
         void setfilter(const CJsonObject &filterjson);
         void clearresult();
         int analyze(std::vector<std::string> &paipus);
+        int analyze(std::vector<CJsonObject*> &paipus);
         int analyze(std::vector<CJsonObject> &paipus);
         bool analyze(std::string &paipu);
+        bool analyze(CJsonObject *paipu);
         bool analyze(CJsonObject &paipu);
     };
 
