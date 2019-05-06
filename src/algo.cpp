@@ -343,6 +343,7 @@ CJsonObject ReadJSON(const std::string &filename){
     }
     delete[] buffer;
     fclose(f);
+    if ((unsigned char)jsonstr[0] == 0xef && (unsigned char)jsonstr[1] == 0xbb && (unsigned char)jsonstr[2] == 0xbf) jsonstr.erase(0, 3);
     return CJsonObject(jsonstr);
 }
 
@@ -355,6 +356,7 @@ std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::st
         if (fgets(buf, JSONBUFFERSIZE, f) == NULL) break;
         ts += buf;
         ts += suffix;
+        if ((unsigned char)ts[0] == 0xef && (unsigned char)ts[1] == 0xbb && (unsigned char)ts[2] == 0xbf) ts.erase(0, 3);
         res.push_back(CJsonObject(ts));
     }
     fclose(f);

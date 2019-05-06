@@ -1,5 +1,7 @@
 0.2.4
 1.PaipuAnalyzer运行速度优化
+2.支持UTF-8 with BOM的json数据
+3.增强错误收集功能
 
 0.2.3
 1.重构analyzer.cpp代码

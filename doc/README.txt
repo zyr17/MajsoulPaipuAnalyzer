@@ -37,3 +37,7 @@ config.json常用设置
 
 5. 如果有多个条件，请分别填上
 例 "room": [3, 4],"round": [8],"timeafter": "2019-02-02 00:00:00" 分析在19年2月2日以后打的金场南风及玉场南风
+
+6. 更多配置请参考https://github.com/zyr17/MajsoulPaipuAnalyzer/blob/master/doc/config.md
+
+7. 若在文件中添加了中文（如name中使用了中文字符串），请确保文件以UTF-8编码保存。例如对于Windows记事本需要另存为并在下方编码选择UTF-8。
