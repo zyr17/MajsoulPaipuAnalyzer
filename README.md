@@ -6,6 +6,16 @@
 
 [更新内容说明文件](doc/release-notes.txt)
 
+## 下载
+
+APPVeyor下载最新版本：
+
+Windows: [![Build status](https://ci.appveyor.com/api/projects/status/fyirnuhsunq73brc?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer) Linux: [![Build status](https://ci.appveyor.com/api/projects/status/i22ex7a644qasmxx?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer-ko5wy)
+
+[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中可下载已经编译好的文件。由于上传速度较慢可能不是很及时
+
+[百度网盘](https://pan.baidu.com/s/1mu31kzaF7aHkY2IeBjCLyg) 提取码：k34a
+
 ## 界面
 
 工具分为两部分，MajsoulPaipuCrawler和PaipuAnalyzer。
@@ -27,16 +37,6 @@ Windows: Windows 10, nodejs v10.13.0, MinGW-w64 8.1.0
 Linux: Ubuntu 18.04 x64, nodejs v8.1.0, g++ 7.4.0
 
 AppVeyor环境请参考[其网站](https://www.appveyor.com/docs/build-environment/)
-
-### 二进制文件
-
-APPVeyor下载最新版本：
-
-Windows: [![Build status](https://ci.appveyor.com/api/projects/status/fyirnuhsunq73brc?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer) Linux: [![Build status](https://ci.appveyor.com/api/projects/status/i22ex7a644qasmxx?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer-ko5wy)
-
-[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中可下载已经编译好的文件。由于上传速度较慢可能不是很及时
-
-[百度网盘](https://pan.baidu.com/s/1mu31kzaF7aHkY2IeBjCLyg) 提取码：k34a
 
 ### 依赖
 
@@ -138,4 +138,4 @@ Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的�
 
 [wssip](https://github.com/nccgroup/wssip)
 
-<!-- [牌面图像](https://mj-king.net/sozai/) -->
+[牌面图像](https://mj-king.net/sozai/)
