@@ -47,7 +47,7 @@ const hanname = [
     ['国士无双十三面', 'kokushijusan'], ['大四喜', 'daisushi'], ['小四喜', 'shousushi'], ['四杠子', 'sukantsu'], 
     ['宝牌', 'dora'], ['里宝牌', 'ura'], ['红宝牌', 'aka'], 
 ];
-var majsoulfanid2name = [
+const majsoulfanid2name = [
     '',
     '门前清自摸和','立直','枪杠','岭上开花','海底摸月',
     '河底捞鱼','役牌 白','役牌 发','役牌 中','役牌:门风牌',
