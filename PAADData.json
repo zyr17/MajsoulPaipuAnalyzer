@@ -28,6 +28,7 @@
             "4. 在对应位置添加代码，注意一定要assert统计量名称是否正确，同时在该描述下方增加代码添加位置",
             "5. 在AnalyzeData::calcresult中进行后处理，如REACHTYPE-ALL这种累加型基本统计量",
             "6. 在AnalyzeExpr::getvalue中对于result表达式计算时引用该类别统计量时指定相关基本统计量名称",
+            "7. 在AnalyzeData::outputbase加上该基本量的输出，便于以后调试",
             "",
             "立直时：[REACHBASEDATA立直统计值, REACHTYPE立直类型]",
             "有人和牌时：[HULEBASEDATA和牌统计值, HULEHANDTYPE玩家手牌类型]",

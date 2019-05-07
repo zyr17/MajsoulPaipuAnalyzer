@@ -99,7 +99,6 @@ namespace PA{
         AnalyzeResultName ADN;
         int me;
         std::vector<long long> basedata;
-        std::vector<std::vector<long long>> yakudata;
         std::vector<double> result;
 
         //[HULEBASEDATA, HULEHANDTYPE]
@@ -112,6 +111,7 @@ namespace PA{
         AnalyzeData();
         int gethandtype(const MatchPlayerData &pdata);
         void calcresult();
+        void outputbase();
         void outputresult();
     };
 

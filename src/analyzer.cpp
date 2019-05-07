@@ -337,70 +337,67 @@ void MatchData::IHule(std::string &actstr){
     auto &num2reachbasedata = adata.ADN.base["REACHBASEDATA"];
     auto &num2reachtype = adata.ADN.base["REACHTYPE"];
     {
-        auto whotype = adata.gethandtype(data[who]), fromtype = tsumo ? -1 : adata.gethandtype(data[from]);
         auto metype = adata.gethandtype(data[adata.me]);
-        //int whotype = 0, fromtype = 0, metype = 0;
         int basenum;
 
         BASENUM2VECEVAL(basenum, 0, num2hulebasedata, "HULE");
-        if (who == adata.me) adata.hulebasedata[basenum][whotype] ++ ;
-        //if (who == adata.me) std::cout << whotype;
+        if (who == adata.me) adata.hulebasedata[basenum][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 1, num2hulebasedata, "FANGCHONG");
-        if (from == adata.me) adata.hulebasedata[basenum][fromtype] ++ ;
+        if (from == adata.me) adata.hulebasedata[basenum][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 2, num2hulebasedata, "ZIMO");
-        if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] ++ ;
+        if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 3, num2hulebasedata, "BEIZIMO");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 4, num2hulebasedata, "HULEPOINT");
-        if (who == adata.me) adata.hulebasedata[basenum][whotype] += dpoint[who];
+        if (who == adata.me) adata.hulebasedata[basenum][metype] += dpoint[who];
 
         BASENUM2VECEVAL(basenum, 5, num2hulebasedata, "HULESUDIAN");
-        if (who == adata.me) adata.hulebasedata[basenum][whotype] += dsudian[who];
+        if (who == adata.me) adata.hulebasedata[basenum][metype] += dsudian[who];
 
         BASENUM2VECEVAL(basenum, 6, num2hulebasedata, "FANGCHONGPOINT");
-        if (from == adata.me) adata.hulebasedata[basenum][fromtype] += dpoint[from];
+        if (from == adata.me) adata.hulebasedata[basenum][metype] += dpoint[from];
 
         BASENUM2VECEVAL(basenum, 7, num2hulebasedata, "FANGCHONGSUDIAN");
-        if (from == adata.me) adata.hulebasedata[basenum][fromtype] += dsudian[from];
+        if (from == adata.me) adata.hulebasedata[basenum][metype] += dsudian[from];
 
         BASENUM2VECEVAL(basenum, 8, num2hulebasedata, "ZIMOPOINT");
-        if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dpoint[who];
+        if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] += dpoint[who];
 
         BASENUM2VECEVAL(basenum, 9, num2hulebasedata, "ZIMOSUDIAN");
-        if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dsudian[who];
+        if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] += dsudian[who];
 
         BASENUM2VECEVAL(basenum, 10, num2hulebasedata, "BEIZIMOPOINT");
-        if (who != adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dpoint[adata.me];
+        if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
 
         BASENUM2VECEVAL(basenum, 11, num2hulebasedata, "BEIZIMOSUDIAN");
-        if (who != adata.me && tsumo) adata.hulebasedata[basenum][whotype] += dsudian[adata.me];
+        if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += dsudian[adata.me];
 
         BASENUM2VECEVAL(basenum, 12, num2hulebasedata, "HULE3900");
         if (adata.me == who){
             int nowpoint = dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
-            if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][whotype] ++ ;
+            if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][metype] ++ ;
         }
 
         BASENUM2VECEVAL(basenum, 15, num2hulebasedata, "FANGCHONG3900");
         if (adata.me == from){
             int nowpoint = - dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
-            if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][fromtype] ++ ;
+            if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][metype] ++ ;
         }
 
         BASENUM2VECEVAL(basenum, 18, num2hulebasedata, "HULECIRCLE");
-        if (who == adata.me) adata.hulebasedata[basenum][whotype] += data[who].table.size();
+        if (who == adata.me) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
         BASENUM2VECEVAL(basenum, 19, num2hulebasedata, "FANGCHONGMYCIRCLE");
-        if (from == adata.me) adata.hulebasedata[basenum][fromtype] += data[from].table.size();
+        if (from == adata.me) adata.hulebasedata[basenum][metype] += data[from].table.size();
 
         BASENUM2VECEVAL(basenum, 20, num2hulebasedata, "ZIMOCIRCLE");
-        if (who == adata.me && tsumo) adata.hulebasedata[basenum][whotype] += data[who].table.size();
+        if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
         BASENUM2VECEVAL(basenum, 21, num2hulebasedata, "BEIZIMOMYCIRCLE");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[adata.me].table.size();
@@ -420,10 +417,10 @@ void MatchData::IHule(std::string &actstr){
         }
 
         BASENUM2VECEVAL(basenum, 25, num2hulebasedata, "ZHUANGHULE");
-        if (who == adata.me && who == east) adata.hulebasedata[basenum][whotype] ++ ;
+        if (who == adata.me && who == east) adata.hulebasedata[basenum][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 26, num2hulebasedata, "ZHUANGZIMO");
-        if (who == adata.me && who == east && tsumo) adata.hulebasedata[basenum][whotype] ++ ;
+        if (who == adata.me && who == east && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 27, num2hulebasedata, "ZHAZHUANG");
         if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] ++ ;
@@ -432,25 +429,25 @@ void MatchData::IHule(std::string &actstr){
         if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
 
         BASENUM2VECEVAL(basenum, 29, num2hulebasedata, "CHONGLEZHUANG");
-        if (from == adata.me && who == east) adata.hulebasedata[basenum][fromtype] ++ ;
+        if (from == adata.me && who == east) adata.hulebasedata[basenum][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 30, num2hulebasedata, "CHONGLEZHUANGPOINT");
-        if (from == adata.me && who == east) adata.hulebasedata[basenum][fromtype] += dpoint[from];
+        if (from == adata.me && who == east) adata.hulebasedata[basenum][metype] += dpoint[from];
 
         BASENUM2VECEVAL(basenum, 31, num2hulebasedata, "FANGCHONGHISCIRCLE");
-        if (from == adata.me) adata.hulebasedata[basenum][fromtype] += data[who].table.size();
+        if (from == adata.me) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
         BASENUM2VECEVAL(basenum, 32, num2hulebasedata, "BEIZIMOHISCIRCLE");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
         BASENUM2VECEVAL(basenum, 33, num2hulebasedata, "CHONGLEDAMA");
-        if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][fromtype] ++ ;
+        if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][metype] ++ ;
 
         BASENUM2VECEVAL(basenum, 38, num2hulebasedata, "CHONGLEDAMAPOINT");
-        if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][fromtype] += dpoint[from];
+        if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][metype] += dpoint[from];
 
         BASENUM2VECEVAL(basenum, 43, num2hulebasedata, "ZHUANGMEIHU");
-        if (east == adata.me && who != adata.me) adata.hulebasedata[basenum][fromtype] ++ ;
+        if (east == adata.me && who != adata.me) adata.hulebasedata[basenum][metype] ++ ;
 
         //向听仍使用basedata
         BASENUM2VECEVAL(basenum, 15, num2basedata, "FANGCHONGSHANTEN0");
@@ -465,24 +462,24 @@ void MatchData::IHule(std::string &actstr){
         if (who == adata.me)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
-                    adata.huleyakubasedata[basenum][i.first][whotype] += i.second;
-                else adata.huleyakubasedata[basenum][i.first][whotype] ++ ;
+                    adata.huleyakubasedata[basenum][i.first][metype] += i.second;
+                else adata.huleyakubasedata[basenum][i.first][metype] ++ ;
             }
 
         BASENUM2VECEVAL(basenum, 1, num2huleyakubasedata, "CHONGLEYAKU");
         if (from == adata.me)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
-                    adata.huleyakubasedata[basenum][i.first][whotype] += i.second;
-                else adata.huleyakubasedata[basenum][i.first][whotype] ++ ;
+                    adata.huleyakubasedata[basenum][i.first][metype] += i.second;
+                else adata.huleyakubasedata[basenum][i.first][metype] ++ ;
             }
 
         BASENUM2VECEVAL(basenum, 2, num2huleyakubasedata, "BEIZIMOYAKU");
         if (who != adata.me && tsumo)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
-                    adata.huleyakubasedata[basenum][i.first][whotype] += i.second;
-                else adata.huleyakubasedata[basenum][i.first][whotype] ++ ;
+                    adata.huleyakubasedata[basenum][i.first][metype] += i.second;
+                else adata.huleyakubasedata[basenum][i.first][metype] ++ ;
             }
 
         //立直宣言牌放铳，需要在Hule中判定
@@ -1033,10 +1030,6 @@ void AnalyzeData::outputonerect(const std::string &title, const std::vector<std:
 AnalyzeData::AnalyzeData() : AE(this) {
     basedata.clear();
     basedata.resize(ADN.base["BASEDATA"].size());
-    yakudata.clear();
-    yakudata.resize(ADN.base["YAKUDATA"].size());
-    for (auto &i : yakudata)
-        i.resize(ADN.base["YAKUDATA"].size());
     
     hulebasedata.clear();
     hulebasedata.resize(ADN.base["HULEBASEDATA"].size());
@@ -1151,6 +1144,36 @@ void AnalyzeData::calcresult(){
 
     for (unsigned i = 0; i < ADN.result.size(); i ++ )
         result[i] = AE.calcexpr(ADN.resultexpr[i]);
+}
+
+void AnalyzeData::outputbase(){
+    auto &basedata = ADN.base["BASEDATA"];
+    auto &hulebase = ADN.base["HULEBASEDATA"];
+    auto &hulehandtype = ADN.base["HULEHANDTYPE"];
+    auto &huleyakubase = ADN.base["HULEYAKUBASEDATA"];
+    auto &yaku = ADN.base["YAKUDATA"];
+    auto &reachbase = ADN.base["REACHBASEDATA"];
+    auto &reachtype = ADN.base["REACHTYPE"];
+    for (auto &i : basedata){
+        std::string str = "BASE_" + i;
+        std::cout << str << ": " << AE.calcexpr(str) << '\n';
+    }
+    for (auto &i : hulebase)
+        for (auto &j : hulehandtype){
+            std::string str = "HULE_" + i + "_" + j;
+            std::cout << str << ": " << AE.calcexpr(str) << '\n';
+        }
+    for (auto &i : huleyakubase)
+        for (auto &j : yaku)
+            for (auto &k : hulehandtype){
+                std::string str = "HULEYAKU_" + i + "_" + j + "_" + k;
+                std::cout << str << ": " << AE.calcexpr(str) << '\n';
+            }
+    for (auto &i : reachbase)
+        for (auto &j : reachtype){
+            std::string str = "REACH_" + i + "_" + j;
+            std::cout << str << ": " << AE.calcexpr(str) << '\n';
+        }
 }
 
 void AnalyzeData::outputresult(){
@@ -1462,6 +1485,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     Out::cout << I18N::get("ANALYZER", "ANALYZEPAIPUNUM") << paipunum << I18N::get("ANALYZER", "ANALYZEPAIPUNUMAFT") << '\n';
     Out::cout << I18N::get("MISC", "DASH") << '\n';
     pa.analyzedata -> calcresult();
+    //pa.analyzedata -> outputbase();
     pa.analyzedata -> outputresult();
 }
 
