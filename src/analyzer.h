@@ -4,7 +4,7 @@
 #include "header.h"
 #include "tiles.h"
 
-#define BASENUM2VECEVAL(base, num, num2vec, str) base = num; assert(num2vec[base] == str);
+#define BASENUM2VECEVAL(base, num, num2vec, str) {base = num; assert(num2vec[base] == str);}
 
 namespace PA{
 
@@ -40,6 +40,18 @@ namespace PA{
     public:
         std::map<std::string, std::vector<std::string>> base;
         
+        /*
+        特殊情况：当result或resultgroup名称带有!时表示扩展统计，需要将该条根据规则拆成多条统计量
+        使用规则：
+                在一个名称中只能出现一个该特征；该特征可以指代连续自然数。
+                使用时格式为!startnum!endnum!，表示形成所有之间的项目
+                例：FULU!1!4!CIRCLE = FULU1CIRCLE FULU2CIRCLE FULU3CIRCLE FULU4CIRCLE
+                同时，在表达式中也会用到若干!，对于某个项目，所有!均和统计量的数字同步
+                例：FULU!1!4!CIRCLE: FULU_CIRCLE_FULU! / BASE_FULU!
+                                        =
+                    FULU1CIRCLE: FULU_CIRCLE_1 / BASE_FULU1
+                    FULU2CIRCLE: FULU_CIRCLE_2 / BASE_FULU2 ... TODO: 这里计算有问题，需要修正，同时要考虑兼容简化表示
+        */
         std::vector<std::string> result, resultexpr;
 
         const std::string ALLRESULT = "ALLRESULT";
@@ -71,6 +83,7 @@ namespace PA{
         void makecalc(std::vector<double> &num, std::vector<int> &opr);
         AnalyzeExprNumberList getnumberlist(const std::vector<std::string> &list, const std::string &str);
         double getdata(std::vector<long long> &data, std::string kw1, const std::vector<std::string> &kw1list);
+        double getdata(std::vector<double> &data, std::string kw1, const std::vector<std::string> &kw1list);
         double getdata(std::vector<std::vector<long long>> &data, std::string kw1, const std::vector<std::string> &kw1list, std::string kw2, const std::vector<std::string> &kw2list);
         double getdata(std::vector<std::vector<std::vector<long long>>> &data, std::string kw1, const std::vector<std::string> &kw1list, std::string kw2, const std::vector<std::string> &kw2list, std::string kw3, const std::vector<std::string> &kw3list);
         /* 
@@ -107,6 +120,8 @@ namespace PA{
         std::vector<std::vector<long long>> reachbasedata;
         //[HULEYAKUBASEDATA, YAKUDATA, HULEHANDTYPE]
         std::vector<std::vector<std::vector<long long>>> huleyakubasedata;
+        //[FULUBASEDATA, FULUTYPE]
+        std::vector<std::vector<long long>> fulubasedata;
 
         AnalyzeData();
         int gethandtype(const MatchPlayerData &pdata);

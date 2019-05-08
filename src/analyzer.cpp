@@ -184,6 +184,38 @@ void MatchData::IChiPengGang(std::string &str){
         OutputVector(tiles);
         OutputVector(belong);
     #endif
+
+    auto &adata = *analyzedata;
+    auto &num2fulubasedata = adata.ADN.base["FULUBASEDATA"];
+    if (who == adata.me) {
+        int basenum, fulunum = data[who].fulu();
+
+        BASENUM2VECEVAL(basenum, 0, num2fulubasedata, "FULU");
+        adata.fulubasedata[basenum][fulunum] ++ ;
+
+        BASENUM2VECEVAL(basenum, 1, num2fulubasedata, "#1");
+        int fulup = 0;
+        for (int i = 0; i < 4; i ++ )
+            fulup += !!data[i].fulu();
+        adata.fulubasedata[basenum + fulup - 1][fulunum] ++ ;
+
+        BASENUM2VECEVAL(basenum, 5, num2fulubasedata, "DORA0");
+        adata.fulubasedata[basenum + Algo::countdora(data[who], dora)][fulunum] ++ ;
+
+        //TODO: 计算消一发
+        BASENUM2VECEVAL(basenum, 32, num2fulubasedata, "YIPATSUKESHI");
+        adata.fulubasedata[basenum][fulunum] += 0;
+
+        BASENUM2VECEVAL(basenum, 33, num2fulubasedata, "CIRCLE");
+        adata.fulubasedata[basenum][fulunum] += data[who].table.size();
+
+        BASENUM2VECEVAL(basenum, 34, num2fulubasedata, "TANYAO");
+        if (Algo::istanyao(data[adata.me])) adata.fulubasedata[basenum][fulunum] ++ ;
+
+        BASENUM2VECEVAL(basenum, 35, num2fulubasedata, "YAKUHAI");
+        if (Algo::isyakuhai(data[adata.me], (adata.me - east + 4) % 4, nowround / 4)) adata.fulubasedata[basenum][fulunum] ++ ;
+
+    }
 }
 
 void MatchData::IAnGangAddGang(std::string &str){
@@ -757,8 +789,55 @@ AnalyzeResultName::AnalyzeResultName(){
         if (key == DESCRIPTION) continue;
         std::string value;
         resultjson.Get(key, value);
-        result.push_back(key);
-        resultexpr.push_back(value);
+        //! type
+        bool flag = false;
+        for (auto i : key)
+            if (i == '!') flag = true;
+        if (!flag){
+            result.push_back(key);
+            resultexpr.push_back(value);
+        }
+        else{
+            //! type
+            int start = INT_MAX, end = INT_MAX;
+            int EPnum = 0;
+            for (auto i : key){
+                if (i == '!'){
+                    EPnum ++ ;
+                    if (EPnum == 1) start = 0;
+                    else if (EPnum == 2) end = 0;
+                }
+                else if (EPnum == 1){
+                    assert(i >= '0' && i <= '9');
+                    start = start * 10 + i - '0';
+                }
+                else if (EPnum == 2){
+                    assert(i >= '0' && i <= '9');
+                    end = end * 10 + i - '0';
+                }
+            }
+            assert(EPnum == 3);
+            for (int i = start; i <= end; i ++ ){
+                std::string okey, ovalue, num;
+                for (int j = i; j; j /= 10)
+                    num.insert(num.begin(), j % 10 + '0');
+                if (!num.size()) num = "0";
+                int EPnum = 0;
+                for (auto j : key){
+                    if (j == '!'){
+                        EPnum ++ ;
+                        if (EPnum == 1) okey += num;
+                    }
+                    else if (EPnum == 0 || EPnum == 3)
+                        okey += j;
+                }
+                for (auto j : value)
+                    if (j == '!') ovalue += num;
+                    else ovalue += j;
+                result.push_back(okey);
+                resultexpr.push_back(ovalue);
+            }
+        }
     }
 
     //resultgroup
@@ -777,7 +856,58 @@ AnalyzeResultName::AnalyzeResultName(){
             arr.Get(i, s);
             vec.push_back(s);
         }
-        resultgroupmap[key] = vec;
+        //! type
+        bool flag = false;
+        for (auto i : key)
+            if (i == '!') flag = true;
+        if (!flag){
+            resultgroupmap[key] = vec;
+        }
+        else{
+            //! type
+            int start = INT_MAX, end = INT_MAX;
+            int EPnum = 0;
+            for (auto i : key){
+                if (i == '!'){
+                    EPnum ++ ;
+                    if (EPnum == 1) start = 0;
+                    else if (EPnum == 2) end = 0;
+                }
+                else if (EPnum == 1){
+                    assert(i >= '0' && i <= '9');
+                    start = start * 10 + i - '0';
+                }
+                else if (EPnum == 2){
+                    assert(i >= '0' && i <= '9');
+                    end = end * 10 + i - '0';
+                }
+            }
+            assert(EPnum == 3);
+            for (int i = start; i <= end; i ++ ){
+                std::string okey, num;
+                std::vector<std::string> ovec;
+                for (int j = i; j; j /= 10)
+                    num.insert(num.begin(), j % 10 + '0');
+                if (!num.size()) num = "0";
+                int EPnum = 0;
+                for (auto j : key){
+                    if (j == '!'){
+                        EPnum ++ ;
+                        if (EPnum == 1) okey += num;
+                    }
+                    else if (EPnum == 0 || EPnum == 3)
+                        okey += j;
+                }
+                for (auto &j : vec){
+                    std::string str;
+                    for (auto k : j)
+                        if (k == '!') str += num;
+                        else str += k;
+                    ovec.push_back(str);
+                }
+                resultgroupmap[okey] = ovec;
+            }
+        }
     }
     resultgroupmap[ALLRESULT] = result;
 }
@@ -881,6 +1011,15 @@ double AnalyzeExpr::getdata(std::vector<long long> &data, std::string kw1, const
     return res;
 }
 
+double AnalyzeExpr::getdata(std::vector<double> &data, std::string kw1, const std::vector<std::string> &kw1list){
+    auto list = getnumberlist(kw1list, kw1);
+    if (list.list.size() == 1) return data[list.list[0]];
+    double res = 0;
+    for (unsigned i = 0; i < list.list.size(); i ++ )
+        res += data[list.list[i]] * (list.QQ ? i + list.startnum : 1);
+    return res;
+}
+
 double AnalyzeExpr::getdata(std::vector<std::vector<long long>> &data, std::string kw1, const std::vector<std::string> &kw1list, std::string kw2, const std::vector<std::string> &kw2list){
     auto list1 = getnumberlist(kw1list, kw1);
     auto list2 = getnumberlist(kw2list, kw2);
@@ -929,20 +1068,21 @@ double AnalyzeExpr::getvalue(const std::string &s){
         if (divide) res /= divide;
         return res;
     }
-    //引用基本统计结果
+    //引用基本统计结果和统计量
+    // *注意* 引用统计量时一定要保证引用的统计量已经完成计算，否则会是0
     auto strs = Algo::split(s, '_');
-    if (strs[0] == "BASE"){
+    if (strs[0] == "RESULT")
+        return getdata(adata -> result, strs[1], adata -> ADN.result);
+    else if (strs[0] == "BASE")
         return getdata(adata -> basedata, strs[1], adata -> ADN.base["BASEDATA"]);
-    }
-    else if (strs[0] == "REACH"){
+    else if (strs[0] == "REACH")
         return getdata(adata -> reachbasedata, strs[1], adata -> ADN.base["REACHBASEDATA"], strs[2], adata -> ADN.base["REACHTYPE"]);
-    }
-    else if (strs[0] == "HULE"){
+    else if (strs[0] == "HULE")
         return getdata(adata -> hulebasedata, strs[1], adata -> ADN.base["HULEBASEDATA"], strs[2], adata -> ADN.base["HULEHANDTYPE"]);
-    }
-    else if (strs[0] == "HULEYAKU"){
+    else if (strs[0] == "HULEYAKU")
         return getdata(adata -> huleyakubasedata, strs[1], adata -> ADN.base["HULEYAKUBASEDATA"], strs[2], adata -> ADN.base["YAKUDATA"], strs[3], adata -> ADN.base["HULEHANDTYPE"]);
-    }
+    else if (strs[0] == "FULU")
+        return getdata(adata -> fulubasedata, strs[1], adata -> ADN.base["FULUBASEDATA"], strs[2], adata -> ADN.base["FULUTYPE"]);
     assert(0);
     return 0;
 }
@@ -1035,10 +1175,12 @@ AnalyzeData::AnalyzeData() : AE(this) {
     hulebasedata.resize(ADN.base["HULEBASEDATA"].size());
     for (auto &i : hulebasedata)
         i.resize(ADN.base["HULEHANDTYPE"].size());
+
     reachbasedata.clear();
     reachbasedata.resize(ADN.base["REACHBASEDATA"].size());
     for (auto &i : reachbasedata)
         i.resize(ADN.base["REACHTYPE"].size());
+
     huleyakubasedata.clear();
     huleyakubasedata.resize(ADN.base["HULEYAKUBASEDATA"].size());
     for (auto &i : huleyakubasedata){
@@ -1046,6 +1188,12 @@ AnalyzeData::AnalyzeData() : AE(this) {
         for (auto &j : i)
             j.resize(ADN.base["HULEHANDTYPE"].size());
     }
+
+    fulubasedata.clear();
+    fulubasedata.resize(ADN.base["FULUBASEDATA"].size());
+    for (auto &i : fulubasedata)
+        i.resize(ADN.base["FULUTYPE"].size());
+
     me = -1;
 }
 
@@ -1073,54 +1221,54 @@ void AnalyzeData::makehanddata(std::vector<long long> &vec){
     int calcnum, fromnum;
     auto &num2hulehandtype = ADN.base["HULEHANDTYPE"];
 
-    BASENUM2VECEVAL(calcnum, 12, num2hulehandtype, "FULU");
+    BASENUM2VECEVAL(calcnum, 12, num2hulehandtype, "FULUPLUS1");
     for (int j = calcnum; j < (int)vec.size(); j ++ )
         vec[j] = 0;
 
-    BASENUM2VECEVAL(calcnum, 12, num2hulehandtype, "FULU");
+    BASENUM2VECEVAL(calcnum, 12, num2hulehandtype, "FULUPLUS1");
     BASENUM2VECEVAL(fromnum, 3, num2hulehandtype, "FULU1");
-    for (int j = 0; j < 4; j ++ )
-        vec[calcnum] += vec[fromnum + j];
+    for (int j = 4; j >= 1; j -- )
+        vec[calcnum + j - 1] = vec[fromnum + j - 1] + (j == 4 ? 0 : vec[calcnum + j]);
 
-    BASENUM2VECEVAL(calcnum, 13, num2hulehandtype, "NTFULU");
+    BASENUM2VECEVAL(calcnum, 16, num2hulehandtype, "NTFULUPLUS1");
     BASENUM2VECEVAL(fromnum, 8, num2hulehandtype, "NTFULU1");
-    for (int j = 0; j < 4; j ++ )
-        vec[calcnum] += vec[fromnum + j];
+    for (int j = 4; j >= 1; j -- )
+        vec[calcnum + j - 1] = vec[fromnum + j - 1] + (j == 4 ? 0 : vec[calcnum + j]);
 
-    BASENUM2VECEVAL(calcnum, 14, num2hulehandtype, "ALLFULU");
-    BASENUM2VECEVAL(fromnum, 12, num2hulehandtype, "FULU");
+    BASENUM2VECEVAL(calcnum, 20, num2hulehandtype, "ALLFULU");
+    BASENUM2VECEVAL(fromnum, 12, num2hulehandtype, "FULUPLUS1");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 14, num2hulehandtype, "ALLFULU");
-    BASENUM2VECEVAL(fromnum, 13, num2hulehandtype, "NTFULU");
+    BASENUM2VECEVAL(calcnum, 20, num2hulehandtype, "ALLFULU");
+    BASENUM2VECEVAL(fromnum, 16, num2hulehandtype, "NTFULUPLUS1");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 15, num2hulehandtype, "ALLDAMA");
+    BASENUM2VECEVAL(calcnum, 21, num2hulehandtype, "ALLDAMA");
     BASENUM2VECEVAL(fromnum, 2, num2hulehandtype, "DAMA");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 15, num2hulehandtype, "ALLDAMA");
+    BASENUM2VECEVAL(calcnum, 21, num2hulehandtype, "ALLDAMA");
     BASENUM2VECEVAL(fromnum, 7, num2hulehandtype, "NTDAMA");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 16, num2hulehandtype, "ALLREACH");
+    BASENUM2VECEVAL(calcnum, 22, num2hulehandtype, "ALLREACH");
     BASENUM2VECEVAL(fromnum, 0, num2hulehandtype, "REACHGOOD");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 16, num2hulehandtype, "ALLREACH");
+    BASENUM2VECEVAL(calcnum, 22, num2hulehandtype, "ALLREACH");
     BASENUM2VECEVAL(fromnum, 1, num2hulehandtype, "REACHBAD");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 17, num2hulehandtype, "ALL");
-    BASENUM2VECEVAL(fromnum, 14, num2hulehandtype, "ALLFULU");
+    BASENUM2VECEVAL(calcnum, 23, num2hulehandtype, "ALL");
+    BASENUM2VECEVAL(fromnum, 20, num2hulehandtype, "ALLFULU");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 17, num2hulehandtype, "ALL");
-    BASENUM2VECEVAL(fromnum, 15, num2hulehandtype, "ALLDAMA");
+    BASENUM2VECEVAL(calcnum, 23, num2hulehandtype, "ALL");
+    BASENUM2VECEVAL(fromnum, 21, num2hulehandtype, "ALLDAMA");
     vec[calcnum] += vec[fromnum];
 
-    BASENUM2VECEVAL(calcnum, 17, num2hulehandtype, "ALL");
-    BASENUM2VECEVAL(fromnum, 16, num2hulehandtype, "ALLREACH");
+    BASENUM2VECEVAL(calcnum, 23, num2hulehandtype, "ALL");
+    BASENUM2VECEVAL(fromnum, 22, num2hulehandtype, "ALLREACH");
     vec[calcnum] += vec[fromnum];
 }
 
@@ -1130,9 +1278,11 @@ void AnalyzeData::calcresult(){
 
     for (auto &i : hulebasedata)
         makehanddata(i);
+
     for (auto &i : huleyakubasedata)
         for (auto &j : i)
             makehanddata(j);
+
     auto &num2reachtype = ADN.base["REACHTYPE"];
     for (auto &i : reachbasedata){
         int b0, b1, b2;
@@ -1142,8 +1292,26 @@ void AnalyzeData::calcresult(){
         i[b2] = i[b0] + i[b1];
     }
 
-    for (unsigned i = 0; i < ADN.result.size(); i ++ )
+    auto &num2fulutype = ADN.base["FULUTYPE"];
+    for (auto &i : fulubasedata){
+        int b, r, r1;
+        for (int k = 4; k >= 1; k -- ){
+            if (k != 4) r1 = r;
+            std::string str = "FULU0";
+            str[4] = '0' + k;
+            BASENUM2VECEVAL(b, k, num2fulutype, str);
+            str = "FULUPLUS0";
+            str[8]  ='0' + k;
+            BASENUM2VECEVAL(r, k + 4, num2fulutype, str);
+            i[r] = i[b];
+            if (k != 4) i[r] += i[r1];
+        }
+    }
+
+    for (unsigned i = 0; i < ADN.result.size(); i ++ ){
+        //std::cout << ADN.result[i] << ' ' << ADN.resultexpr[i] << '\n';
         result[i] = AE.calcexpr(ADN.resultexpr[i]);
+    }
 }
 
 void AnalyzeData::outputbase(){
@@ -1154,6 +1322,8 @@ void AnalyzeData::outputbase(){
     auto &yaku = ADN.base["YAKUDATA"];
     auto &reachbase = ADN.base["REACHBASEDATA"];
     auto &reachtype = ADN.base["REACHTYPE"];
+    auto &fulubase = ADN.base["FULUBASEDATA"];
+    auto &fulutype = ADN.base["FULUTYPE"];
     for (auto &i : basedata){
         std::string str = "BASE_" + i;
         std::cout << str << ": " << AE.calcexpr(str) << '\n';
@@ -1172,6 +1342,11 @@ void AnalyzeData::outputbase(){
     for (auto &i : reachbase)
         for (auto &j : reachtype){
             std::string str = "REACH_" + i + "_" + j;
+            std::cout << str << ": " << AE.calcexpr(str) << '\n';
+        }
+    for (auto &i : fulubase)
+        for (auto &j : fulutype){
+            std::string str = "FULU_" + i + "_" + j;
             std::cout << str << ": " << AE.calcexpr(str) << '\n';
         }
 }
@@ -1400,9 +1575,9 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
             BASENUM2VECEVAL(basenum, 10, num2basedata, "REACH");
             adata.basedata[basenum] += !!matchdata.data[adata.me].reach;
 
-            BASENUM2VECEVAL(basenum, 11, num2basedata, "FULU1");
-            int fulu = matchdata.data[adata.me].fulu();
-            if (fulu) adata.basedata[basenum - 1 + fulu] ++ ;
+            //BASENUM2VECEVAL(basenum, 11, num2basedata, "FULU1");
+            //int fulu = matchdata.data[adata.me].fulu();
+            //if (fulu) adata.basedata[basenum - 1 + fulu] ++ ;
 
             BASENUM2VECEVAL(basenum, 33, num2basedata, "ZHUANG");
             if (matchdata.east == adata.me) adata.basedata[basenum] ++ ;

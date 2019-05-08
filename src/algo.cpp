@@ -579,4 +579,15 @@ bool ispinfu(const PA::MatchPlayerData &pdata){
     return false;
 }
 
+bool isyakuhai(const PA::MatchPlayerData &pdata, int wind, int round){
+    std::vector<int> bu;
+    bu.resize(Tiles::TILENUM);
+    for (auto i : pdata.hand)
+        bu[i] ++ ;
+    for (auto &i : pdata.show)
+        for (auto j : i)
+            if (j != pdata.ANKANNUM) bu[j] ++ ;
+    return bu[30 + wind] >= 3 || bu[30 + round] >= 3 || bu[34] >= 3 || bu[35] >= 3 || bu[36] >= 3;
+}
+
 }

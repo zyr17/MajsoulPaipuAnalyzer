@@ -47,6 +47,7 @@ namespace Algo{
     bool istanyao(const PA::MatchPlayerData &pdata);
     //存在不平和听牌即认为无平和役
     bool ispinfu(const PA::MatchPlayerData &pdata);
+    bool isyakuhai(const PA::MatchPlayerData &pdata, int wind, int round);
 
 }
 
