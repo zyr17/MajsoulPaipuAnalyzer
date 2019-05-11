@@ -459,6 +459,12 @@ class Viewprototype{
                     let bafunum = parseInt(this.matchdata.nowround / 4);
                     nowhanname = '场风' + (bafunum == 0 ? '东' : fonname[bafunum]);
                 }
+                if (nowhanname == '河底摸鱼'){
+                    nowhanname = '河底捞鱼';
+                }
+                if (nowhanname == '海底捞月'){
+                    nowhanname = '海底摸月';
+                }
                 let addflag = false;
                 for (let i = 0; i < hanname.length; i ++ )
                     if (parseInt(nowhanname) == i || hanname[i][0] == nowhanname || hanname[i][1] == nowhanname){
