@@ -3,6 +3,9 @@
 
 #include "header.h"
 #include "analyzer.h"
+#include "consts.h"
+
+using namespace CONSTS;
 
 namespace Algo{
 
@@ -48,6 +51,30 @@ namespace Algo{
     //存在不平和听牌即认为无平和役
     bool ispinfu(const PA::MatchPlayerData &pdata);
     bool isyakuhai(const PA::MatchPlayerData &pdata, int wind, int round);
+
+    namespace SR{
+
+        const int INVALIDROOM = -1;
+
+        const bool considerroom[] = {0, 0, 1, 1, 1, 0};
+        const int roombaseeast[] = {0, 0, 0, 30, 70, 100};
+        const int roomdeltaeast[] = {0, 0, 10, 10, 10, 10};
+        const int roombasesouth[] = {0, 0, 0, 60, 150, 195};
+        const int roomdeltasouth[] = {0, 0, 20, 20, 15, 15};
+
+        struct RoundData{
+            const int *roombase, *roomdelta;
+            int room = INVALIDROOM;
+            std::vector<double> pt123, pt4;
+            RoundData(const int *roombase, const int *roomdelta) : roombase(roombase), roomdelta(roomdelta) {}
+        };
+        
+        double tdist(double x, long long v);
+        std::pair<double, double> confidenceinterval(const std::vector<double> &sample, double alpha = 0.05);
+        void stablerank(int round, double &stablerank, std::pair<double, double> &CI);
+        void addgamedata(int room, int round, int rank, int pt, int point);
+        int getroom(int round);
+    }
 
 }
 

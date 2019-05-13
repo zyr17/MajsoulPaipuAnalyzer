@@ -120,6 +120,7 @@ namespace PA{
         std::vector<std::string> &num2huleyakubasedata;
         std::vector<std::string> &num2fulutype;
         std::vector<std::string> &num2hulehandtype;
+        std::vector<std::string> &num2floatdata;
         
         int me;
         std::vector<long long> basedata;
@@ -133,6 +134,8 @@ namespace PA{
         std::vector<std::vector<std::vector<long long>>> huleyakubasedata;
         //[FULUBASEDATA, FULUTYPE]
         std::vector<std::vector<long long>> fulubasedata;
+
+        std::vector<double> floatdata;
 
         AnalyzeData();
         int gethandtype(const MatchPlayerData &pdata);

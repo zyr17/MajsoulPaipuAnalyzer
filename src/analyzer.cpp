@@ -1073,6 +1073,8 @@ double AnalyzeExpr::getvalue(const std::string &s){
         return getdata(adata -> huleyakubasedata, strs[1], adata -> ADN.base["HULEYAKUBASEDATA"], strs[2], adata -> ADN.base["YAKUDATA"], strs[3], adata -> ADN.base["HULEHANDTYPE"]);
     else if (strs[0] == "FULU")
         return getdata(adata -> fulubasedata, strs[1], adata -> ADN.base["FULUBASEDATA"], strs[2], adata -> ADN.base["FULUTYPE"]);
+    else if (strs[0] == "FLOAT")
+        return getdata(adata -> floatdata, strs[1], adata -> ADN.base["FLOATDATA"]);
     assert(0);
     return 0;
 }
@@ -1167,7 +1169,8 @@ AnalyzeData::AnalyzeData() :
     num2basedata(ADN.base["BASEDATA"]),
     num2huleyakubasedata(ADN.base["HULEYAKUBASEDATA"]),
     num2fulutype(ADN.base["FULUTYPE"]),
-    num2hulehandtype(ADN.base["HULEHANDTYPE"])
+    num2hulehandtype(ADN.base["HULEHANDTYPE"]),
+    num2floatdata(ADN.base["FLOATDATA"])
 {
     basedata.clear();
     basedata.resize(ADN.base["BASEDATA"].size());
@@ -1194,6 +1197,9 @@ AnalyzeData::AnalyzeData() :
     fulubasedata.resize(ADN.base["FULUBASEDATA"].size());
     for (auto &i : fulubasedata)
         i.resize(ADN.base["FULUTYPE"].size());
+
+    floatdata.clear();
+    floatdata.resize(ADN.base["FLOATDATA"].size());
 
     me = -1;
 }
@@ -1305,6 +1311,34 @@ void AnalyzeData::calcresult(){
         }
     }
 
+    {
+        int basenum;
+
+        double sr;
+        std::pair<double, double> CI;
+        Algo::SR::stablerank(4, sr, CI);
+
+        BASENUM2VECEVAL(basenum, 0, num2floatdata, "EASTSTABLERANK");
+        floatdata[basenum] = sr;
+
+        BASENUM2VECEVAL(basenum, 1, num2floatdata, "EASTCILEFT");
+        floatdata[basenum] = CI.first;
+
+        BASENUM2VECEVAL(basenum, 2, num2floatdata, "EASTCIRIGHT");
+        floatdata[basenum] = CI.second;
+
+        Algo::SR::stablerank(8, sr, CI);
+
+        BASENUM2VECEVAL(basenum, 3, num2floatdata, "SOUTHSTABLERANK");
+        floatdata[basenum] = sr;
+
+        BASENUM2VECEVAL(basenum, 4, num2floatdata, "SOUTHCILEFT");
+        floatdata[basenum] = CI.first;
+
+        BASENUM2VECEVAL(basenum, 5, num2floatdata, "SOUTHCIRIGHT");
+        floatdata[basenum] = CI.second;
+    }
+
     for (unsigned i = 0; i < ADN.result.size(); i ++ ){
         //std::cout << ADN.result[i] << ' ' << ADN.resultexpr[i] << '\n';
         result[i] = AE.calcexpr(ADN.resultexpr[i]);
@@ -1321,6 +1355,7 @@ void AnalyzeData::outputbase(){
     auto &reachtype = ADN.base["REACHTYPE"];
     auto &fulubase = ADN.base["FULUBASEDATA"];
     auto &fulutype = ADN.base["FULUTYPE"];
+    auto &floatdata = ADN.base["FLOATDATA"];
     for (auto &i : basedata){
         std::string str = "BASE_" + i;
         std::cout << str << ": " << AE.calcexpr(str) << '\n';
@@ -1346,14 +1381,33 @@ void AnalyzeData::outputbase(){
             std::string str = "FULU_" + i + "_" + j;
             std::cout << str << ": " << AE.calcexpr(str) << '\n';
         }
+    for (auto &i : floatdata){
+        std::string str = "FLOAT_" + i;
+        std::cout << str << ": " << AE.calcexpr(str) << '\n';
+    }
 }
 
 void AnalyzeData::outputresult(){
     std::cout << std::fixed << std::setprecision(4);
     int row, col;
     Algo::getconsolesize(row, col);
-    for (auto key : ADN.resultgrouporder)
-        outputonerect(I18N::get("ANALYZER", key) + I18N::get("MISC", "COLON"), ADN.resultgroupmap[key], col);
+    for (auto key : ADN.resultgrouporder){
+        auto title = I18N::get("ANALYZER", key) + I18N::get("MISC", "COLON");
+        if (key == "STABLERANKRESULT"){
+            //对于安定段位标题还需要加上东风和南风统计的房间级别
+            std::string room = "MAJSOULROOM";
+            auto room4 = Algo::SR::getroom(4), room8 = Algo::SR::getroom(8);
+            if (room4 != Algo::SR::INVALIDROOM)
+                title += I18N::get("MISC", "ROUND4GAME") + I18N::get("MISC", room + (char)('0' + room4));
+            if (room4 != Algo::SR::INVALIDROOM && room8 != Algo::SR::INVALIDROOM)
+                title += I18N::get("MISC", "COMMA");
+            if (room8 != Algo::SR::INVALIDROOM)
+                title += I18N::get("MISC", "ROUND8GAME") + I18N::get("MISC", room + (char)('0' + room8));
+            title += '\n';
+            title += I18N::get("MISC", "MAJSOULSTABLERANKCOMMENT");
+        }
+        outputonerect(title, ADN.resultgroupmap[key], col);
+    }
     PAUSEEXIT;
 }
 
@@ -1637,6 +1691,12 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         paipu["gamedata"]["roomdata"].Get("startpoint", stp);
         pdata[adata.me].Get("finalpoint", endp);
         adata.basedata[basenum] += endp - stp;
+
+        int room, pt;
+        pdata[adata.me].Get("deltapt", pt);
+        paipu["gamedata"]["roomdata"].Get("room", room);
+        //std::cout << room << ' ' << totalround << ' ' << finalrank << ' ' << pt << ' ' << endp << '\n';
+        Algo::SR::addgamedata(room, totalround, finalrank, pt, endp);
     }
 
     return true;
@@ -1648,6 +1708,8 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
     for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
         paipus.push_back(&paipuarr[i]);
+	//int step = paipus.size() - 1;
+	//for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
     PaipuAnalyzer pa = PaipuAnalyzer(filter);
     int paipunum = pa.analyze(paipus);
     #ifdef SAVEMATCHDATASTEP

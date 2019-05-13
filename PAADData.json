@@ -31,6 +31,7 @@
             "7. 在AnalyzeData::outputbase加上该基本量的输出，便于以后调试",
             "",
             "立直时：[REACHBASEDATA立直统计值, REACHTYPE立直类型]",
+            "副露时：[FULUBASEDATA立直统计值, FULUTYPE立直类型]",
             "有人和牌时：[HULEBASEDATA和牌统计值, HULEHANDTYPE玩家手牌类型]",
             "有人和牌时：[HULEYAKUBASEDATA和牌役种相关统计值, YAKUDATA役名称, HULEHANDTYPE玩家手牌类型]",
             "荒牌流局时：BASEDATA部分项",
@@ -126,6 +127,10 @@
         "FULUTYPE": [
             "DAMAIMPOSSIBLE", "FULU1", "FULU2", "FULU3", "FULU4",
             "FULUPLUS1", "FULUPLUS2", "FULUPLUS3", "FULUPLUS4"
+        ],
+        "FLOATDATA": [
+            "EASTSTABLERANK", "EASTCILEFT", "EASTCIRIGHT", "SOUTHSTABLERANK", "SOUTHCILEFT", 
+            "SOUTHCIRIGHT"
         ]
     },
     "result": {
@@ -263,7 +268,13 @@
         "FULUTOITOIHULER!1!4!": "HULEYAKU_HULEYAKU_TOITOI_FULUPLUS! / HULE_HULE_FULUPLUS!",
         "FULUFIRSTR!1!4!": "FULU_#1_FULU! / FULU_FULU_FULU!",
         "FULUYIPATSUKESHIR!1!4!": "FULU_YIPATSUKESHI_FULU! / FULU_FULU_FULU!",
-        "FULUPROFIT!1!4!": "(HULE_HULEPOINT_FULUPLUS! + HULE_FANGCHONGPOINT_FULUPLUS! + HULE_FANGCHONGPOINT_NTFULUPLUS!) / FULU_FULU_FULU!"
+        "FULUPROFIT!1!4!": "(HULE_HULEPOINT_FULUPLUS! + HULE_FANGCHONGPOINT_FULUPLUS! + HULE_FANGCHONGPOINT_NTFULUPLUS!) / FULU_FULU_FULU!",
+        "EASTSR": "FLOAT_EASTSTABLERANK",
+        "EASTCIL": "FLOAT_EASTCILEFT",
+        "EASTCIR": "FLOAT_EASTCIRIGHT",
+        "SOUTHSR": "FLOAT_SOUTHSTABLERANK",
+        "SOUTHCIL": "FLOAT_SOUTHCILEFT",
+        "SOUTHCIR": "FLOAT_SOUTHCIRIGHT"
     },
     "resultgroup":{
         "description": [
@@ -285,7 +296,8 @@
             "LIUJURESULT",
             "FULU1RESULT",
             "FULU2RESULT",
-            "ALRESULT"
+            "ALRESULT",
+            "STABLERANKRESULT"
         ],
         "data": {
             "TODOLIST": [
@@ -332,6 +344,10 @@
                 "FULUCHONG3900R!", "FULUCHONG7700R!", "FULUCHONG11600R!", "FULUDORA2R!", "FULUDORA3R!", 
                 "FULUTANYAOR!", "FULUYAKUHAIR!", "FULUCC!", "FULUTANYAOHULER!", "FULURANSHOUHULER!", 
                 "FULUTOITOIHULER!", "FULUFIRSTR!", "FULUPROFIT!"
+            ],
+            "STABLERANKRESULT": [
+                "EASTSR", "EASTCIL", "EASTCIR", "SOUTHSR", "SOUTHCIL",
+                "SOUTHCIR"
             ]
         }
     }

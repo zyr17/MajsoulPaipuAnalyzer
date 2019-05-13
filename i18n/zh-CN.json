@@ -25,7 +25,8 @@
         "FULU1RESULT": "1+副露数据",
         "FULU2RESULT": "2+副露数据",
         "FULU3RESULT": "3+副露数据",
-        "FULU4RESULT": "4副露数据"
+        "FULU4RESULT": "4副露数据",
+        "STABLERANKRESULT": "安定段位结果（置信水平0.95）"
     },
     "ADRESULT": {
         "#1R": "一位率", 
@@ -160,13 +161,29 @@
         "FULUYIPATSUKESHIR2": "第2副露消一发率",
         "FULUYIPATSUKESHIR3": "第3副露消一发率",
         "FULUYIPATSUKESHIR4": "第4副露消一发率",
-        "FULUPROFIT!": "副露时净利"
+        "FULUPROFIT!": "副露时净利",
+        "EASTSR": "东风局安定段位",
+        "EASTCIL": "东风安定段位置信下界",
+        "EASTCIR": "东风安定段位置信上界",
+        "SOUTHSR": "南风局安定段位",
+        "SOUTHCIL": "南风安定段位置信下界",
+        "SOUTHCIR": "南风安定段位置信上界"
     },
     "MISC": {
         "WORDNOTEXIST": "要查找的词汇不在词表中！",
         "ERROR": "错误：",
         "DASH": "-----",
         "ENTEREXIT": "按 Enter 键退出程序...",
-        "COLON": "："
+        "COLON": "：",
+        "COMMA": "，",
+        "ROUND4GAME": "东风局",
+        "ROUND8GAME": "南风局",
+        "MAJSOULROOM0": "友人场",
+        "MAJSOULROOM1": "铜之间",
+        "MAJSOULROOM2": "银之间",
+        "MAJSOULROOM3": "金之间",
+        "MAJSOULROOM4": "玉之间",
+        "MAJSOULROOM5": "王座之间",
+        "MAJSOULSTABLERANKCOMMENT": "说明：某个房间的安定段位对应能进入该房间的最低级头衔，如金之间-雀杰。\n特别的，由于目前没人打王座，雀圣1星即为雀豪4星，以此类推。安定段位即安定星数。"
     }
 }

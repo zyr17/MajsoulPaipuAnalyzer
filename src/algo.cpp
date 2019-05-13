@@ -598,4 +598,93 @@ bool isyakuhai(const PA::MatchPlayerData &pdata, int wind, int round){
     return bu[30 + wind] >= 3 || bu[30 + round] >= 3 || bu[34] >= 3 || bu[35] >= 3 || bu[36] >= 3;
 }
 
+namespace SR{
+
+    RoundData S(roombasesouth, roomdeltasouth), E(roombaseeast, roomdeltaeast);
+
+    double tdist(double x, long long v){
+        //v = 0时分布不存在，返回nan
+        if (v == 0) return NAN;
+        int col = 0;
+        for (int i = 1; i < T_DIST_COL; i ++ )
+            if (x == T_DIST_TABLE[0][i]) col = i;
+        assert(col);
+        assert(v > 0);
+        for (int i = 1; i < T_DIST_ROW; i ++ )
+            if (T_DIST_TABLE[i][0] == v) return T_DIST_TABLE[i][col];
+            else if (T_DIST_TABLE[i][0] > v){
+                double resl = T_DIST_TABLE[i - 1][col], resr = T_DIST_TABLE[i][col];
+                double part = (v - T_DIST_TABLE[i - 1][0]) / (T_DIST_TABLE[i][0] - T_DIST_TABLE[i - 1][0]);
+                return resl * (1 - part) + resr * part;
+            }
+        assert(0);
+        return NAN;
+    }
+
+    std::pair<double, double> confidenceinterval(const std::vector<double> &sample, double alpha){
+        double avg = 0, var = 0;
+        long long n = sample.size();
+        for (auto i : sample)
+            avg += i;
+        avg /= n;
+        for (auto i : sample)
+            var += (i - avg) * (i - avg);
+        var /= n - 1;
+        double delta = std::sqrt(var / n) * tdist(alpha / 2, n - 1);
+        //std::cout << avg << ' ' << var << ' ' << n << ' ' << std::sqrt(var / n) << ' ' << tdist(alpha / 2, n - 1) << '\n';
+        return std::make_pair(avg - delta, avg + delta);
+    }
+
+    void stablerank(int round, double &stablerank, std::pair<double, double> &CI){
+        assert(round == 4 || round == 8);
+        RoundData &rd(round == 4 ? E : S);
+        if (!(rd.pt123.size() + rd.pt4.size())){
+            stablerank = CI.first = CI.second = NAN;
+            return;
+        }
+
+        std::vector<double> pt = rd.pt123;
+        double total = 0;
+        for (auto i : rd.pt123)
+            total += i;
+        for (auto i : rd.pt4)
+            total += i;
+        double r4 = 1.0 * rd.pt4.size() / (rd.pt123.size() + rd.pt4.size());
+        double every4 = total / rd.pt4.size();
+        for (auto i : rd.pt4)
+            pt.push_back(i - every4);
+        CI = confidenceinterval(pt);
+        stablerank = (every4 - rd.roombase[rd.room]) / rd.roomdelta[rd.room];
+        CI.first = CI.first / rd.roomdelta[rd.room] / r4 + stablerank;
+        CI.second = CI.second / rd.roomdelta[rd.room] / r4 + stablerank;
+        //std::cout << total << ' ' << r4 << ' ' << every4 << ' ' << stablerank << ' ' << CI.first << ' ' << CI.second << '\n';
+    }
+
+    void addgamedata(int nroom, int round, int rank, int pt, int point){
+        assert(nroom >= 0 && nroom <= 5);
+        if (round != 4 && round != 8) return;
+        RoundData &rd(round == 4 ? E : S);
+        if (!considerroom[nroom]) return;
+        if (nroom < rd.room) return;
+        if (nroom > rd.room){
+            rd.room = nroom;
+            rd.pt123.clear();
+            rd.pt4.clear();
+        }
+        if (rank != 4) rd.pt123.push_back(pt);
+        else{
+            pt = (point - 25000) / 1000;
+            rd.pt4.push_back(pt);
+        }
+    }
+
+    int getroom(int round){
+        if (round != 4 && round != 8) return INVALIDROOM;
+        int room = round == 4 ? E.room : S.room;
+        if (room < 0 || room > 5 || !considerroom[room]) return INVALIDROOM;
+        return room;
+    }
+
+}
+
 }

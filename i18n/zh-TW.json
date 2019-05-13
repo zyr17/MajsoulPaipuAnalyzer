@@ -1,5 +1,5 @@
 {
-    "CHCP": "chcp 950",
+    "CHCP": "chcp 936",
     "MAIN": {
         "MACROUNDEFINED": "宏 _WIN32 和 linux 均未被定義！請確認是否為Windows或者Linux平臺。",
         "CANTDATA/SRC": "無法找到文件夾 data/",
@@ -25,7 +25,8 @@
         "FULU1RESULT": "1+副露數據",
         "FULU2RESULT": "2+副露數據",
         "FULU3RESULT": "3+副露數據",
-        "FULU4RESULT": "4副露數據"
+        "FULU4RESULT": "4副露數據",
+        "STABLERANKRESULT": "安定段位結果（置信水平0.95）"
     },
     "ADRESULT": {
         "#1R": "壹位率", 
@@ -160,13 +161,29 @@
         "FULUYIPATSUKESHIR2": "第2副露消壹發率",
         "FULUYIPATSUKESHIR3": "第3副露消壹發率",
         "FULUYIPATSUKESHIR4": "第4副露消壹發率",
-        "FULUPROFIT!": "副露時凈利"
+        "FULUPROFIT!": "副露時凈利",
+        "EASTSR": "東風局安定段位",
+        "EASTCIL": "東風安定段位置信下界",
+        "EASTCIR": "東風安定段位置信上界",
+        "SOUTHSR": "南風局安定段位",
+        "SOUTHCIL": "南風安定段位置信下界",
+        "SOUTHCIR": "南風安定段位置信上界"
     },
     "MISC": {
         "WORDNOTEXIST": "要查找的詞匯不在詞表中！",
         "ERROR": "錯誤：",
         "DASH": "-----",
         "ENTEREXIT": "按 Enter 鍵退出程序...",
-        "COLON": "："
+        "COLON": "：",
+        "COMMA": "，",
+        "ROUND4GAME": "東風局",
+        "ROUND8GAME": "南風局",
+        "MAJSOULROOM0": "友人場",
+        "MAJSOULROOM1": "銅之間",
+        "MAJSOULROOM2": "銀之間",
+        "MAJSOULROOM3": "金之間",
+        "MAJSOULROOM4": "玉之間",
+        "MAJSOULROOM5": "王座之間",
+        "MAJSOULSTABLERANKCOMMENT": "說明：某個房間的安定段位對應能進入該房間的最低級頭銜，如金之間-雀傑。\n特別的，由於目前沒人打王座，雀聖1星即為雀豪4星，以此類推。安定段位即安定星數。"
     }
 }
