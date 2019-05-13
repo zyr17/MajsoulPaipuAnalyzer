@@ -96,30 +96,28 @@ void MatchData::IDiscardTile(std::string &str){
 
     //reachbasedata
     auto &adata = *analyzedata;
-    auto &num2reachbasedata = adata.ADN.base["REACHBASEDATA"];
-    auto &num2reachtype = adata.ADN.base["REACHTYPE"];
     if (reach && who == adata.me){
 
         int reachtype = 1 - Algo::tenpaiquality(data[who]), basenum;
         assert(reachtype == 0 || reachtype == 1);
-        assert(num2reachtype[0] == "GOOD");
+        assert(adata.num2reachtype[0] == "GOOD");
 
-        BASENUM2VECEVAL(basenum, 0, num2reachbasedata, "REACH");
+        BASENUM2VECEVAL(basenum, 0, adata.num2reachbasedata, "REACH");
         adata.reachbasedata[basenum][reachtype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 1, num2reachbasedata, "CIRCLE");
+        BASENUM2VECEVAL(basenum, 1, adata.num2reachbasedata, "CIRCLE");
         adata.reachbasedata[basenum][reachtype] += data[who].table.size();
 
-        BASENUM2VECEVAL(basenum, 3, num2reachbasedata, "TANYAO");
+        BASENUM2VECEVAL(basenum, 3, adata.num2reachbasedata, "TANYAO");
         if (Algo::istanyao(data[who])) adata.reachbasedata[basenum][reachtype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 4, num2reachbasedata, "PINFU");
+        BASENUM2VECEVAL(basenum, 4, adata.num2reachbasedata, "PINFU");
         if (Algo::ispinfu(data[who])) adata.reachbasedata[basenum][reachtype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 5, num2reachbasedata, "DORA0");
+        BASENUM2VECEVAL(basenum, 5, adata.num2reachbasedata, "DORA0");
         adata.reachbasedata[basenum + Algo::countdora(data[who], this -> dora)][reachtype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 32, num2reachbasedata, "#1");
+        BASENUM2VECEVAL(basenum, 32, adata.num2reachbasedata, "#1");
         int nowmany = 0;
         for (int i = 0; i < 4; i ++ )
             if (data[i].reach) nowmany ++ ;
@@ -186,33 +184,32 @@ void MatchData::IChiPengGang(std::string &str){
     #endif
 
     auto &adata = *analyzedata;
-    auto &num2fulubasedata = adata.ADN.base["FULUBASEDATA"];
     if (who == adata.me) {
         int basenum, fulunum = data[who].fulu();
 
-        BASENUM2VECEVAL(basenum, 0, num2fulubasedata, "FULU");
+        BASENUM2VECEVAL(basenum, 0, adata.num2fulubasedata, "FULU");
         adata.fulubasedata[basenum][fulunum] ++ ;
 
-        BASENUM2VECEVAL(basenum, 1, num2fulubasedata, "#1");
+        BASENUM2VECEVAL(basenum, 1, adata.num2fulubasedata, "#1");
         int fulup = 0;
         for (int i = 0; i < 4; i ++ )
             fulup += !!data[i].fulu();
         adata.fulubasedata[basenum + fulup - 1][fulunum] ++ ;
 
-        BASENUM2VECEVAL(basenum, 5, num2fulubasedata, "DORA0");
+        BASENUM2VECEVAL(basenum, 5, adata.num2fulubasedata, "DORA0");
         adata.fulubasedata[basenum + Algo::countdora(data[who], dora)][fulunum] ++ ;
 
         //TODO: 计算消一发
-        BASENUM2VECEVAL(basenum, 32, num2fulubasedata, "YIPATSUKESHI");
+        BASENUM2VECEVAL(basenum, 32, adata.num2fulubasedata, "YIPATSUKESHI");
         adata.fulubasedata[basenum][fulunum] += 0;
 
-        BASENUM2VECEVAL(basenum, 33, num2fulubasedata, "CIRCLE");
+        BASENUM2VECEVAL(basenum, 33, adata.num2fulubasedata, "CIRCLE");
         adata.fulubasedata[basenum][fulunum] += data[who].table.size();
 
-        BASENUM2VECEVAL(basenum, 34, num2fulubasedata, "TANYAO");
+        BASENUM2VECEVAL(basenum, 34, adata.num2fulubasedata, "TANYAO");
         if (Algo::istanyao(data[adata.me])) adata.fulubasedata[basenum][fulunum] ++ ;
 
-        BASENUM2VECEVAL(basenum, 35, num2fulubasedata, "YAKUHAI");
+        BASENUM2VECEVAL(basenum, 35, adata.num2fulubasedata, "YAKUHAI");
         if (Algo::isyakuhai(data[adata.me], (adata.me - east + 4) % 4, nowround / 4)) adata.fulubasedata[basenum][fulunum] ++ ;
 
     }
@@ -320,9 +317,9 @@ void MatchData::IHule(std::string &actstr){
             ankan.push_back(nownum);
         }
     }
-    for (unsigned i = 0; i < str[6].size(); i ++ )
+    for (unsigned i = 0; i < str[6].size(); i += 2)
         dora.push_back(Tiles::tile2num(str[6].substr(i, 2)));
-    for (unsigned i = 0; i < str[7].size(); i ++ )
+    for (unsigned i = 0; i < str[7].size(); i += 2)
         ura.push_back(Tiles::tile2num(str[7].substr(i, 2)));
     auto hans = Algo::split(str[9], '|');
     for (unsigned i = 0; i < hans.size(); i += 2)
@@ -362,135 +359,129 @@ void MatchData::IHule(std::string &actstr){
     int pointlevel[] = {3900, 7700, 11600, INT_MAX};
 
     auto &adata = *analyzedata;
-    auto &num2hulebasedata = adata.ADN.base["HULEBASEDATA"];
-    auto &num2yakudata = adata.ADN.base["YAKUDATA"];
-    auto &num2basedata = adata.ADN.base["BASEDATA"];
-    auto &num2huleyakubasedata = adata.ADN.base["HULEYAKUBASEDATA"];
-    auto &num2reachbasedata = adata.ADN.base["REACHBASEDATA"];
-    auto &num2reachtype = adata.ADN.base["REACHTYPE"];
     {
         auto metype = adata.gethandtype(data[adata.me]);
         int basenum;
 
-        BASENUM2VECEVAL(basenum, 0, num2hulebasedata, "HULE");
+        BASENUM2VECEVAL(basenum, 0, adata.num2hulebasedata, "HULE");
         if (who == adata.me) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 1, num2hulebasedata, "FANGCHONG");
+        BASENUM2VECEVAL(basenum, 1, adata.num2hulebasedata, "FANGCHONG");
         if (from == adata.me) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 2, num2hulebasedata, "ZIMO");
+        BASENUM2VECEVAL(basenum, 2, adata.num2hulebasedata, "ZIMO");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 3, num2hulebasedata, "BEIZIMO");
+        BASENUM2VECEVAL(basenum, 3, adata.num2hulebasedata, "BEIZIMO");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 4, num2hulebasedata, "HULEPOINT");
+        BASENUM2VECEVAL(basenum, 4, adata.num2hulebasedata, "HULEPOINT");
         if (who == adata.me) adata.hulebasedata[basenum][metype] += dpoint[who];
 
-        BASENUM2VECEVAL(basenum, 5, num2hulebasedata, "HULESUDIAN");
+        BASENUM2VECEVAL(basenum, 5, adata.num2hulebasedata, "HULESUDIAN");
         if (who == adata.me) adata.hulebasedata[basenum][metype] += dsudian[who];
 
-        BASENUM2VECEVAL(basenum, 6, num2hulebasedata, "FANGCHONGPOINT");
+        BASENUM2VECEVAL(basenum, 6, adata.num2hulebasedata, "FANGCHONGPOINT");
         if (from == adata.me) adata.hulebasedata[basenum][metype] += dpoint[from];
 
-        BASENUM2VECEVAL(basenum, 7, num2hulebasedata, "FANGCHONGSUDIAN");
+        BASENUM2VECEVAL(basenum, 7, adata.num2hulebasedata, "FANGCHONGSUDIAN");
         if (from == adata.me) adata.hulebasedata[basenum][metype] += dsudian[from];
 
-        BASENUM2VECEVAL(basenum, 8, num2hulebasedata, "ZIMOPOINT");
+        BASENUM2VECEVAL(basenum, 8, adata.num2hulebasedata, "ZIMOPOINT");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] += dpoint[who];
 
-        BASENUM2VECEVAL(basenum, 9, num2hulebasedata, "ZIMOSUDIAN");
+        BASENUM2VECEVAL(basenum, 9, adata.num2hulebasedata, "ZIMOSUDIAN");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] += dsudian[who];
 
-        BASENUM2VECEVAL(basenum, 10, num2hulebasedata, "BEIZIMOPOINT");
+        BASENUM2VECEVAL(basenum, 10, adata.num2hulebasedata, "BEIZIMOPOINT");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
 
-        BASENUM2VECEVAL(basenum, 11, num2hulebasedata, "BEIZIMOSUDIAN");
+        BASENUM2VECEVAL(basenum, 11, adata.num2hulebasedata, "BEIZIMOSUDIAN");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += dsudian[adata.me];
 
-        BASENUM2VECEVAL(basenum, 12, num2hulebasedata, "HULE3900");
+        BASENUM2VECEVAL(basenum, 12, adata.num2hulebasedata, "HULE3900");
         if (adata.me == who){
             int nowpoint = dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
             if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][metype] ++ ;
         }
 
-        BASENUM2VECEVAL(basenum, 15, num2hulebasedata, "FANGCHONG3900");
+        BASENUM2VECEVAL(basenum, 15, adata.num2hulebasedata, "FANGCHONG3900");
         if (adata.me == from){
             int nowpoint = - dpoint[adata.me];
             for (int i = 0; nowpoint >= pointlevel[i]; i ++ , basenum ++ );
             if (nowpoint >= pointlevel[0]) adata.hulebasedata[basenum - 1][metype] ++ ;
         }
 
-        BASENUM2VECEVAL(basenum, 18, num2hulebasedata, "HULECIRCLE");
+        BASENUM2VECEVAL(basenum, 18, adata.num2hulebasedata, "HULECIRCLE");
         if (who == adata.me) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
-        BASENUM2VECEVAL(basenum, 19, num2hulebasedata, "FANGCHONGMYCIRCLE");
+        BASENUM2VECEVAL(basenum, 19, adata.num2hulebasedata, "FANGCHONGMYCIRCLE");
         if (from == adata.me) adata.hulebasedata[basenum][metype] += data[from].table.size();
 
-        BASENUM2VECEVAL(basenum, 20, num2hulebasedata, "ZIMOCIRCLE");
+        BASENUM2VECEVAL(basenum, 20, adata.num2hulebasedata, "ZIMOCIRCLE");
         if (who == adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
-        BASENUM2VECEVAL(basenum, 21, num2hulebasedata, "BEIZIMOMYCIRCLE");
+        BASENUM2VECEVAL(basenum, 21, adata.num2hulebasedata, "BEIZIMOMYCIRCLE");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[adata.me].table.size();
 
-        BASENUM2VECEVAL(basenum, 22, num2hulebasedata, "DORATIME");
+        BASENUM2VECEVAL(basenum, 22, adata.num2hulebasedata, "DORATIME");
         if (who == adata.me){
         bool hasdoras[3] = {0};
             for (auto &i : han){
                 int hannum;
-                BASENUM2VECEVAL(hannum, 52, num2yakudata, "DORA");
+                BASENUM2VECEVAL(hannum, 52, adata.num2yakudata, "DORA");
                 if (i.first >= hannum && i.first < hannum + 3) hasdoras[i.first - hannum] = true;
             }
             for (int i = 0; i < 3; i ++ ){
-                assert(num2hulebasedata[basenum + i] == num2yakudata[basenum + 30 + i] + "TIME");
+                assert(adata.num2hulebasedata[basenum + i] == adata.num2yakudata[basenum + 30 + i] + "TIME");
                 if (hasdoras[i]) adata.hulebasedata[basenum][metype] ++ ;
             }
         }
 
-        BASENUM2VECEVAL(basenum, 25, num2hulebasedata, "ZHUANGHULE");
+        BASENUM2VECEVAL(basenum, 25, adata.num2hulebasedata, "ZHUANGHULE");
         if (who == adata.me && who == east) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 26, num2hulebasedata, "ZHUANGZIMO");
+        BASENUM2VECEVAL(basenum, 26, adata.num2hulebasedata, "ZHUANGZIMO");
         if (who == adata.me && who == east && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 27, num2hulebasedata, "ZHAZHUANG");
+        BASENUM2VECEVAL(basenum, 27, adata.num2hulebasedata, "ZHAZHUANG");
         if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 28, num2hulebasedata, "ZHAZHUANGPOINT");
+        BASENUM2VECEVAL(basenum, 28, adata.num2hulebasedata, "ZHAZHUANGPOINT");
         if (who != adata.me && adata.me == east && tsumo) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
 
-        BASENUM2VECEVAL(basenum, 29, num2hulebasedata, "CHONGLEZHUANG");
+        BASENUM2VECEVAL(basenum, 29, adata.num2hulebasedata, "CHONGLEZHUANG");
         if (from == adata.me && who == east) adata.hulebasedata[basenum][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 30, num2hulebasedata, "CHONGLEZHUANGPOINT");
+        BASENUM2VECEVAL(basenum, 30, adata.num2hulebasedata, "CHONGLEZHUANGPOINT");
         if (from == adata.me && who == east) adata.hulebasedata[basenum][metype] += dpoint[from];
 
-        BASENUM2VECEVAL(basenum, 31, num2hulebasedata, "FANGCHONGHISCIRCLE");
+        BASENUM2VECEVAL(basenum, 31, adata.num2hulebasedata, "FANGCHONGHISCIRCLE");
         if (from == adata.me) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
-        BASENUM2VECEVAL(basenum, 32, num2hulebasedata, "BEIZIMOHISCIRCLE");
+        BASENUM2VECEVAL(basenum, 32, adata.num2hulebasedata, "BEIZIMOHISCIRCLE");
         if (who != adata.me && tsumo) adata.hulebasedata[basenum][metype] += data[who].table.size();
 
-        BASENUM2VECEVAL(basenum, 33, num2hulebasedata, "CHONGLEDAMA");
+        BASENUM2VECEVAL(basenum, 33, adata.num2hulebasedata, "CHONGLEDAMA");
         if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][metype] ++ ;
 
-        BASENUM2VECEVAL(basenum, 38, num2hulebasedata, "CHONGLEDAMAPOINT");
+        BASENUM2VECEVAL(basenum, 38, adata.num2hulebasedata, "CHONGLEDAMAPOINT");
         if (from == adata.me && !data[who].reach) adata.hulebasedata[basenum + data[who].fulu()][metype] += dpoint[from];
 
-        BASENUM2VECEVAL(basenum, 43, num2hulebasedata, "ZHUANGMEIHU");
+        BASENUM2VECEVAL(basenum, 43, adata.num2hulebasedata, "ZHUANGMEIHU");
         if (east == adata.me && who != adata.me) adata.hulebasedata[basenum][metype] ++ ;
 
         //向听仍使用basedata
-        BASENUM2VECEVAL(basenum, 15, num2basedata, "FANGCHONGSHANTEN0");
+        BASENUM2VECEVAL(basenum, 15, adata.num2basedata, "FANGCHONGSHANTEN0");
         if (from == adata.me) adata.basedata[basenum + Algo::calcshanten(data[from])] ++ ;
 
         //统计役种
         int doranum, akanum, uranum;
-        BASENUM2VECEVAL(basenum, 0, num2huleyakubasedata, "HULEYAKU");
-        BASENUM2VECEVAL(doranum, 52, num2yakudata, "DORA");
-        BASENUM2VECEVAL(akanum, 54, num2yakudata, "AKA");
-        BASENUM2VECEVAL(uranum, 53, num2yakudata, "URA");
+        BASENUM2VECEVAL(basenum, 0, adata.num2huleyakubasedata, "HULEYAKU");
+        BASENUM2VECEVAL(doranum, 52, adata.num2yakudata, "DORA");
+        BASENUM2VECEVAL(akanum, 54, adata.num2yakudata, "AKA");
+        BASENUM2VECEVAL(uranum, 53, adata.num2yakudata, "URA");
         if (who == adata.me)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
@@ -498,7 +489,7 @@ void MatchData::IHule(std::string &actstr){
                 else adata.huleyakubasedata[basenum][i.first][metype] ++ ;
             }
 
-        BASENUM2VECEVAL(basenum, 1, num2huleyakubasedata, "CHONGLEYAKU");
+        BASENUM2VECEVAL(basenum, 1, adata.num2huleyakubasedata, "CHONGLEYAKU");
         if (from == adata.me)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
@@ -506,7 +497,7 @@ void MatchData::IHule(std::string &actstr){
                 else adata.huleyakubasedata[basenum][i.first][metype] ++ ;
             }
 
-        BASENUM2VECEVAL(basenum, 2, num2huleyakubasedata, "BEIZIMOYAKU");
+        BASENUM2VECEVAL(basenum, 2, adata.num2huleyakubasedata, "BEIZIMOYAKU");
         if (who != adata.me && tsumo)
             for (auto &i : han){
                 if (i.first == doranum || i.first == akanum || i.first == uranum)
@@ -515,11 +506,11 @@ void MatchData::IHule(std::string &actstr){
             }
 
         //立直宣言牌放铳，需要在Hule中判定
-        BASENUM2VECEVAL(basenum, 2, num2reachbasedata, "REACHDECLEARRON");
+        BASENUM2VECEVAL(basenum, 2, adata.num2reachbasedata, "REACHDECLEARRON");
         if (needkyoutaku == from && from == adata.me){
             int reachtype = 1 - Algo::tenpaiquality(data[who]);
             assert(reachtype == 0 || reachtype == 1);
-            assert(num2reachtype[0] == "GOOD");
+            assert(adata.num2reachtype[0] == "GOOD");
             adata.reachbasedata[basenum][reachtype] ++ ;
         }
 
@@ -542,26 +533,25 @@ void MatchData::INoTile(std::string &str){
         tenpainum += i;
 
     auto &adata = *analyzedata;
-    auto &num2basedata = adata.ADN.base["BASEDATA"];
     {
         int basenum;
 
-        BASENUM2VECEVAL(basenum, 26, num2basedata, "NORMALLIUJU");
+        BASENUM2VECEVAL(basenum, 26, adata.num2basedata, "NORMALLIUJU");
         adata.basedata[basenum] ++ ;
 
-        BASENUM2VECEVAL(basenum, 27, num2basedata, "LIUJUTENPAI");
+        BASENUM2VECEVAL(basenum, 27, adata.num2basedata, "LIUJUTENPAI");
         if (tenpai[adata.me]) adata.basedata[basenum] ++ ;
 
-        BASENUM2VECEVAL(basenum, 28, num2basedata, "LIUJUNOTEN");
+        BASENUM2VECEVAL(basenum, 28, adata.num2basedata, "LIUJUNOTEN");
         if (!tenpai[adata.me]) adata.basedata[basenum] ++ ;
 
-        BASENUM2VECEVAL(basenum, 29, num2basedata, "LIUJUTENPAIPOINT");
+        BASENUM2VECEVAL(basenum, 29, adata.num2basedata, "LIUJUTENPAIPOINT");
         if (tenpai[adata.me]) adata.basedata[basenum] += in[tenpainum];
 
-        BASENUM2VECEVAL(basenum, 30, num2basedata, "LIUJUNOTENPOINT");
+        BASENUM2VECEVAL(basenum, 30, adata.num2basedata, "LIUJUNOTENPOINT");
         if (!tenpai[adata.me]) adata.basedata[basenum] += out[tenpainum];
 
-        BASENUM2VECEVAL(basenum, 31, num2basedata, "LIUJUPOINT");
+        BASENUM2VECEVAL(basenum, 31, adata.num2basedata, "LIUJUPOINT");
         if (tenpai[adata.me]) adata.basedata[basenum] += in[tenpainum];
         if (!tenpai[adata.me]) adata.basedata[basenum] += out[tenpainum];
 
@@ -1167,7 +1157,18 @@ void AnalyzeData::outputonerect(const std::string &title, const std::vector<std:
 
 }
 
-AnalyzeData::AnalyzeData() : AE(this) {
+AnalyzeData::AnalyzeData() : 
+    AE(this),
+    num2reachbasedata(ADN.base["REACHBASEDATA"]),
+    num2reachtype(ADN.base["REACHTYPE"]),
+    num2fulubasedata(ADN.base["FULUBASEDATA"]),
+    num2hulebasedata(ADN.base["HULEBASEDATA"]),
+    num2yakudata(ADN.base["YAKUDATA"]),
+    num2basedata(ADN.base["BASEDATA"]),
+    num2huleyakubasedata(ADN.base["HULEYAKUBASEDATA"]),
+    num2fulutype(ADN.base["FULUTYPE"]),
+    num2hulehandtype(ADN.base["HULEHANDTYPE"])
+{
     basedata.clear();
     basedata.resize(ADN.base["BASEDATA"].size());
     
@@ -1200,7 +1201,6 @@ AnalyzeData::AnalyzeData() : AE(this) {
 int AnalyzeData::gethandtype(const MatchPlayerData &pdata){
     int res = -1;
     int tenpaiq = Algo::tenpaiquality(pdata);
-    auto &num2hulehandtype = ADN.base["HULEHANDTYPE"];
     if (pdata.reach){
         if (tenpaiq == 1){
             BASENUM2VECEVAL(res, 0, num2hulehandtype, "REACHGOOD");
@@ -1219,7 +1219,6 @@ int AnalyzeData::gethandtype(const MatchPlayerData &pdata){
 
 void AnalyzeData::makehanddata(std::vector<long long> &vec){
     int calcnum, fromnum;
-    auto &num2hulehandtype = ADN.base["HULEHANDTYPE"];
 
     BASENUM2VECEVAL(calcnum, 12, num2hulehandtype, "FULUPLUS1");
     for (int j = calcnum; j < (int)vec.size(); j ++ )
@@ -1283,7 +1282,6 @@ void AnalyzeData::calcresult(){
         for (auto &j : i)
             makehanddata(j);
 
-    auto &num2reachtype = ADN.base["REACHTYPE"];
     for (auto &i : reachbasedata){
         int b0, b1, b2;
         BASENUM2VECEVAL(b0, 0, num2reachtype, "GOOD");
@@ -1292,7 +1290,6 @@ void AnalyzeData::calcresult(){
         i[b2] = i[b0] + i[b1];
     }
 
-    auto &num2fulutype = ADN.base["FULUTYPE"];
     for (auto &i : fulubasedata){
         int b, r, r1;
         for (int k = 4; k >= 1; k -- ){
@@ -1528,7 +1525,6 @@ bool PaipuAnalyzer::analyze(CJsonObject *paipu){
 bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     if (!filtercheck(paipu)) return false;
     auto &adata = *analyzedata;
-    auto &num2basedata = adata.ADN.base["BASEDATA"];
     adata.me = -1;
     auto &accountid = paipu["gamedata"]["accountid"];
     auto &pdata = paipu["gamedata"]["playerdata"];
@@ -1569,17 +1565,17 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         {
             int basenum;
 
-            BASENUM2VECEVAL(basenum, 9, num2basedata, "TOTALROUND");
+            BASENUM2VECEVAL(basenum, 9, adata.num2basedata, "TOTALROUND");
             adata.basedata[basenum] ++ ;
 
-            BASENUM2VECEVAL(basenum, 10, num2basedata, "REACH");
+            BASENUM2VECEVAL(basenum, 10, adata.num2basedata, "REACH");
             adata.basedata[basenum] += !!matchdata.data[adata.me].reach;
 
-            //BASENUM2VECEVAL(basenum, 11, num2basedata, "FULU1");
+            //BASENUM2VECEVAL(basenum, 11, adata.num2basedata, "FULU1");
             //int fulu = matchdata.data[adata.me].fulu();
             //if (fulu) adata.basedata[basenum - 1 + fulu] ++ ;
 
-            BASENUM2VECEVAL(basenum, 33, num2basedata, "ZHUANG");
+            BASENUM2VECEVAL(basenum, 33, adata.num2basedata, "ZHUANG");
             if (matchdata.east == adata.me) adata.basedata[basenum] ++ ;
             
         }
@@ -1592,10 +1588,10 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     {
         int basenum; 
         
-        BASENUM2VECEVAL(basenum, 0, num2basedata, "TOTALGAME");
+        BASENUM2VECEVAL(basenum, 0, adata.num2basedata, "TOTALGAME");
         adata.basedata[basenum] ++ ;
         
-        BASENUM2VECEVAL(basenum, 1, num2basedata, "#1");
+        BASENUM2VECEVAL(basenum, 1, adata.num2basedata, "#1");
         std::vector<int> vec;
         for (auto i : matchdata.data)
             vec.push_back(i.score);
@@ -1621,22 +1617,22 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         }
         auto alrank = Algo::getrank(vec, adata.me);
 
-        BASENUM2VECEVAL(basenum, 5, num2basedata, "ALBAO1");
+        BASENUM2VECEVAL(basenum, 5, adata.num2basedata, "ALBAO1");
         adata.basedata[basenum] += alrank == 1 && finalrank == 1;
 
-        BASENUM2VECEVAL(basenum, 6, num2basedata, "ALNI1");
+        BASENUM2VECEVAL(basenum, 6, adata.num2basedata, "ALNI1");
         adata.basedata[basenum] += alrank != 1 && finalrank == 1;
         
-        BASENUM2VECEVAL(basenum, 7, num2basedata, "ALBI4");
+        BASENUM2VECEVAL(basenum, 7, adata.num2basedata, "ALBI4");
         adata.basedata[basenum] += alrank == 4 && finalrank != 4;
 
-        BASENUM2VECEVAL(basenum, 8, num2basedata, "ALMULTITIME");
+        BASENUM2VECEVAL(basenum, 8, adata.num2basedata, "ALMULTITIME");
         adata.basedata[basenum] += altime > 1;
 
-        BASENUM2VECEVAL(basenum, 22, num2basedata, "AL#1");
+        BASENUM2VECEVAL(basenum, 22, adata.num2basedata, "AL#1");
         adata.basedata[basenum - 1 + alrank] ++ ;
 
-        BASENUM2VECEVAL(basenum, 32, num2basedata, "ALLPOINT");
+        BASENUM2VECEVAL(basenum, 32, adata.num2basedata, "ALLPOINT");
         int stp, endp;
         paipu["gamedata"]["roomdata"].Get("startpoint", stp);
         pdata[adata.me].Get("finalpoint", endp);

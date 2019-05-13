@@ -1,6 +1,6 @@
 {
   "name": "majsoul-paipu-crawler",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Get Paipu from Majsoul",
   "main": "main.js",
   "scripts": {

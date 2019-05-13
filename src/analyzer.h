@@ -110,6 +110,17 @@ namespace PA{
         void makehanddata(std::vector<long long> &vec);
     public:
         AnalyzeResultName ADN;
+        
+        std::vector<std::string> &num2reachbasedata;
+        std::vector<std::string> &num2reachtype;
+        std::vector<std::string> &num2fulubasedata;
+        std::vector<std::string> &num2hulebasedata;
+        std::vector<std::string> &num2yakudata;
+        std::vector<std::string> &num2basedata;
+        std::vector<std::string> &num2huleyakubasedata;
+        std::vector<std::string> &num2fulutype;
+        std::vector<std::string> &num2hulehandtype;
+        
         int me;
         std::vector<long long> basedata;
         std::vector<double> result;

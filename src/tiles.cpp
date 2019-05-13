@@ -1,20 +1,21 @@
 #include "tiles.h"
 
 namespace Tiles{
-    std::map<std::string, int> tile2nummap;
+    std::vector<int> tile2numvec;
 
     void TilesInit(){
+        tile2numvec.resize(256 * 256);
+        for (auto &i : tile2numvec)
+            i = -1;
         for (int i = 0; i < TILENUM; i ++ )
-            tile2nummap[num2tile[i]] = i;
+            tile2numvec[num2tile[i][0] * 256 + num2tile[i][1]] = i;
     }
 
     int tile2num(const std::string &key){
-        if (!tile2nummap.size())
+        assert(key.size() == 2);
+        if (!tile2numvec.size())
             TilesInit();
 
-        auto it = tile2nummap.find(key);
-        if (it != tile2nummap.end())
-            return it -> second;
-        return -1;
+        return (tile2numvec[key[0] * 256 + key[1]]);
     }
 }

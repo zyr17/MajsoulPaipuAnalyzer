@@ -41,7 +41,7 @@ const ready = () => {
 
     browseWindow.nowingamepage = true;
 
-    browseWindow.webContents.on('did-stop-loading', function (){
+    browseWindow.webContents.on('dom-ready', function (){
         browseinject();
         if (!/^https:\/\/(?:majsoul|game.mahjongsoul|mahjongsoul)/.test(browseWindow.webContents.getURL())){
             if (browseWindow.nowingamepage)
@@ -264,13 +264,13 @@ const ready = () => {
             label: '进入国际服',
             click: function () {
                 gotonewpage('https://mahjongsoul.game.yo-star.com');
-                dialog.showMessageBox({
+/*                 dialog.showMessageBox({
                     type: 'info',
                     noLink: true,
                     buttons: ['确定'],
                     title: '国际服提示',
                     message: '由于技术原因，使用国际服时请确保当前网络能够较为通畅的访问Google, FaceBook等，否则很可能无法正确获取牌谱数据。'
-                });
+                }); */
             }
         }, {
             label: '登录专用窗口',

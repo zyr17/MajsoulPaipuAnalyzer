@@ -101,24 +101,32 @@ int getrank(std::vector<int> points, int who, int initial){
     }
 }
 
-std::vector<int> pdata2tilevec(const MatchPlayerData &pdata){
-    std::vector<int> res, tile;
+int pdata2tilevectile[20];
+
+std::vector<int> pdata2tilevec(const MatchPlayerData &pdata) {
+    std::vector<int> res;
     res.resize(Tiles::TILENUM);
-    for (auto i : pdata.hand) tile.push_back(i);
-    if (pdata.get != Tiles::EMPTY) tile.push_back(pdata.get);
-    for (auto &i : tile)
-        if ( ++ res[i - (i == 5 || i == 15 || i == 25)] > 4){
+    auto tile = pdata2tilevectile;
+    int tileend = 0;
+    for (auto i : pdata.hand) tile[tileend++] = i;
+    if (pdata.get != Tiles::EMPTY) tile[tileend++] = pdata.get;
+    assert(tileend <= 20);
+    for (int k = 0; k < tileend; k++) {
+        int i = tile[k];
+        if (++res[i - (i == 5 || i == 15 || i == 25)] > 4) {
             //某张牌出现5张，数据有问题返回空数组
             res.clear();
             res.resize(Tiles::TILENUM);
             return res;
         }
+    }
     return res;
 }
 
-std::map<long long, int> shantenmap;
-const int SHANTENSYS = 4;
+std::vector<int> shantenmap;
+const int SHANTENSYS = 4, TILESYS = 3;
 int listshantenarr[9], makeshantenarr[5];
+int Td[5], Ttvec[5];
 
 void makeshantenmap(int &mapval, int k = 0, int num = 0){
     if (k == 9){
@@ -173,7 +181,7 @@ void listshantenmap(int k = 0, int num = 0){
             i = 1 << (SHANTENSYS - 1);
         long long index = 0;
         for (auto i : listshantenarr)
-            index = (index << SHANTENSYS) + i;
+            index = (index << TILESYS) + i;
         int &mapval = shantenmap[index];
         makeshantenmap(mapval);
         return;
@@ -213,27 +221,25 @@ int calcmentsu(const std::vector<int> &bu, int mentsu){
     for (int i = 30; i < 37; i ++ )
         if (bu[i] >= 3) mentsu ++ ;
         else if (bu[i] == 2) toi ++ ;
-    std::vector<int> d, tvec;
-    d.resize(5);
-    for (auto &i : d)
-        i = -100;
+    auto &d = Td, &tvec = Ttvec;
+    for (int i = 0; i < 5; i ++ )
+        d[i] = -100;
     d[0] = 0;
-    tvec.resize(5);
     for (int i = 0; i < 30; i += 10){
         long long index = 0;
         for (int j = 0; j < 10; j ++ )
-            if (j != 5) index = (index << SHANTENSYS) + bu[i + j];
+            if (j != 5) index = (index << TILESYS) + bu[i + j];
         int cint = shantenmap[index];
         for (int k = 4; k >= 0; k -- ){
             tvec[k] = cint & ((1 << SHANTENSYS) - 1);
             cint >>= SHANTENSYS;
         }
-        for (int j = int(d.size()) - 1; j >= 0; j -- )
-            for (int k = int(d.size() - 1) - j; k >= 0; k -- )
+        for (int j = int(5) - 1; j >= 0; j -- )
+            for (int k = int(5 - 1) - j; k >= 0; k -- )
                 if (!(tvec[k] >> (SHANTENSYS - 1)) && d[j] + tvec[k] > d[j + k])
                     d[j + k] = d[j] + tvec[k];
     }
-    for (int I = 0; I < int(d.size()); I ++ ){
+    for (int I = 0; I < int(5); I ++ ){
         int i = I + mentsu, j = toi + d[I];
         int tt = 8 - i * 2 - j;
         if (i + j > 4) tt = 4 - i;
@@ -243,8 +249,10 @@ int calcmentsu(const std::vector<int> &bu, int mentsu){
 }
 
 int calcshanten(const MatchPlayerData &pdata, bool chitoikokushi){
-    if (!shantenmap.size())
+    if (!shantenmap.size()){
+        shantenmap.resize(84000000);
         listshantenmap();
+    }
     
     auto tilevec = pdata2tilevec(pdata);
     int chitoi = (pdata.show.size() || !chitoikokushi) ? INT_MAX : chitoishanten(tilevec);
