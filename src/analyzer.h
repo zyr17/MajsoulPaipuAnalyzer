@@ -21,7 +21,7 @@ namespace PA{
         MatchPlayerData();
         void clear();
         int fulu() const;
-        CJsonObject tojson();
+        CJsonObject tojson() const;
     };
 
 }
@@ -163,7 +163,7 @@ namespace PA{
         std::vector<MatchPlayerData> data;
         AnalyzeData *analyzedata;
         MatchData();
-        CJsonObject tojson();
+        CJsonObject tojson() const;
         void clear();
         void INewGame(CJsonObject &record);
         void INewRound(CJsonObject &record);

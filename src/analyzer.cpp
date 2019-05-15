@@ -26,7 +26,7 @@ int MatchPlayerData::fulu() const{
     return res;
 }
 
-CJsonObject MatchPlayerData::tojson(){
+CJsonObject MatchPlayerData::tojson() const{
     CJsonObject co("{}");
     CJsonObject arrhand("[]"), arrshow("[]"), arrtable("[]");
     for (auto i : hand)
@@ -100,7 +100,9 @@ void MatchData::IDiscardTile(std::string &str){
     auto &adata = *analyzedata;
     if (reach && who == adata.me){
 
-        int reachtype = 1 - Algo::tenpaiquality(data[who]), basenum;
+        auto tenpai = Algo::calctenpai(data[who]);
+        assert(tenpai.size());
+        int reachtype = 1 - Algo::tenpaiquality(data[who], tenpai), basenum;
         assert(reachtype == 0 || reachtype == 1);
         assert(adata.num2reachtype[0] == "GOOD");
 
@@ -121,6 +123,12 @@ void MatchData::IDiscardTile(std::string &str){
 
         BASENUM2VECEVAL(basenum, 32, adata.num2reachbasedata, "#1");
         adata.reachbasedata[basenum + data[adata.me].reachrank - 1][reachtype] ++ ;
+        
+        if (Algo::isfuriten(data[who], tenpai)){
+            //振听立直
+            BASENUM2VECEVAL(basenum, 45, adata.num2reachbasedata, "FURITEN");
+            adata.reachbasedata[basenum][reachtype] ++ ;
+        }
 
     }
 
@@ -516,12 +524,14 @@ void MatchData::IHule(std::string &actstr){
             }
 
         int reachtype = -1;
+        std::vector<int> tenpai;
 
         //立直宣言牌放铳，需要在Hule中判定
         BASENUM2VECEVAL(basenum, 2, adata.num2reachbasedata, "REACHDECLEARRON");
         if (needkyoutaku == from && from == adata.me){
             if (reachtype == -1){
-                reachtype = 1 - Algo::tenpaiquality(data[adata.me]);
+                tenpai = Algo::calctenpai(data[adata.me]);
+                reachtype = 1 - Algo::tenpaiquality(data[adata.me], tenpai);
                 assert(reachtype == 0 || reachtype == 1);
                 assert(adata.num2reachtype[0] == "GOOD");
             }
@@ -529,13 +539,15 @@ void MatchData::IHule(std::string &actstr){
         }
 
         //针对追立&被追立和牌数据，在Hule中判定
+        //TODO: 追立净利未减去宣言牌点炮不用给出的供托，需要在将来加上
         int reachnum = 0;
         for (auto &i : data)
             reachnum += !!i.reach;
 
         if (data[adata.me].reachrank > 1){
             if (reachtype == -1){
-                reachtype = 1 - Algo::tenpaiquality(data[adata.me]);
+                tenpai = Algo::calctenpai(data[adata.me]);
+                reachtype = 1 - Algo::tenpaiquality(data[adata.me], tenpai);
                 assert(reachtype == 0 || reachtype == 1);
                 assert(adata.num2reachtype[0] == "GOOD");
             }
@@ -555,7 +567,8 @@ void MatchData::IHule(std::string &actstr){
 
         if (data[adata.me].reach && reachnum > data[adata.me].reachrank){
             if (reachtype == -1){
-                reachtype = 1 - Algo::tenpaiquality(data[adata.me]);
+                tenpai = Algo::calctenpai(data[adata.me]);
+                reachtype = 1 - Algo::tenpaiquality(data[adata.me], tenpai);
                 assert(reachtype == 0 || reachtype == 1);
                 assert(adata.num2reachtype[0] == "GOOD");
             }
@@ -571,6 +584,31 @@ void MatchData::IHule(std::string &actstr){
 
             BASENUM2VECEVAL(basenum, 44, adata.num2reachbasedata, "BEIZHUILIFANGCHONGPOINT");
             if (adata.me == from) adata.reachbasedata[basenum][reachtype] += dpoint[from];
+        }
+
+        if (data[adata.me].reach){
+            if (!tenpai.size())
+                tenpai = Algo::calctenpai(data[adata.me]);
+            if (Algo::isfuriten(data[adata.me], tenpai)){
+                //自己立直且振听了
+                if (reachtype == -1){
+                    reachtype = 1 - Algo::tenpaiquality(data[adata.me], tenpai);
+                    assert(reachtype == 0 || reachtype == 1);
+                    assert(adata.num2reachtype[0] == "GOOD");
+                }
+
+                BASENUM2VECEVAL(basenum, 46, adata.num2reachbasedata, "FURITENHULE");
+                if (adata.me == who) adata.reachbasedata[basenum][reachtype] ++ ;
+
+                BASENUM2VECEVAL(basenum, 47, adata.num2reachbasedata, "FURITENHULEPOINT");
+                if (adata.me == who) adata.reachbasedata[basenum][reachtype] += dpoint[who];
+
+                BASENUM2VECEVAL(basenum, 48, adata.num2reachbasedata, "FURITENFANGCHONG");
+                if (adata.me == from) adata.reachbasedata[basenum][reachtype] ++ ;
+
+                BASENUM2VECEVAL(basenum, 49, adata.num2reachbasedata, "FURITENFANGCHONGPOINT");
+                if (adata.me == from) adata.reachbasedata[basenum][reachtype] += dpoint[from];
+            }
         }
 
     }
@@ -661,7 +699,7 @@ MatchData::MatchData(){
     analyzedata = nullptr;
 }
 
-CJsonObject MatchData::tojson(){
+CJsonObject MatchData::tojson() const{
     CJsonObject arrdata("[]");
     std::string dorastr;
     for (auto &i : data)

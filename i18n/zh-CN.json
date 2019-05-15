@@ -27,7 +27,7 @@
         "FULU3RESULT": "3+副露数据",
         "FULU4RESULT": "4副露数据",
         "STABLERANKRESULT": "安定段位结果（置信水平0.95）",
-        "ZHUILIBEIZHUILIRESULT": "追立和被追立数据"
+        "ZHUILIBEIZHUILIRESULT": "追立，被追立和振听立直数据"
     },
     "ADRESULT": {
         "#1R": "一位率", 
@@ -184,7 +184,22 @@
         "BEIZHUILICHONGP": "被追立时放铳点",
         "BEIZHUILIPROFIT": "被追立时净利",
         "BEIZHUILIGOODR": "被追立时好形率",
-        "BEIZHUILIBADR": "被追立时愚形率"
+        "BEIZHUILIBADR": "被追立时愚形率",
+        "FURITENR": "振听立直率",
+        "FURITENHULER": "振听和了率",
+        "FURITENHULEP": "振听和了点",
+        "FURITENCHONGR": "振听放铳率",
+        "FURITENCHONGP": "振听放铳点",
+        "FURITENGOODR": "振听立直好形率",
+        "FURITENGOODHULER": "振听好形和了率",
+        "FURITENGOODHULEP": "振听好形和了点",
+        "FURITENGOODCHONGR": "振听好形放铳率",
+        "FURITENGOODCHONGP": "振听好形放铳点",
+        "FURITENBADR": "振听立直愚形率",
+        "FURITENBADHULER": "振听愚形和了率",
+        "FURITENBADHULEP": "振听愚形和了点",
+        "FURITENBADCHONGR": "振听愚形放铳率",
+        "FURITENBADCHONGP": "振听愚形放铳点"
     },
     "MISC": {
         "WORDNOTEXIST": "要查找的词汇不在词表中！",

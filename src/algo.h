@@ -42,7 +42,8 @@ namespace Algo{
 
     std::vector<int> calctenpai(const PA::MatchPlayerData &pdata);
     //以当前手牌给出听牌质量。-1:未听牌 0:愚形 1:好形。好形包括不考虑自己手牌、副露外牌时听6张及以上的；以及听字牌的
-    int tenpaiquality(const PA::MatchPlayerData &pdata);
+    int tenpaiquality(const PA::MatchPlayerData &pdata, const std::vector<int> &tenpai = std::vector<int>());
+    bool isfuriten(const PA::MatchPlayerData &pdata, const std::vector<int> &tenpai = std::vector<int>());
     void testtenpai();
 
     int countdora(const PA::MatchPlayerData &pdata, const std::vector<int> &dora);

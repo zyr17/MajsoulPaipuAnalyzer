@@ -448,10 +448,11 @@ std::vector<int> calctenpai(const PA::MatchPlayerData &oldpdata){
     return res;
 }
 
-int tenpaiquality(const PA::MatchPlayerData &oldpdata){
+int tenpaiquality(const PA::MatchPlayerData &oldpdata, const std::vector<int> &tenpai){
     PA::MatchPlayerData pdata(oldpdata);
     pdata.get = Tiles::EMPTY;
-    if (calcshanten(pdata)) return -1;
+    //当tenpai.size不为0时，认为该牌已经听牌，不计算calcshanten，减少运行时间
+    if (!tenpai.size() && calcshanten(pdata)) return -1;
     std::vector<int> bu;
     bu.resize(Tiles::TILENUM);
     for (auto j : pdata.hand){
@@ -466,6 +467,22 @@ int tenpaiquality(const PA::MatchPlayerData &oldpdata){
     for (auto i : calctenpai(oldpdata))
         waitnum += 4 - bu[i] + 100 * (i >= 30);
     return waitnum >= 6;
+}
+
+bool isfuritenbu[Tiles::TILENUM];
+
+bool isfuriten(const PA::MatchPlayerData &pdata, const std::vector<int> &intenpai){
+    assert(intenpai.size() || pdata.get == Tiles::EMPTY);
+    auto &tenpai = (intenpai.size() ? intenpai : calctenpai(pdata));
+    memset(isfuritenbu, 0, sizeof isfuritenbu);
+    for (auto i : pdata.table){
+        i %= Tiles::TILESYS;
+        i -= i == 5 || i == 15 || i == 25;
+        isfuritenbu[i] = true;
+    }
+    for (auto i : tenpai)
+        if (isfuritenbu[i]) return true;
+    return false;
 }
 
 void testtenpai(){
