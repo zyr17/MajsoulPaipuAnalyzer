@@ -44,15 +44,15 @@ namespace I18N{
         auto it = langmap.find(str);
         if (it != langmap.end())
             return it -> second;
+        
+        // ! test
+        for (; *str.rbegin() >= '0' && *str.rbegin() <= '9'; str.erase(str.size() - 1));
+        str += '!';
+        it = langmap.find(str);
+        if (it != langmap.end())
+            return it -> second;
+        
         if (!warnwordnotexist){
-
-            // ! test
-            for (; *str.rbegin() >= '0' && *str.rbegin() <= '9'; str.erase(str.size() - 1));
-            str += '!';
-            auto it = langmap.find(str);
-            if (it != langmap.end())
-                return it -> second;
-
             warnwordnotexist = true;
             std::cout << get("MISC", "ERROR") + get("MISC", "WORDNOTEXIST") + '|' + word1 + '|' + word2 + '\n';
         }

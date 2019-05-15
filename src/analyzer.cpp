@@ -12,7 +12,7 @@ MatchPlayerData::MatchPlayerData(){
 }
 
 void MatchPlayerData::clear(){
-    reach = score = 0;
+    reach = score = reachrank = 0;
     get = Tiles::EMPTY;
     hand.clear();
     table.clear();
@@ -92,6 +92,8 @@ void MatchData::IDiscardTile(std::string &str){
         assert(needkyoutaku == -1);
         data[who].reach = reach;
         needkyoutaku = who;
+        for (auto &i : data)
+            data[who].reachrank += !!i.reach;
     }
 
     //reachbasedata
@@ -118,10 +120,18 @@ void MatchData::IDiscardTile(std::string &str){
         adata.reachbasedata[basenum + Algo::countdora(data[who], this -> dora)][reachtype] ++ ;
 
         BASENUM2VECEVAL(basenum, 32, adata.num2reachbasedata, "#1");
-        int nowmany = 0;
-        for (int i = 0; i < 4; i ++ )
-            if (data[i].reach) nowmany ++ ;
-        adata.reachbasedata[basenum + nowmany - 1][reachtype] ++ ;
+        adata.reachbasedata[basenum + data[adata.me].reachrank - 1][reachtype] ++ ;
+
+    }
+
+    if (reach && who != adata.me){
+
+        int basenum;
+
+        //由于目前只有一个判断，因此将tenpaiquality加到if后减少计算次数
+        //可以考虑将这个记录到MatchPlayerData或者AnalyzeData来减少调用
+        BASENUM2VECEVAL(basenum, 40, adata.num2reachbasedata, "BEIZHUILI");
+        if (data[adata.me].reach) adata.reachbasedata[basenum][1 - Algo::tenpaiquality(data[adata.me])] ++ ;
 
     }
     
@@ -505,13 +515,62 @@ void MatchData::IHule(std::string &actstr){
                 else adata.huleyakubasedata[basenum][i.first][metype] ++ ;
             }
 
+        int reachtype = -1;
+
         //立直宣言牌放铳，需要在Hule中判定
         BASENUM2VECEVAL(basenum, 2, adata.num2reachbasedata, "REACHDECLEARRON");
         if (needkyoutaku == from && from == adata.me){
-            int reachtype = 1 - Algo::tenpaiquality(data[who]);
-            assert(reachtype == 0 || reachtype == 1);
-            assert(adata.num2reachtype[0] == "GOOD");
+            if (reachtype == -1){
+                reachtype = 1 - Algo::tenpaiquality(data[adata.me]);
+                assert(reachtype == 0 || reachtype == 1);
+                assert(adata.num2reachtype[0] == "GOOD");
+            }
             adata.reachbasedata[basenum][reachtype] ++ ;
+        }
+
+        //针对追立&被追立和牌数据，在Hule中判定
+        int reachnum = 0;
+        for (auto &i : data)
+            reachnum += !!i.reach;
+
+        if (data[adata.me].reachrank > 1){
+            if (reachtype == -1){
+                reachtype = 1 - Algo::tenpaiquality(data[adata.me]);
+                assert(reachtype == 0 || reachtype == 1);
+                assert(adata.num2reachtype[0] == "GOOD");
+            }
+
+            BASENUM2VECEVAL(basenum, 36, adata.num2reachbasedata, "ZHUILIHULE");
+            if (adata.me == who) adata.reachbasedata[basenum][reachtype] ++ ;
+
+            BASENUM2VECEVAL(basenum, 37, adata.num2reachbasedata, "ZHUILIHULEPOINT");
+            if (adata.me == who) adata.reachbasedata[basenum][reachtype] += dpoint[who];
+
+            BASENUM2VECEVAL(basenum, 38, adata.num2reachbasedata, "ZHUILIFANGCHONG");
+            if (adata.me == from) adata.reachbasedata[basenum][reachtype] ++ ;
+
+            BASENUM2VECEVAL(basenum, 39, adata.num2reachbasedata, "ZHUILIFANGCHONGPOINT");
+            if (adata.me == from) adata.reachbasedata[basenum][reachtype] += dpoint[from];
+        }
+
+        if (data[adata.me].reach && reachnum > data[adata.me].reachrank){
+            if (reachtype == -1){
+                reachtype = 1 - Algo::tenpaiquality(data[adata.me]);
+                assert(reachtype == 0 || reachtype == 1);
+                assert(adata.num2reachtype[0] == "GOOD");
+            }
+
+            BASENUM2VECEVAL(basenum, 41, adata.num2reachbasedata, "BEIZHUILIHULE");
+            if (adata.me == who) adata.reachbasedata[basenum][reachtype] ++ ;
+
+            BASENUM2VECEVAL(basenum, 42, adata.num2reachbasedata, "BEIZHUILIHULEPOINT");
+            if (adata.me == who) adata.reachbasedata[basenum][reachtype] += dpoint[who];
+
+            BASENUM2VECEVAL(basenum, 43, adata.num2reachbasedata, "BEIZHUILIFANGCHONG");
+            if (adata.me == from) adata.reachbasedata[basenum][reachtype] ++ ;
+
+            BASENUM2VECEVAL(basenum, 44, adata.num2reachbasedata, "BEIZHUILIFANGCHONGPOINT");
+            if (adata.me == from) adata.reachbasedata[basenum][reachtype] += dpoint[from];
         }
 
     }

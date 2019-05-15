@@ -12,7 +12,7 @@ namespace PA{
     class MatchPlayerData{
     public:
         const int ANKANNUM = -9;
-        int get, score, reach;
+        int get, score, reach, reachrank;
         //不记录从谁那里鸣牌；对于暗杠，在四张牌后添加数字ANKANNUM表示
         ////TODO: 可以添加数字-1~-4表示该鸣牌确定了包牌
         std::vector<std::vector<int>> show;
@@ -47,10 +47,10 @@ namespace PA{
                 使用时格式为!startnum!endnum!，表示形成所有之间的项目
                 例：FULU!1!4!CIRCLE = FULU1CIRCLE FULU2CIRCLE FULU3CIRCLE FULU4CIRCLE
                 同时，在表达式中也会用到若干!，对于某个项目，所有!均和统计量的数字同步
-                例：FULU!1!4!CIRCLE: FULU_CIRCLE_FULU! / BASE_FULU!
+                例：FULU!1!4!CIRCLE: FULU_CIRCLE_FULU! / FULU_FULU_FULU!
                                         =
-                    FULU1CIRCLE: FULU_CIRCLE_1 / BASE_FULU1
-                    FULU2CIRCLE: FULU_CIRCLE_2 / BASE_FULU2 ... TODO: 这里计算有问题，需要修正，同时要考虑兼容简化表示
+                    FULU1CIRCLE: FULU_CIRCLE_FULU1 / FULU_FULU_FULU1
+                    FULU2CIRCLE: FULU_CIRCLE_FULU2 / FULU_FULU_FULU2 ... 
         */
         std::vector<std::string> result, resultexpr;
 

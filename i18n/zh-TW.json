@@ -26,7 +26,8 @@
         "FULU2RESULT": "2+副露數據",
         "FULU3RESULT": "3+副露數據",
         "FULU4RESULT": "4副露數據",
-        "STABLERANKRESULT": "安定段位結果（置信水平0.95）"
+        "STABLERANKRESULT": "安定段位結果（置信水平0.95）",
+        "ZHUILIBEIZHUILIRESULT": "追立和被追立數據"
     },
     "ADRESULT": {
         "#1R": "壹位率", 
@@ -167,7 +168,23 @@
         "EASTCIR": "東風安定段位置信上界",
         "SOUTHSR": "南風局安定段位",
         "SOUTHCIL": "南風安定段位置信下界",
-        "SOUTHCIR": "南風安定段位置信上界"
+        "SOUTHCIR": "南風安定段位置信上界",
+        "ZHUILIR": "追立率",
+        "ZHUILIHULER": "追立和了率",
+        "ZHUILIHULEP": "追立和了點",
+        "ZHUILICHONGR": "追立放銃率",
+        "ZHUILICHONGP": "追立放銃點",
+        "ZHUILIPROFIT": "追立凈利",
+        "ZHUILIGOODR": "追立好形率",
+        "ZHUILIBADR": "追立愚形率",
+        "BEIZHUILIR": "被追立率",
+        "BEIZHUILIHULER": "被追立時和了率",
+        "BEIZHUILIHULEP": "被追立時和了點",
+        "BEIZHUILICHONGR": "被追立時放銃率",
+        "BEIZHUILICHONGP": "被追立時放銃點",
+        "BEIZHUILIPROFIT": "被追立時凈利",
+        "BEIZHUILIGOODR": "被追立時好形率",
+        "BEIZHUILIBADR": "被追立時愚形率"
     },
     "MISC": {
         "WORDNOTEXIST": "要查找的詞匯不在詞表中！",
