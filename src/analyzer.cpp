@@ -230,13 +230,16 @@ void MatchData::IChiPengGang(std::string &str){
         BASENUM2VECEVAL(basenum, 35, adata.num2fulubasedata, "YAKUHAI");
         if (Algo::isyakuhai(data[adata.me], (adata.me - east + 4) % 4, nowround / 4)) adata.fulubasedata[basenum][fulunum] ++ ;
 
+        BASENUM2VECEVAL(basenum, 34, adata.num2basedata, "DAMINGGANG");
+        if (tiles.size() == 4) adata.basedata[basenum] ++ ;
+
     }
 }
 
 void MatchData::IAnGangAddGang(std::string &str){
     int who = str[1] - '0';
     int tile = Tiles::tile2num(str.substr(2, 2));
-    //bool isankan = str[4] == '1';
+    bool isankan = str[4] == '1';
 
     if (data[who].get != Tiles::EMPTY){
         data[who].hand.push_back(data[who].get);
@@ -253,7 +256,8 @@ void MatchData::IAnGangAddGang(std::string &str){
         handnum += i == tile;
     }
     assert(handnum == 4 || handnum == 1);
-    if (handnum == 4){
+    assert((handnum == 4) == isankan);
+    if (isankan){
         //ankan
         std::vector<int> vec;
         for (; akanum -- ; vec.push_back(tile + 1));
@@ -283,6 +287,22 @@ void MatchData::IAnGangAddGang(std::string &str){
             }
         }
         assert(pass);
+    }
+
+    auto &adata = *analyzedata;
+    if (who == adata.me){
+
+        int basenum;
+
+        BASENUM2VECEVAL(basenum, 35, adata.num2basedata, "ANGANG");
+        if (isankan) adata.basedata[basenum] ++ ;
+
+        BASENUM2VECEVAL(basenum, 36, adata.num2basedata, "JIAGANG");
+        if (!isankan) adata.basedata[basenum] ++ ;
+
+        BASENUM2VECEVAL(basenum, 37, adata.num2basedata, "REACHANGANG");
+        if (isankan && data[adata.me].reach) adata.basedata[basenum] ++ ;
+
     }
     
     #ifdef MATCHDATAOUTPUT
@@ -489,6 +509,24 @@ void MatchData::IHule(std::string &actstr){
 
         BASENUM2VECEVAL(basenum, 43, adata.num2hulebasedata, "ZHUANGMEIHU");
         if (east == adata.me && who != adata.me) adata.hulebasedata[basenum][metype] ++ ;
+
+        int gang = 0;
+        for (auto &i : data[adata.me].show)
+            gang += i.size() >= 4;
+        if (gang){
+            //这盘杠过了
+            BASENUM2VECEVAL(basenum, 44, adata.num2hulebasedata, "GANGHULE");
+            if (who == adata.me) adata.hulebasedata[basenum][metype] ++ ;
+
+            BASENUM2VECEVAL(basenum, 45, adata.num2hulebasedata, "GANGHULEPOINT");
+            if (who == adata.me) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
+
+            BASENUM2VECEVAL(basenum, 46, adata.num2hulebasedata, "GANGFANGCHONG");
+            if (from == adata.me) adata.hulebasedata[basenum][metype] ++ ;
+
+            BASENUM2VECEVAL(basenum, 47, adata.num2hulebasedata, "GANGFANGCHONGPOINT");
+            if (from == adata.me) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
+        }
 
         //向听仍使用basedata
         BASENUM2VECEVAL(basenum, 15, adata.num2basedata, "FANGCHONGSHANTEN0");
@@ -1207,10 +1245,34 @@ double AnalyzeExpr::calcexpr(std::string expr){
     return num[0];
 }
 
-void AnalyzeData::outputonerect(const std::string &title, const std::vector<std::string> &res, int col){
+void AnalyzeData::outputonerect(const std::string &title, const std::string &key, int col){
+    auto &res = ADN.resultgroupmap[key];
     std::vector<std::string> str;
     std::vector<double> data;
-    for (auto &i : res){
+
+    if (key == "HULEYAKURESULT"){
+        double hulenum = AE.calcexpr("HULE_HULE_ALL");
+        for (unsigned i = 0; i < num2yakudata.size(); i ++ ){
+            if (i == 36){
+                assert(num2yakudata[i] == "RENHOU");
+                continue;
+            }
+            str.push_back(I18N::get("YAKU", num2yakudata[i]) + I18N::get("MISC", "COLON"));
+            data.push_back(AE.calcexpr("HULEYAKU_HULEYAKU_" + num2yakudata[i] + "_ALL") / hulenum);
+        }
+    }
+    else if (key == "CHONGYAKURESULT"){
+        double hulenum = AE.calcexpr("HULE_FANGCHONG_ALL");
+        for (unsigned i = 0; i < num2yakudata.size(); i ++ ){
+            if (i == 36){
+                assert(num2yakudata[i] == "RENHOU");
+                continue;
+            }
+            str.push_back(I18N::get("YAKU", num2yakudata[i]) + I18N::get("MISC", "COLON"));
+            data.push_back(AE.calcexpr("HULEYAKU_CHONGLEYAKU_" + num2yakudata[i] + "_ALL") / hulenum);
+        }
+    }
+    else for (auto &i : res){
         str.push_back(I18N::get("ADRESULT", i) + I18N::get("MISC", "COLON"));
         for (unsigned j = 0; j < ADN.result.size(); j ++ )
             if (i == ADN.result[j]){
@@ -1503,7 +1565,7 @@ void AnalyzeData::outputresult(){
             title += '\n';
             title += I18N::get("MISC", "MAJSOULSTABLERANKCOMMENT");
         }
-        outputonerect(title, ADN.resultgroupmap[key], col);
+        outputonerect(title, key, col);
     }
     PAUSEEXIT;
 }

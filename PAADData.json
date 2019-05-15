@@ -79,7 +79,8 @@
             "CHONGLEZHUANGPOINT", "FANGCHONGHISCIRCLE", "BEIZIMOHISCIRCLE", "CHONGLEDAMA", "CHONGLEFULU1", 
             "CHONGLEFULU2", "CHONGLEFULU3", "CHONGLEFULU4", "CHONGLEDAMAPOINT", "CHONGLEFULU1POINT", 
             
-            "CHONGLEFULU2POINT", "CHONGLEFULU3POINT", "CHONGLEFULU4POINT", "ZHUANGMEIHU"
+            "CHONGLEFULU2POINT", "CHONGLEFULU3POINT", "CHONGLEFULU4POINT", "ZHUANGMEIHU", "GANGHULE", 
+            "GANGHULEPOINT", "GANGFANGCHONG", "GANGFANGCHONGPOINT"
         ],
         "HULEYAKUBASEDATA": [
             "HULEYAKU", "CHONGLEYAKU", "BEIZIMOYAKU"
@@ -94,7 +95,8 @@
             "FANGCHONGSHANTEN5", "FANGCHONGSHANTEN6", "AL#1", "AL#2", "AL#3", 
             "AL#4", "NORMALLIUJU", "LIUJUTENPAI", "LIUJUNOTEN", "LIUJUTENPAIPOINT",
             
-            "LIUJUNOTENPOINT", "LIUJUPOINT", "ALLPOINT", "ZHUANG"
+            "LIUJUNOTENPOINT", "LIUJUPOINT", "ALLPOINT", "ZHUANG", "DAMINGGANG", 
+            "ANGANG", "JIAGANG", "REACHANGANG"
         ],
         "YAKUDATA": [
             "ZIMO", "REACH", "YIPATSU", "CHANKAN", "RINSHAN", 
@@ -139,7 +141,7 @@
     "result": {
         "description": [
             "所有统计量的名称及其计算方式。",
-            "",
+            "TODO:所有计算净利时还要检查被自摸的操作",
             "*** 添加新统计量时的操作 ***",
             "1. 添加新统计量名称及其表达式",
             "2. 确认涉及的基本统计量已经完成统计",
@@ -308,13 +310,24 @@
         "FURITENBADHULER": "REACH_FURITENHULE_BAD / REACH_FURITEN_BAD",
         "FURITENBADHULEP": "REACH_FURITENHULEPOINT_BAD / REACH_FURITENHULE_BAD",
         "FURITENBADCHONGR": "REACH_FURITENFANGCHONG_BAD / REACH_FURITEN_BAD",
-        "FURITENBADCHONGP": "REACH_FURITENFANGCHONGPOINT_BAD / REACH_FURITENFANGCHONG_BAD"
+        "FURITENBADCHONGP": "REACH_FURITENFANGCHONGPOINT_BAD / REACH_FURITENFANGCHONG_BAD",
+        "GANGR": "(BASE_DAMINGGANG + BASE_JIAGANG + BASE_ANGANG) / BASE_TOTALROUND",
+        "DAMINGGANGR": "BASE_DAMINGGANG / BASE_TOTALROUND",
+        "JIAGANGR": "BASE_JIAGANG / BASE_TOTALROUND",
+        "ANGANGR": "BASE_ANGANG / BASE_TOTALROUND",
+        "REACHANGANGR": "BASE_REACHANGANG / REACH_REACH_ALL",
+        "GANGHULER": "HULE_GANGHULE_ALL / (RESULT_GANGR * BASE_TOTALROUND)",
+        "GANGHULEP": "HULE_GANGHULEPOINT_ALL / HULE_GANGHULE_ALL",
+        "GANGCHONGR": "HULE_GANGFANGCHONG_ALL / (RESULT_GANGR * BASE_TOTALROUND)",
+        "GANGCHONGP": "HULE_GANGFANGCHONGPOINT_ALL / HULE_GANGFANGCHONG_ALL",
+        "GANGPROFIT": "(HULE_GANGHULEPOINT_ALL + HULE_GANGFANGCHONGPOINT_ALL) / (RESULT_GANGR * BASE_TOTALROUND)"
     },
     "resultgroup":{
         "description": [
             "统计量展示的分组信息。展示可以有重复，也可以不在任何一个分组中展示。",
             "order中的分组名称即为data中的key。data中的统计量名称即为前面result中的key。",
             "特别的，保留分组名称ALLRESULT用于展示所有统计量。data中以该名称命名的分组会无效。该名称不一定必须出现在order中。",
+            "HULEYAKURESULT和CHONGYAKURESULT为和牌和放铳相关役种次数；由于数量太多，所以在outputonerect中特殊处理来显示。",
             "目前分组名称TODOLIST中是完成了统计量算式但是程序功能上没有实现的统计量，仅作名称收集用，请勿展示。",
             "",
             "*** 添加新展示分组时的操作 ***",
@@ -326,11 +339,14 @@
             "OVRESULT",
             "HULERESULT",
             "CHONGRESULT",
+            "HULEYAKURESULT",
+            "CHONGYAKURESULT",
             "REACHRESULT",
             "ZHUILIBEIZHUILIRESULT",
             "LIUJURESULT",
             "FULU1RESULT",
             "FULU2RESULT",
+            "GANGRESULT",
             "ALRESULT",
             "STABLERANKRESULT"
         ],
@@ -350,6 +366,9 @@
                 "PINFUHULER", "CHITOIHULER", "TOITOIHULER", "RANSHOUHULER", "AKAA", 
                 "DORAA", "URAA", "ALLDORAA", "YIPATSUHULER", "OYAHULER"
             ],
+            "HULEYAKURESULT": [
+
+            ],
             "CHONGRESULT": [
                 "CHONGR", "CHONGLEDAMAR", "FULUCHONGR", "CHONGP", "CHONGSU", 
                 "CHONGLEDAMAP", "CHONG3900R", "CHONG7700R", "CHONG11600R", "CHONGMYCC", 
@@ -357,6 +376,9 @@
                 "CHONGLETOITOIR", "CHONGLETANYAOR", "CHONGLERANSHOUR", "REACHINCHONGR", "CHONGLEOYAR", 
                 "CHONGLEYIPATSUR", "CHONGLEFULUR", "BEIZIMOR", "BEIZIMOP", "BEIZIMOMYCC", 
                 "ZHAZHUANGR", "ZHAZHUANGP"
+            ],
+            "CHONGYAKURESULT": [
+
             ],
             "REACHRESULT": [
                 "REACHR", "REACHHULEP", "REACHHULESU", "REACH3900R", "REACH7700R", 
@@ -392,6 +414,10 @@
                 "FURITENCHONGP", "FURITENGOODR", "FURITENGOODHULER", "FURITENGOODHULEP", "FURITENGOODCHONGR",
                 "FURITENGOODCHONGP", "FURITENBADR", "FURITENBADHULER", "FURITENBADHULEP", "FURITENBADCHONGR",
                 "FURITENBADCHONGP"
+            ],
+            "GANGRESULT": [
+                "GANGR", "DAMINGGANGR", "JIAGANGR", "ANGANGR", "REACHANGANGR", 
+                "GANGHULER", "GANGHULEP", "GANGCHONGR", "GANGCHONGP", "GANGPROFIT"
             ]
         }
     }

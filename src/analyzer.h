@@ -106,7 +106,7 @@ namespace PA{
     private:
         AnalyzeExpr AE;
 
-        void outputonerect(const std::string &title, const std::vector<std::string> &res, int col);
+        void outputonerect(const std::string &title, const std::string &key, int col);
         void makehanddata(std::vector<long long> &vec);
     public:
         AnalyzeResultName ADN;
