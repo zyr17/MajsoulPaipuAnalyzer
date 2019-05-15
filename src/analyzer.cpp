@@ -526,7 +526,13 @@ void MatchData::IHule(std::string &actstr){
 
             BASENUM2VECEVAL(basenum, 47, adata.num2hulebasedata, "GANGFANGCHONGPOINT");
             if (from == adata.me) adata.hulebasedata[basenum][metype] += dpoint[adata.me];
+
+            BASENUM2VECEVAL(basenum, 49, adata.num2hulebasedata, "GANGTOTALPOINT");
+            adata.hulebasedata[basenum][metype] += dpoint[adata.me];
         }
+
+        BASENUM2VECEVAL(basenum, 48, adata.num2hulebasedata, "TOTALPOINT");
+        adata.hulebasedata[basenum][metype] += dpoint[adata.me];
 
         //向听仍使用basedata
         BASENUM2VECEVAL(basenum, 15, adata.num2basedata, "FANGCHONGSHANTEN0");
@@ -577,7 +583,6 @@ void MatchData::IHule(std::string &actstr){
         }
 
         //针对追立&被追立和牌数据，在Hule中判定
-        //TODO: 追立净利未减去宣言牌点炮不用给出的供托，需要在将来加上
         int reachnum = 0;
         for (auto &i : data)
             reachnum += !!i.reach;
@@ -601,6 +606,12 @@ void MatchData::IHule(std::string &actstr){
 
             BASENUM2VECEVAL(basenum, 39, adata.num2reachbasedata, "ZHUILIFANGCHONGPOINT");
             if (adata.me == from) adata.reachbasedata[basenum][reachtype] += dpoint[from];
+
+            BASENUM2VECEVAL(basenum, 50, adata.num2reachbasedata, "ZHUILITOTALPOINT");
+            adata.reachbasedata[basenum][reachtype] += dpoint[adata.me];
+
+            BASENUM2VECEVAL(basenum, 52, adata.num2reachbasedata, "ZHUILIDECLEARRON");
+            if (needkyoutaku == from && from == adata.me) adata.reachbasedata[basenum][reachtype] ++ ;
         }
 
         if (data[adata.me].reach && reachnum > data[adata.me].reachrank){
@@ -622,6 +633,9 @@ void MatchData::IHule(std::string &actstr){
 
             BASENUM2VECEVAL(basenum, 44, adata.num2reachbasedata, "BEIZHUILIFANGCHONGPOINT");
             if (adata.me == from) adata.reachbasedata[basenum][reachtype] += dpoint[from];
+
+            BASENUM2VECEVAL(basenum, 51, adata.num2reachbasedata, "BEIZHUILITOTALPOINT");
+            adata.reachbasedata[basenum][reachtype] += dpoint[adata.me];
         }
 
         if (data[adata.me].reach){
