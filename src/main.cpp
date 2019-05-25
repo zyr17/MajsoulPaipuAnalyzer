@@ -84,5 +84,6 @@ int main(){
     if (rcres == 1) return 0;
     PA::analyzemain("data/", source, id, config);
     //MatchDataCompare::mdatacomparemain();
+    //std::string id; Algo::shantendistributioncheck("majsoulold", findid(Algo::dataprefix, "majsoulold", id), config); return 0;
     return 0;
 }
