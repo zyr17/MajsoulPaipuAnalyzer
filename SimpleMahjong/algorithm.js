@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 class Algo{
 
@@ -49,7 +49,7 @@ class Algo{
         console.assert(aka == 0 || aka == 3 || aka == 4, 'in getnowleftmat: aka num illegal');
         var mdata = matchdata.data[who];
         var resvec = [];
-        for(var i = 0; i < 37; i ++ ){
+        for(let i = 0; i < 37; i ++ ){
             var tmp = 4;
             if (i % 10 == 4 && i < 30){
                 tmp -= parseInt(aka / 3);
@@ -60,26 +60,26 @@ class Algo{
                 tmp = 4 - resvec[i - 1];
             resvec.push(tmp);
         }
-        for (var i = 0; i < mdata.hand.length; i ++ )
+        for (let i = 0; i < mdata.hand.length; i ++ )
             resvec[tile2num[mdata.hand[i]]] -- ;
         if (mdata.get.length >= 2)
             resvec[tile2num[mdata.get.slice(0, 2)]] -- ;
-        for (var i = 0; i < 4; i ++ ){
+        for (let i = 0; i < 4; i ++ ){
             mdata = matchdata.data[i];
-            for (var j = 0; j < mdata.show.length; j ++ ){
+            for (let j = 0; j < mdata.show.length; j ++ ){
                 var str = mdata.show[j].split(/[\[\]]/).join('');
-                for (var k = 0; k < str.length; k += 2){
-                    var tile = str.slice(k, k + 2);
+                for (let k = 0; k < str.length; k += 2){
+                    let tile = str.slice(k, k + 2);
                     resvec[tile2num[tile]] -- ;
                 }
             }
-            for (var j = 0; j < mdata.table.length; j ++ ){
+            for (let j = 0; j < mdata.table.length; j ++ ){
                 if (mdata.table[j][mdata.table[j].length - 1] != '*')
                     resvec[tile2num[mdata.table[j].slice(0, 2)]] -- ;
             }
         }
-        for (var i = 0; i < matchdata.dora.length; i += 2){
-            var tile = matchdata.dora.slice(i, i + 2);
+        for (let i = 0; i < matchdata.dora.length; i += 2){
+            let tile = matchdata.dora.slice(i, i + 2);
             resvec[tile2num[tile]] -- ;
         }
         return resvec;
@@ -131,10 +131,10 @@ class Algo{
 
     static str2mat(str){
         var mat = new Array(new Array(9), new Array(9), new Array(9), new Array(9));
-        for (var i = 0; i < mat.length; i ++ )
+        for (let i = 0; i < mat.length; i ++ )
             for (var j = 0; j < mat[i].length; j ++ )
                 mat[i][j] = 0;
-        for (var i = 0; i < str.length; i += 2){
+        for (let i = 0; i < str.length; i += 2){
             var num = tile2num[str.substring(i, i + 2)];
             var matx = parseInt(num / 10);
             var maty = num2maty[num % 10];
@@ -271,13 +271,13 @@ class Algo{
         function calcmentsu(mat, nowmentsu){
             var nowkouho = 0;
             var result = 999;
-            for (var i = 0; i < 9; i ++ )
+            for (let i = 0; i < 9; i ++ )
                 if (mat[3][i] >= 3) nowmentsu ++ ;
                 else if (mat[3][i] == 2) nowkouho ++ ;
             var num0 = Algo.getchinmapnum(mat[0]);
             var num1 = Algo.getchinmapnum(mat[1]);
             var num2 = Algo.getchinmapnum(mat[2]);
-            for (var i = 0; i < 5; i ++ )
+            for (let i = 0; i < 5; i ++ )
                 if (Algo.chinmap[num0][i] >= 0)
                     for (var j = 0; j < 5; j ++ )
                         if (Algo.chinmap[num1][j] >= 0)
@@ -294,13 +294,13 @@ class Algo{
         var res0 = calcmentsu(mat, nowmentsu);
         if (res0 < shanten)
             shanten = res0;
-        for (var i = 0; i < 4; i ++ )
-            for (var j = 0; j < 9; j ++ )
+        for (let i = 0; i < 4; i ++ )
+            for (let j = 0; j < 9; j ++ )
                 if (mat[i][j] >= 2){
                     mat[i][j] -= 2;
-                    var res0 = calcmentsu(mat, nowmentsu) - 1;
-                    if (res0 < shanten)
-                        shanten = res0;
+                    var res1 = calcmentsu(mat, nowmentsu) - 1;
+                    if (res1 < shanten)
+                        shanten = res1;
                     mat[i][j] += 2;
                 }
         return shanten;
@@ -317,12 +317,12 @@ class Algo{
         for (var i = 0; i < arr.length; i ++ ){
             var res = arr[i].slice(14, 17);
             data.hai = '';
-            for (var j = 0; j < 14; j ++ )
+            for (let j = 0; j < 14; j ++ )
                 data.hai += num2tile[cc[arr[i][j]]];
             console.log(data.hai);
             var rr = [this.calcshanten(data, false), this.kokushishanten(data), this.chitoishanten(data)];
             //console.log(rr, res);
-            for (var j = 0; j < 3; j ++ )
+            for (let j = 0; j < 3; j ++ )
                 console.assert(rr[j] == res[j]);
         }
     }
@@ -368,12 +368,12 @@ class Algo{
             var agari = tile2num[data.agari.slice(0, 2)];
             var get1 = tile2num[data.agari.slice(2, 4)];
             var map = new Array(40);
-            for (var i = 0; i < 40; i ++ )
+            for (let i = 0; i < 40; i ++ )
                 map[i] = 0;
-            var agari = getshun(data.agari);
+            agari = getshun(data.agari);
             if (agari != -1) map[agari] ++ ;
             var result = 0;
-            for (var i = 0; i < data.tehai.length; i ++ ){
+            for (let i = 0; i < data.tehai.length; i ++ ){
                 var tmp = getshun(data.tehai[i]);
                 if (tmp != -1) map[tmp] ++ ;
                 if (map[tmp] > 1){
@@ -406,11 +406,11 @@ class Algo{
 
         function yakuhai(data, num){
             if (getkokan(data.agari) == num) return 1;
-            for (var i = 0; i < data.tehai.length; i ++ )
+            for (let i = 0; i < data.tehai.length; i ++ )
                 if (getkokan(data.tehai[i]) == num) return 1;
-            for (var i = 0; i < data.naki.length; i ++ )
+            for (let i = 0; i < data.naki.length; i ++ )
                 if (getkokan(data.naki[i]) == num) return 1;
-            for (var i = 0; i < data.ankan.length; i ++ )
+            for (let i = 0; i < data.ankan.length; i ++ )
                 if (getkokan(data.ankan[i]) == num) return 1;
             return 0;
         }
@@ -518,15 +518,15 @@ class Algo{
         function sanshoku(data){
             var tarr = [data.agari].concat(data.tehai).concat(data.naki);
             var shun = {};
-            for (var i = 0; i < tarr.length; i ++ ){
+            for (let i = 0; i < tarr.length; i ++ ){
                 var s = getshun(tarr[i]);
                 if (s != -1)
                     shun[s] = 1;
             }
             var num = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            for (var i = 0; i < 30; i ++ )
+            for (let i = 0; i < 30; i ++ )
                 if (shun[i] == 1) num[i % 10] ++ ;
-            for (var i = 0; i < num.length; i ++ )
+            for (let i = 0; i < num.length; i ++ )
                 if (num[i] == 3) return 2 - kuisagari(data);
             return 0;
         }
@@ -557,12 +557,12 @@ class Algo{
         function sanshokudouko(data){
             var tarr = [data.agari].concat(data.tehai).concat(data.naki).concat(data.ankan);
             var kokan = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            for (var i = 0; i < tarr.length; i ++ ){
+            for (let i = 0; i < tarr.length; i ++ ){
                 var k = getkokan(tarr[i]);
                 if (k != -1)
                     kokan[k % 10] ++ ;
             }
-            for (var i = 0; i < kokan.length; i ++ )
+            for (let i = 0; i < kokan.length; i ++ )
                 if (kokan[i] == 3) return 2;
             return 0;
         }
@@ -765,12 +765,12 @@ class Algo{
             var num = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             var need = [3, 1, 1, 1, 1, 0, 1, 1, 1, 3];
             var str = data.tehai.join('') + data.agari;
-            for (var i = 0; i < str.length; i += 2){
+            for (let i = 0; i < str.length; i += 2){
                 var tmp = tile2num[str.slice(i, i + 2)];
                 num[tmp % 10] ++ ;
             }
             var delta = 0;
-            for (var i = 0; i < num.length; i ++ )
+            for (let i = 0; i < num.length; i ++ )
                 if (num[i] != need[i]){
                     if (num[i] - 1 != need[i])
                         return 0;
@@ -802,11 +802,11 @@ class Algo{
             var num = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             var need = [3, 1, 1, 1, 1, 0, 1, 1, 1, 3];
             var str = data.tehai.join('') + data.agari.slice(2, data.agari.length);
-            for (var i = 0; i < str.length; i += 2){
+            for (let i = 0; i < str.length; i += 2){
                 var tmp = tile2num[str.slice(i, i + 2)];
                 num[tmp % 10] ++ ;
             }
-            for (var i = 0; i < num.length; i ++ )
+            for (let i = 0; i < num.length; i ++ )
                 if (num[i] != need[i]){
                     if (num[i] != need[i])
                         return 0;
@@ -880,7 +880,7 @@ class Algo{
             'chinyitsu': 'honyitsu',
             'junchan': 'chanta',
             'honroutou': 'chanta'
-        }
+        };
 
         var prevent = {};
 
@@ -908,7 +908,7 @@ class Algo{
         function dora(data, result){
             var str = data.tehai.join('') + data.agari + data.naki.join('') + data.ankan.join('');
             var tmp = 0;
-            for (var i = 0; i < data.dora.length; i += 2)
+            for (let i = 0; i < data.dora.length; i += 2)
                 tmp += checknumber(str, num2tile[nexttile[tile2num[data.dora.slice(i, i + 2)]]]);
             if (tmp > 0){
                 result.yaku += tmp;
@@ -920,7 +920,7 @@ class Algo{
                 result.yakuname.push({ 'name': 'aka', 'han': data.aka.length });
             }
             if (data.reach > 0){
-                for (var i = 0; i < data.ura.length; i += 2)
+                for (let i = 0; i < data.ura.length; i += 2)
                     tmp += checknumber(str, num2tile[nexttile[tile2num[data.ura.slice(i, i + 2)]]]);
                 result.yaku += tmp;
                 result.yakuname.push({ 'name': 'ura', 'han': tmp });
@@ -945,9 +945,9 @@ class Algo{
         var tsumofu = fu;
         //console.log('tsumo', fu);
         {//agari
-            var agari = tile2num[data.agari.slice(0, 2)];
-            var get1 = tile2num[data.agari.slice(2, 4)];
-            var get2 = '';
+            let agari = tile2num[data.agari.slice(0, 2)];
+            let get1 = tile2num[data.agari.slice(2, 4)];
+            let get2 = '';
             if (data.agari.length == 4)
                 fu += 2;
             else{
@@ -968,7 +968,7 @@ class Algo{
             }
             else{
                 if (agari == get1){
-                    var tmp = 2;
+                    let tmp = 2;
                     if (agari % 10 == 0 || agari % 10 == 9 || agari > 29)
                         tmp *= 2;
                     if (data.tsumo == true)
@@ -978,10 +978,10 @@ class Algo{
             }
         }
         //console.log('agari', fu);
-        var tarr = data.tehai.concat(data.naki);
-        for (var i = 0; i < tarr.length; i ++ ){
-            var get1 = tile2num[tarr[i].slice(0, 2)];
-            var get2 = tile2num[tarr[i].slice(2, 4)];
+        let tarr = data.tehai.concat(data.naki);
+        for (let i = 0; i < tarr.length; i ++ ){
+            let get1 = tile2num[tarr[i].slice(0, 2)];
+            let get2 = tile2num[tarr[i].slice(2, 4)];
             if (tarr[i].length == 4){
                 if (get1 > 29 && get1 % 10 == data.jifu)
                     fu += 2;
@@ -992,7 +992,7 @@ class Algo{
             }
             else{
                 if (get1 == get2){
-                    var tmp = 2;
+                    let tmp = 2;
                     if (tarr[i].length == 8)
                         tmp *= 4;
                     if (get1 % 10 == 0 || get1 % 10 == 9 || get1 > 29)
@@ -1004,9 +1004,9 @@ class Algo{
             }
             //console.log(tarr[i], fu);
         }
-        for (var i = 0; i < data.ankan.length; i ++ ){
-            var get1 = tile2num[data.ankan[i].slice(0, 2)];
-            var tmp = 16;
+        for (let i = 0; i < data.ankan.length; i ++ ){
+            let get1 = tile2num[data.ankan[i].slice(0, 2)];
+            let tmp = 16;
             if (get1 % 10 == 0 || get1 % 10 == 9 || get1 > 29)
                 tmp *= 2;
             fu += tmp;
@@ -1035,31 +1035,31 @@ class Algo{
 
     static splittehai(hai, agari){
         //TODO: verify: 没有摸牌时可能是庄家第一手，已有assert，需检查是否依然正常工作
-        var hai = hai + agari;
-        var len = hai.length / 2;
+        hai = hai + agari;
+        let len = hai.length / 2;
         if (agari[0] == '0')
             agari = '5' + agari[1];
         console.assert(len % 3 == 2, 'splittehai: hai + agari length not match');
         console.assert(agari.length == 2 || agari.length == 0, 'splittehai: agari length not match');
-        var mat = this.str2mat(hai);
-        var splitstack = [];
-        var splitresult = [];
+        let mat = this.str2mat(hai);
+        let splitstack = [];
+        let splitresult = [];
         if (len == 14){
-            var kokushi = 0;
-            for (var i = 0; i < 4; i ++ )
-                for (var j = 0; j < 9; j ++ )
+            let kokushi = 0;
+            for (let i = 0; i < 4; i ++ )
+                for (let j = 0; j < 9; j ++ )
                     if ((i == 3 && j < 7) || (i < 3 && (j == 0 || j == 8)))
                         if (mat[i][j] == 0) kokushi = -10000;
                         else kokushi += mat[i][j];
             if (kokushi == 14) splitresult = [[hai]];
-            var nana = 0;
-            var res = [];
-            for (var i = 0; i < 4; i ++ )
-                for (var j = 0; j < 9; j ++ )
+            let nana = 0;
+            let res = [];
+            for (let i = 0; i < 4; i ++ )
+                for (let j = 0; j < 9; j ++ )
                     if (mat[i][j] > 0 && mat[i][j] != 2) nana = -100000;
                     else if (mat[i][j] == 2){
                         nana ++ ;
-                        var tile = num2tile[mat2num[i][j]];
+                        let tile = num2tile[mat2num[i][j]];
                         res.push(tile + tile);
                     }
             if (nana == 7) splitresult = [res];
@@ -1070,11 +1070,11 @@ class Algo{
                 return;
             }
             if (k % 3 == 2){//find head
-                for (var i = 0; i < 4; i ++ )
-                    for (var j = 0; j < 9; j ++ )
+                for (let i = 0; i < 4; i ++ )
+                    for (let j = 0; j < 9; j ++ )
                         if (mat[i][j] > 1){
                             mat[i][j] -= 2;
-                            var tile = num2tile[mat2num[i][j]];
+                            let tile = num2tile[mat2num[i][j]];
                             splitstack.push(tile + tile);
                             splitdfs(k - 2);
                             splitstack.pop();
@@ -1082,14 +1082,14 @@ class Algo{
                         }
                 return;
             }
-            for (var i = 0; i < 4; i ++ )
-                for (var j = 0; j < 9; j ++ )
+            for (let i = 0; i < 4; i ++ )
+                for (let j = 0; j < 9; j ++ )
                     if (mat[i][j] > 0){
                         if (mat2num[i][j] != konum && i < 3 && j < 7 && mat[i][j] > 0 && mat[i][j + 1] > 0 && mat[i][j + 2] > 0){
                             mat[i][j] -- ;
                             mat[i][j + 1] -- ;
                             mat[i][j + 2] -- ;
-                            var tiles = num2tile[mat2num[i][j]] + num2tile[mat2num[i][j + 1]] + num2tile[mat2num[i][j + 2]];
+                            let tiles = num2tile[mat2num[i][j]] + num2tile[mat2num[i][j + 1]] + num2tile[mat2num[i][j + 2]];
                             splitstack.push(tiles);
                             splitdfs(k - 3);
                             splitstack.pop();
@@ -1099,7 +1099,7 @@ class Algo{
                         }
                         if (mat[i][j] > 2){
                             mat[i][j] -= 3;
-                            var tile = num2tile[mat2num[i][j]];
+                            let tile = num2tile[mat2num[i][j]];
                             splitstack.push(tile + tile + tile);
                             splitdfs(k - 3, mat2num[i][j]);
                             splitstack.pop();
@@ -1109,13 +1109,13 @@ class Algo{
                     }
         }
         splitdfs(len);
-        var finalresult = [];
-        for (var ii = 0; ii < splitresult.length; ii ++ ){
-            var tres = splitresult[ii];
-            for (var i = 0; i < tres.length; i ++ ){
+        let finalresult = [];
+        for (let ii = 0; ii < splitresult.length; ii ++ ){
+            let tres = splitresult[ii];
+            for (let i = 0; i < tres.length; i ++ ){
                 if (tres[i].search(agari) != -1 && (i == 0 || tres[i] != tres[i - 1])){
-                    var tt = tres.slice();
-                    var agaripart = tt.splice(i, 1)[0];
+                    let tt = tres.slice();
+                    let agaripart = tt.splice(i, 1)[0];
                     agaripart = agari + agaripart.replace(agari, '');
                     tt.splice(0, 0, agaripart);
                     finalresult.push(tt);
@@ -1203,5 +1203,5 @@ setTimeout(function () {
     let blablablalist = Algo.listall();
     for (let i = 0; i < blablablalist.length; i ++ )
         Algo.makechinmap(blablablalist[i]);
-    console.log('chinmap calc done.')
+    console.log('chinmap calc done.');
 }, 100);
