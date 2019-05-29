@@ -42,11 +42,11 @@ AppVeyor环境请参考[其网站](https://www.appveyor.com/docs/build-environme
 
 需要npm, g++, cmake, make/mingw32-make
 
-### 安装
+### 安装脚本
 
 Windows脚本使用PowerShell。路径不能出现中文。
 
-#### Windows:
+#### Windows
     
     git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
@@ -67,7 +67,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
     cp doc/release-notes.txt result/
     cp -r i18n/ result/
 
-#### Linux:
+#### Linux
 
     git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
@@ -136,10 +136,14 @@ Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的�
 
 该项目使用或曾经使用了这些项目的资源，感谢他们。
 
-[wsHook](https://github.com/skepticfx/wshook)
-
 [CJsonObject](https://github.com/Bwar/CJsonObject)
 
-[wssip](https://github.com/nccgroup/wssip)
+[mt19937ar-MersenneTwister-JS](https://github.com/neetsdkasu/mt19937ar-MersenneTwister-JS)
+
+[js-sha512](https://github.com/emn178/js-sha512)
 
 [牌面图像](https://mj-king.net/sozai/)
+
+[wsHook](https://github.com/skepticfx/wshook)
+
+[wssip](https://github.com/nccgroup/wssip)
