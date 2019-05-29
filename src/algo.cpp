@@ -595,7 +595,7 @@ void shantendistributioncheck(const std::string &source, const std::vector<std::
     shantens.resize(7);
     shantensno713.resize(9);
     tiles.resize(Tiles::TILENUM);
-    int times;
+    int times = 0;
     for (auto id : ids){
         std::string paipufile = "data/" + source + "/" + id + "/paipus.txt";
         //std::cout << "paipu file pos: " + paipufile + '\n';
