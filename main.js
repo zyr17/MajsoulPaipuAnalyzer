@@ -59,36 +59,9 @@ const ready = () => {
     });
 
     function browseinject() {
-        fs.readFile(path(__dirname, 'lib', 'jquery.js'), function (error, jdata) {
-            if (error) {
-                console.log('read jquery.js error: ' + error);
-            }
-            else {
-                fs.readFile(path(__dirname, 'lib', 'wshook.js'), function (error, wsdata) {
-                    if (error) {
-                        console.log('read wshook.js error: ' + error);
-                    }
-                    else fs.readFile(path(__dirname, 'lib', 'majsoul', 'browseinject.js'), function (error, browsedata) {
-                        if (error) {
-                            console.log('read browseinject.js error: ' + error);
-                        }
-                        else{
-                            browsedata = String(browsedata).replace(/\/\/%jqueryjs%/, jdata);
-                            browsedata = browsedata.replace(/\/\/%wshookjs%/, wsdata);
-                            browseWindow.webContents.executeJavaScript(browsedata);
-                            if (/https:\/\/open\.weixin\.qq\.com/.test(browseWindow.webContents.getURL()))
-                                browseWindow.webContents.executeJavaScript(`
-                                    console.log('try to run weixin script again');
-                                    ss = $('script');
-                                    for (let i = 0; i < ss.length; i ++ )
-                                        if (/majsoul/.test($(ss[i]).html()))
-                                            eval(ss[i].textContent);
-                                `);
-                        }
-
-                    });
-                });
-            }
+        fs.readFile(path(__dirname, 'lib', 'majsoul', 'browseinject.js'), function (error, browsedata) {
+            if (error) console.log('read browseinject.js error: ' + error);
+            else browseWindow.webContents.executeJavaScript(String(browsedata));
         });
     }
     
@@ -320,7 +293,10 @@ const ready = () => {
             click: function () {
                 var loginWindow = new BrowserWindow({
                     title: `login`,
-                    show: false
+                    show: false,
+                    webPreferences: {
+                        nodeIntegration: false
+                    }
                 });
                 let str = config.get('DefaultURL');
                 loginWindow.loadURL(str);
