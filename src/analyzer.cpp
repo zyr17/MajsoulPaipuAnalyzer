@@ -1789,6 +1789,12 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
             GameStep.Add(RoundStep);
         #endif
 
+        bool flag = 0;
+        for (auto i : matchdata.data)
+            for (auto j : i.show)
+                if (j.size() == 4 && (Tiles::num2tile[j[0]][0] == '5' || Tiles::num2tile[j[0]][0] == '0')) flag = 1;
+        if (flag) std::cout << paipu["gamedata"]["extra"].ToString() << '\n';
+
         {
             int basenum;
 
