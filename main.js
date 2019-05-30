@@ -59,14 +59,21 @@ const ready = () => {
     });
 
     function browseinject() {
+        if (browseWindow.injectfinish != 0)
+            //1 2对应注入请求发送未执行；注入完成。均不需要尝试注入
+            return;
         fs.readFile(path(__dirname, 'lib', 'majsoul', 'browseinject.js'), function (error, browsedata) {
             if (error) console.log('read browseinject.js error: ' + error);
-            else browseWindow.webContents.executeJavaScript(String(browsedata));
+            else{
+                browseWindow.injectfinish = 1;
+                browseWindow.webContents.executeJavaScript(String(browsedata));
+            }
         });
     }
     
     function bwindowload(url){
-        browseWindow.injectfinish = false;
+        if (browseWindow.injectfinish == 2 || browseWindow.injectfinish == undefined)
+            browseWindow.injectfinish = 0;
         for (let i in paipugamedata)
             paipugamedata[i] = undefined;
         if (url == undefined)
@@ -75,13 +82,15 @@ const ready = () => {
         browseinject();
     }
 
+    var cantgetIDstr = '获取信息错误！无法获取用户ID，请确认已经进入大厅。或者尝试刷新页面。';
+
     function showcantgetIDmsg(){
         dialog.showMessageBox({
             type: 'error',
             noLink: true,
             buttons: ['确定'],
             title: '错误',
-            message: '获取信息错误！无法获取用户ID，请确认已经进入大厅。或者尝试刷新页面。'
+            message: cantgetIDstr
         });
     }
     
@@ -233,7 +242,7 @@ const ready = () => {
     });
 
     function bwindowsendmessage(cmd, d1, d2, d3, d4){ //先放4个参数，不够再加
-        if (!browseWindow.injectfinish){
+        if (browseWindow.injectfinish != 2){
             dialog.showMessageBox({
                 type: 'error',
                 noLink: true,
@@ -384,7 +393,7 @@ const ready = () => {
         newWindow.webContents.send('userid', data);
     });
     ipcMain.on('bwindowinjectfinish', (event) => {
-        browseWindow.injectfinish = true;
+        browseWindow.injectfinish = 2;
     });
     
     setTimeout(checknewestversion, 3000);
