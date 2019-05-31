@@ -16,6 +16,7 @@ const path                           = require('path').join,
 
 const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, reporterror } = require('./lib/majsoul/analyze');
 
+var paipuversion = undefined;
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
@@ -24,8 +25,8 @@ let dataPath = 'data/';
 
 const ready = () => {
     var newWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 600,
+        height: 650,
         title: `Simple Mahjong`,
         show: false,
         webPreferences: {
@@ -33,6 +34,8 @@ const ready = () => {
         }
     });
     var browseWindow = new BrowserWindow({
+        width: 800,
+        height: 500,
         title: `browser`,
         show: false,
         webPreferences: {
@@ -58,6 +61,17 @@ const ready = () => {
         else browseWindow.nowingamepage = true;
     });
 
+    browseWindow.webContents.on('did-navigate', function (){
+        if (browseWindow.injectfinish == 2){
+            //如果跳转页面时已注入，那么标记为未注入并调用browseinject
+            browseWindow.injectfinish = 0;
+            for (let i in paipugamedata)
+                delete paipugamedata[i];
+            paipuversion = undefined;
+            browseinject();
+        }
+    });
+
     function browseinject() {
         if (browseWindow.injectfinish != 0)
             //1 2对应注入请求发送未执行；注入完成。均不需要尝试注入
@@ -75,7 +89,8 @@ const ready = () => {
         if (browseWindow.injectfinish == 2 || browseWindow.injectfinish == undefined)
             browseWindow.injectfinish = 0;
         for (let i in paipugamedata)
-            paipugamedata[i] = undefined;
+            delete paipugamedata[i];
+        paipuversion = undefined;
         if (url == undefined)
             browseWindow.reload();
         else browseWindow.loadURL(url);
@@ -165,6 +180,7 @@ const ready = () => {
 
     function nextdownloadconvert(){
         if (downloadconvertlist.length == 0){
+            //显示转换完成正在组合
             newWindow.webContents.send('downloadconvert', {}, downloadconvertresult);
             setTimeout(function () { finaldownloadconvert(); }, 100);
             return;
@@ -183,6 +199,9 @@ const ready = () => {
             paipus.push(JSON.parse(fs.readFileSync(path(paipudir, paipulist[i]))));
         fs.writeFileSync(path(dataPath, 'majsoul', userid.toString(), 'paipus.txt'), JSON.stringify(paipus));
 
+        let paipuversiontxt = path(dataPath, 'majsoul', userid.toString(), 'paipuversion.txt');
+        fs.writeFileSync(paipuversiontxt, JSON.stringify(paipuversion));
+
         let d = new Date();
         d.setTime(downloadconvertresult[3] * 1000);
         let timestr = d.toString();
@@ -200,8 +219,9 @@ const ready = () => {
     function downloadconvertcallback(data){
         let userid = getUserID();
         downloadconvertresult[1] ++ ;
-        let rawp = path(dataPath, 'majsoul', userid.toString(), 'raw', downloadconvertlist[0]);
-        let paipup = path(dataPath, 'majsoul', userid.toString(), 'paipus', downloadconvertlist[0]);
+        let nowconvert = downloadconvertlist[0];
+        let rawp = path(dataPath, 'majsoul', userid.toString(), 'raw', nowconvert);
+        let paipup = path(dataPath, 'majsoul', userid.toString(), 'paipus', nowconvert);
         downloadconvertlist.splice(0, 1);
         let raw = data.raw, paipu = data.paipu;
         if (raw != undefined){
@@ -210,6 +230,7 @@ const ready = () => {
             fs.writeFileSync(paipup, JSON.stringify(paipu));
             if (paipu.gamedata.endtime > downloadconvertresult[3])
                 downloadconvertresult[3] = paipu.gamedata.endtime;
+            paipuversion[nowconvert] = config.get('Version');
         }
         nextdownloadconvert();
     }
@@ -331,6 +352,12 @@ const ready = () => {
                 });
             }
         }, {
+            label: '打开开发者工具',
+            click: function() {
+                newWindow.openDevTools();
+                browseWindow.openDevTools();
+            }
+        }, {
             label: '关于',
             click: function() {
                 dialog.showMessageBox({
@@ -353,11 +380,9 @@ const ready = () => {
         pathname: path(__dirname, 'SimpleMahjong', 'index.html')
     }));
     newWindow.show();
-    newWindow.openDevTools();
     bwindowload(config.get('DefaultURL'));
     browseWindow.show();
-    browseWindow.maximize();
-    browseWindow.openDevTools();
+    //browseWindow.maximize();
     function savegamedata(userid){
         let root = path(dataPath, 'majsoul', userid.toString());
         if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
@@ -369,17 +394,71 @@ const ready = () => {
         if (!fs.existsSync(ppp)) fs.mkdirSync(ppp);
         
         let gamedatatxt = path(root, 'gamedata.txt');
-        let gamedatas = [];
+        let gamedatas = [], oldgamedatas = [];
         if (fs.existsSync(gamedatatxt))
             gamedatas = fs.readFileSync(gamedatatxt).toString().split('\n');
         for (let i in gamedatas){
             let gamedata = gamedatas[i];
             if (gamedata.length < 2) continue;
             let gdata = JSON.parse(gamedata);
+            if (gdata.version == undefined || config.versionconvert(gdata.version) < config.versionconvert(config.get('PaipuMinVersion'))){
+                oldgamedatas.push(gdata);
+                continue;
+            }
             let id = gdata.uuid;
             if (paipugamedata[id] == undefined)
                 paipugamedata[id] = gdata;
         }
+        if (oldgamedatas.length > 0)
+            dialog.showMessageBox({
+                type: 'info',
+                noLink: true,
+                buttons: ['确定'],
+                title: '发现旧牌谱',
+                message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，请前往 牌谱 界面重新获取一遍牌谱数据。`
+            });
+
+        paipuversion = {};
+        ppp = path(root, 'paipuversion.txt');
+        if (fs.existsSync(ppp))
+            paipuversion = JSON.parse(String(fs.readFileSync(ppp)));
+        let paipusdirdata = new Set(fs.readdirSync(path(root, 'paipus')));
+        let oldpaipus = [], dirite = paipusdirdata.keys();
+        for (;;){
+            let i = dirite.next();
+            if (i.done) break;
+            i = i.value;
+            let add = false;
+            if (paipuversion.hasOwnProperty(i)){
+                if (config.versionconvert(paipuversion[i]) < config.versionconvert(config.get('PaipuMinVersion')))
+                    add = true;
+            }
+            else add = true;
+            if (add)
+                oldpaipus.push(i);
+        }
+        //console.log(oldpaipus);
+
+        if (oldpaipus.length == 0) return;
+
+        dialog.showMessageBox({
+            type: 'info',
+            noLink: true,
+            buttons: ['确定'],
+            title: '发现旧牌谱',
+            message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱删去，可能需要一定时间。`
+        });
+        for (let i in oldpaipus){
+            ppp = path(root, 'paipus', oldpaipus[i]);
+            fs.unlinkSync(ppp);
+        }
+        dialog.showMessageBox({
+            type: 'info',
+            noLink: true,
+            buttons: ['确定'],
+            title: '发现旧牌谱',
+            message: `旧牌谱删除完成。`
+        });
     }
     ipcMain.on('downloadconvertresult', (event, data) => {
         downloadconvertcallback(data);
