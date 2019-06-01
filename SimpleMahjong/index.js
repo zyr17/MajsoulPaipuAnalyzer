@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 function changesize(){
     var num = window.innerHeight;
@@ -25,12 +25,12 @@ class Viewprototype{
         inhand.text('');
         show.text('');
         var str = '';
-        for (var i = 0; i < this.matchdata.data[num].hand.length; i ++ )
+        for (let i = 0; i < this.matchdata.data[num].hand.length; i ++ )
             str += this.matchdata.data[num].hand[i];
         inhand.text(str);
         get.text(this.matchdata.data[num].get);
-        var str = '';
-        for (var i = 0; i < this.matchdata.data[num].show.length; i ++ ){
+        str = '';
+        for (let i = 0; i < this.matchdata.data[num].show.length; i ++ ){
             if (i > 0) str += ' ';
             str += this.matchdata.data[num].show[i];
         }
@@ -98,10 +98,10 @@ class Viewprototype{
     }
     
     cleartable(){
-        this.matchdata.data[0].table = []
-        this.matchdata.data[1].table = []
-        this.matchdata.data[2].table = []
-        this.matchdata.data[3].table = []
+        this.matchdata.data[0].table = [];
+        this.matchdata.data[1].table = [];
+        this.matchdata.data[2].table = [];
+        this.matchdata.data[3].table = [];
         this.updatetable(0);
         this.updatetable(1);
         this.updatetable(2);
@@ -115,17 +115,17 @@ class Viewprototype{
             this.matchdata.data[num].get = '';
             this.matchdata.data[num].hand.sort(this.comparetile);
         }
-        for (var i = 0; i < this.matchdata.data[num].hand.length; i ++ )
+        for (let i = 0; i < this.matchdata.data[num].hand.length; i ++ )
             if (this.matchdata.data[num].hand[i] == str){
                 this.matchdata.data[num].hand.splice(i, 1);
                 return;
             }
-        for (var i = 0; i < this.matchdata.data[num].hand.length; i ++ )
+        for (let i = 0; i < this.matchdata.data[num].hand.length; i ++ )
             if (this.matchdata.data[num].hand[i] == '?x'){
                 this.matchdata.data[num].hand.splice(i, 1);
                 return;
             }
-        console.assert(1 == 0, 'removetile not found', str, JSON.parse(JSON.stringify(this.matchdata)));
+        console.assert(false, 'removetile not found', str, JSON.parse(JSON.stringify(this.matchdata)));
     }
     
     getonetile(ltrb, str){
@@ -176,30 +176,30 @@ class Viewprototype{
                 var show = '';
                 var akanum = Algo.strmatchnumone(this.matchdata.data[numwho].hand.join('') + this.matchdata.data[numwho].get, '0' + use[1]);
                 var othernum = 4 - akanum;
-                for (var i = 0; i < akanum; i ++ ){
+                for (let i = 0; i < akanum; i ++ ){
                     show += '0' + use[1];
                     this.removetile(numwho, '0' + use[1]);
                 }
-                for (var i = 0; i < othernum; i ++ ){
+                for (let i = 0; i < othernum; i ++ ){
                     show += '5' + use[1];
                     this.removetile(numwho, '5' + use[1]);
                 }
                 this.matchdata.data[numwho].show.splice(0, 0, '[' + show + ']');
             }
             else{
-                for (var i = 0; i < 4; i ++ )
+                for (let i = 0; i < 4; i ++ )
                     this.removetile(numwho, use);
                 this.matchdata.data[numwho].show.splice(0, 0, '[' + use + use + use + use + ']');
             }
         }
         else if (nakinum == 3){
             //kakan
-            for (var i = 0; i < this.matchdata.data[numwho].show.length; i ++ ){
-                var str = this.matchdata.data[numwho].show[i];
-                var str2 = str.replace(/[\[\]]/g, '').slice(0, 2);
+            for (let i = 0; i < this.matchdata.data[numwho].show.length; i ++ ){
+                let str = this.matchdata.data[numwho].show[i];
+                let str2 = str.replace(/[\[\]]/g, '').slice(0, 2);
                 if (str2[0] == '0')
                     str2 = '5' + str2[1];
-                var use2 = use;
+                let use2 = use;
                 if (use2[0] == '0')
                     use2 = '5' + use2[1];
                 if (str2 == use2){
@@ -212,18 +212,18 @@ class Viewprototype{
         }
         else if (this.matchdata.data[numwho].hand[0] == '?x'){
             if (naki == 'ankan'){
-                for (var i = 0; i < 4; i ++ )
+                for (let i = 0; i < 4; i ++ )
                     this.removetile(numwho, '?x');
                 this.matchdata.data[numwho].show.splice(0, 0, '[' + use + use + use + use + ']');
             }
             else{
                 this.removetile(numwho, '?x');
-                for (var i = 0; i < this.matchdata.data[numwho].show.length; i ++ ){
-                    var str = this.matchdata.data[numwho].show[i];
-                    var str2 = str.replace(/[\[\]]/g, '').slice(0, 2);
+                for (let i = 0; i < this.matchdata.data[numwho].show.length; i ++ ){
+                    let str = this.matchdata.data[numwho].show[i];
+                    let str2 = str.replace(/[\[\]]/g, '').slice(0, 2);
                     if (str2[0] == '0')
                         str2 = '5' + str2[1];
-                    var use2 = use;
+                    let use2 = use;
                     if (use2[0] == '0')
                         use2 = '5' + use2[1];
                     if (str2 == use2){
@@ -302,7 +302,7 @@ class Viewprototype{
     }
     
     newround(bottom, right, top, left, get, score, east, nowround, dora, kyoutaku, honba, remain){
-        for (var i = 0; i < 4; i ++ ){
+        for (let i = 0; i < 4; i ++ ){
             this.matchdata.data[i].hand = [];
             this.matchdata.data[i].get = '';
             this.matchdata.data[i].show = [];
@@ -315,7 +315,7 @@ class Viewprototype{
         this.handinit('top', top);
         this.handinit('left', left);
         this.matchdata.now = 0;
-        for (var i = 0; i < 4; i ++ )
+        for (let i = 0; i < 4; i ++ )
             this.matchdata.data[i].score = score[i];
         this.matchdata.east = east;
         this.matchdata.now = east;
@@ -340,9 +340,9 @@ class Viewprototype{
     INewRound(data){
         this.roundrecord = {
             round: data.nowround,
-            yama: data.yama.slice(0, 999),
+            yama: data.yama.slice(),
             dice: data.dice,
-            point: data.score.slice(0, 999),
+            point: data.score.slice(),
             east: data.east,
             hand: data.allhand != undefined ? data.allhand.slice(0, 999) : ['', '', '', ''],
             dora: data.dora,
@@ -444,8 +444,6 @@ class Viewprototype{
     }
     
     IHule(data){
-        //for (var i = 0; i < 4; i ++ )
-        //    this.matchdata.data[i].score = data.score[i];
         for (let i = 0; i < data.agari.length; i ++ ){
             let agari = data.agari[i], from = this.matchdata.now;
             let hanstr = [];
@@ -514,6 +512,17 @@ class Viewprototype{
         this.gamerecord.push(JSON.parse(JSON.stringify(this.roundrecord)));
         for (let i = 0; i < data.finalscore.length; i ++ )
             this.matchdata.data[i].score = data.finalscore[i];
+    }
+
+    IAction(data, objname){
+        if (objname == undefined)
+            objname = data.constructor.name;
+        let action = objname.slice(6); //开头可能是Action或者Record。内部结构基本一样
+        if (action == 'MJStart') return;
+        if (objname == 'ResAuthGame' || objname == 'GameRecord')
+            this.INewGame(majsouldataconvert(data, objname));
+        else this['I' + action](majsouldataconvert(data, action));
+        //console.log(action, ProtobufObject2Object(data));
     }
 }
 

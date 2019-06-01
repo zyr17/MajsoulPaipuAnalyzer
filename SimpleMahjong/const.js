@@ -1,7 +1,7 @@
-"use strict"
+"use strict";
 const num2ltrb = ['bottom', 'right', 'top', 'left'];
 const ltrb2num = { 'bottom': 0, 'right': 1, 'top': 2, 'left': 3 };
-var tile2num = {
+const tile2num = {
     '1m': 0, '2m': 1, '3m': 2, '4m': 3, '5m': 4, '0m': 5, '6m': 6, '7m': 7, '8m': 8, '9m': 9,
     '1p': 10, '2p': 11, '3p': 12, '4p': 13, '5p': 14, '0p': 15, '6p': 16, '7p': 17, '8p': 18, '9p': 19,
     '1s': 20, '2s': 21, '3s': 22, '4s': 23, '5s': 24, '0s': 25, '6s': 26, '7s': 27, '8s': 28, '9s': 29,
@@ -59,6 +59,15 @@ const majsoulfanid2name = [
     '地和','大三元','四暗刻','字一色','绿一色',
     '清老头','国士无双','小四喜','四杠子','九莲宝灯',
     '八连庄','纯正九莲宝灯','四暗刻单骑','国士无双十三面','大四喜'
+];
+const button2num = {
+    'kyukyu': 0, 'pei': 1, 'chi': 2, 'pon': 3, 'kan': 4,
+    'kakan': 5, 'ankan': 6, 'reach': 7, 'ron': 8, 'tsumo': 9
+};
+const majsouloption2button = [
+    'none', 'dapai', 'chi', 'pon', 'ankan', 
+    'kan', 'kakan', 'reach', 'tsumo', 'ron',
+    'kyukyu', 'pei'
 ];
 function emptymatchdata(){
     return {

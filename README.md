@@ -1,4 +1,4 @@
-# MajsoulPaipuAnalyzer
+# MajsoulPaipuCrawler
 
 自制雀魂牌谱分析工具。支持国服、日服、国际服。
 
