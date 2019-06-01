@@ -45,6 +45,7 @@ namespace Algo{
     int tenpaiquality(const PA::MatchPlayerData &pdata, const std::vector<int> &tenpai = std::vector<int>());
     bool isfuriten(const PA::MatchPlayerData &pdata, const std::vector<int> &tenpai = std::vector<int>());
     void testtenpai();
+    void shantendistributioncheck(const std::string &source, const std::vector<std::string> & ids, CJsonObject &config);
 
     int countdora(const PA::MatchPlayerData &pdata, const std::vector<int> &dora);
     //当听牌多面时，存在听幺九牌即认为无断幺役

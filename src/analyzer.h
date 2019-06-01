@@ -180,7 +180,6 @@ namespace PA{
         void initializeresult();
         bool filterinclude(CJsonObject *p, CJsonObject *f, bool emptyresult = true);
         bool filterexclude(CJsonObject *p, CJsonObject *f);
-        bool filtercheck(CJsonObject &paipu);
 
     public:
         AnalyzeData *analyzedata;
@@ -188,6 +187,7 @@ namespace PA{
         PaipuAnalyzer(const CJsonObject &filterjson);
         void setfilter(std::string &filterstr);
         void setfilter(const CJsonObject &filterjson);
+        bool filtercheck(CJsonObject &paipu);
         void clearresult();
         int analyze(std::vector<std::string> &paipus);
         int analyze(std::vector<CJsonObject*> &paipus);

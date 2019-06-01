@@ -1655,7 +1655,7 @@ bool PaipuAnalyzer::filtercheck(CJsonObject &paipu){
     map[3] = "fast";
     map[5] = "normal";
     map[60] = "slow";
-    roomdata.Get("timeone", tll);
+    roomdata.Get("time_fixed", tll);
     CJsonObject tone("\"" + map[tll] + "\"");
     f = &include["speed"];
     result = result && filterinclude(&tone, f);
@@ -1789,6 +1789,12 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
             GameStep.Add(RoundStep);
         #endif
 
+        bool flag = 0;
+        for (auto i : matchdata.data)
+            for (auto j : i.show)
+                if (j.size() == 4 && (Tiles::num2tile[j[0]][0] == '5' || Tiles::num2tile[j[0]][0] == '0')) flag = 1;
+        if (flag) std::cout << paipu["gamedata"]["extra"].ToString() << '\n';
+
         {
             int basenum;
 
@@ -1861,7 +1867,7 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
 
         BASENUM2VECEVAL(basenum, 32, adata.num2basedata, "ALLPOINT");
         int stp, endp;
-        paipu["gamedata"]["roomdata"].Get("startpoint", stp);
+        paipu["gamedata"]["roomdata"].Get("init_point", stp);
         pdata[adata.me].Get("finalpoint", endp);
         adata.basedata[basenum] += endp - stp;
 
