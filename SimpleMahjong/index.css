@@ -195,7 +195,7 @@ div{
 }
 #cornerinformation{
     font-size: 20px;
-    font-family: monospace
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
 }
 body > div{
     position: absolute;
