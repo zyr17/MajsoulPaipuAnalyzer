@@ -781,7 +781,7 @@ void MatchData::clear(){
 
 void MatchData::INewGame(CJsonObject &record){
     int startscore, player;
-    record["gamedata"]["roomdata"].Get("startpoint", startscore);
+    record["gamedata"]["roomdata"].Get("init_point", startscore);
     record["gamedata"]["roomdata"].Get("player", player);
 
     clear();
@@ -1788,13 +1788,13 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
             RoundStep.Add(matchdata.tojson());
             GameStep.Add(RoundStep);
         #endif
-
+        /* 
         bool flag = 0;
         for (auto i : matchdata.data)
             for (auto j : i.show)
                 if (j.size() == 4 && (Tiles::num2tile[j[0]][0] == '5' || Tiles::num2tile[j[0]][0] == '0')) flag = 1;
-        if (flag) std::cout << paipu["gamedata"]["extra"].ToString() << '\n';
-
+        if (flag) std::cout << paipu["gamedata"]["uuid"].ToString() << '\n';
+         */
         {
             int basenum;
 

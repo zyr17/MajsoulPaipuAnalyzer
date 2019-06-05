@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 try {
     require.resolve('electron');
@@ -9,12 +9,14 @@ try {
 
 const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 
-const path                                               = require('path').join,
-      fs                                                 = require('fs'),
-      url                                                = require('url'),
-      { analyze, paipugamedata, getUserID, reporterror } = require('./lib/majsoul/analyze'),
-      { config, checknewestversion }                     = require('./lib/config.js');
+const path                           = require('path').join,
+      fs                             = require('fs'),
+      url                            = require('url'),
+      { config, checknewestversion } = require('./lib/config.js');
 
+const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, reporterror } = require('./lib/majsoul/analyze');
+
+var paipuversion = undefined;
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
@@ -23,8 +25,8 @@ let dataPath = 'data/';
 
 const ready = () => {
     var newWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 600,
+        height: 650,
         title: `Simple Mahjong`,
         show: false,
         webPreferences: {
@@ -32,6 +34,8 @@ const ready = () => {
         }
     });
     var browseWindow = new BrowserWindow({
+        width: 800,
+        height: 500,
         title: `browser`,
         show: false,
         webPreferences: {
@@ -42,7 +46,7 @@ const ready = () => {
     browseWindow.nowingamepage = true;
 
     browseWindow.webContents.on('dom-ready', function (){
-        browseinject();
+        //browseinject();
         if (!/^https:\/\/(?:majsoul|game.mahjongsoul|mahjongsoul)/.test(browseWindow.webContents.getURL())){
             if (browseWindow.nowingamepage)
                 dialog.showMessageBox({
@@ -57,52 +61,58 @@ const ready = () => {
         else browseWindow.nowingamepage = true;
     });
 
-    function browseinject() {
-        fs.readFile(path(__dirname, 'lib', 'jquery.js'), function (error, jdata) {
-            if (error) {
-                console.log('read jquery.js error: ' + error);
-            }
-            else {
-                fs.readFile(path(__dirname, 'lib', 'wshook.js'), function (error, wsdata) {
-                    if (error) {
-                        console.log('read wshook.js error: ' + error);
-                    }
-                    else fs.readFile(path(__dirname, 'lib', 'majsoul', 'browseinject.js'), function (error, browsedata) {
-                        if (error) {
-                            console.log('read browseinject.js error: ' + error);
-                        }
-                        else{
-                            browsedata = String(browsedata).replace(/\/\/%jqueryjs%/, jdata);
-                            browsedata = browsedata.replace(/\/\/%wshookjs%/, wsdata);
-                            browseWindow.webContents.executeJavaScript(browsedata);
-                            if (/https:\/\/open\.weixin\.qq\.com/.test(browseWindow.webContents.getURL()))
-                                browseWindow.webContents.executeJavaScript(`
-                                    console.log('try to run weixin script again');
-                                    ss = $('script');
-                                    for (let i = 0; i < ss.length; i ++ )
-                                        if (/majsoul/.test($(ss[i]).html()))
-                                            eval(ss[i].textContent);
-                                `);
-                        }
+    browseWindow.webContents.on('did-navigate', function (){
+        if (browseWindow.injectfinish == 2){
+            //如果跳转页面时已注入，那么标记为未注入并调用browseinject
+            browseWindow.injectfinish = 0;
+            for (let i in paipugamedata)
+                delete paipugamedata[i];
+            paipuversion = undefined;
+            browseinject();
+        }
+    });
 
-                    });
-                });
+    function browseinject() {
+        if (browseWindow.injectfinish != 0)
+            //1 2对应注入请求发送未执行；注入完成。均不需要尝试注入
+            return;
+        fs.readFile(path(__dirname, 'lib', 'majsoul', 'browseinject.js'), function (error, browsedata) {
+            if (error) console.log('read browseinject.js error: ' + error);
+            else{
+                browseWindow.injectfinish = 1;
+                browseWindow.webContents.executeJavaScript(String(browsedata));
             }
         });
     }
     
-    const cantgetIDstr = '获取信息错误！无法获取用户ID，请确认已经进入大厅。也可尝试刷新页面，如果多次刷新依然无法进入请汇报BUG。';
+    function bwindowload(url){
+        if (browseWindow.injectfinish == 2 || browseWindow.injectfinish == undefined)
+            browseWindow.injectfinish = 0;
+        for (let i in paipugamedata)
+            delete paipugamedata[i];
+        paipuversion = undefined;
+        if (url == undefined)
+            browseWindow.reload();
+        else browseWindow.loadURL(url);
+        browseinject();
+    }
+
+    var cantgetIDstr = '获取信息错误！无法获取用户ID，请确认已经进入大厅。或者尝试刷新页面。';
+
+    function showcantgetIDmsg(){
+        dialog.showMessageBox({
+            type: 'error',
+            noLink: true,
+            buttons: ['确定'],
+            title: '错误',
+            message: cantgetIDstr
+        });
+    }
     
     function checkpaipugamedata(){
         let msgstr = '', root, paipu4 = 0, paipu3 = 0, downloaded = 0, converted = 0, userid = getUserID();
         if (userid <= 0){
-            dialog.showMessageBox({
-                type: 'error',
-                noLink: true,
-                buttons: ['确定'],
-                title: '错误',
-                message: cantgetIDstr
-            });
+            showcantgetIDmsg();
             return;
         }
         root = path(dataPath, 'majsoul', userid.toString());
@@ -130,13 +140,7 @@ const ready = () => {
     function downloadconvertpaipu(){
         let userid = getUserID();
         if (userid <= 0){
-            dialog.showMessageBox({
-                type: 'error',
-                noLink: true,
-                buttons: ['确定'],
-                title: '错误',
-                message: cantgetIDstr
-            });
+            showcantgetIDmsg();
             return;
         }
         let root = path(dataPath, 'majsoul', userid.toString());
@@ -176,6 +180,7 @@ const ready = () => {
 
     function nextdownloadconvert(){
         if (downloadconvertlist.length == 0){
+            //显示转换完成正在组合
             newWindow.webContents.send('downloadconvert', {}, downloadconvertresult);
             setTimeout(function () { finaldownloadconvert(); }, 100);
             return;
@@ -194,6 +199,9 @@ const ready = () => {
             paipus.push(JSON.parse(fs.readFileSync(path(paipudir, paipulist[i]))));
         fs.writeFileSync(path(dataPath, 'majsoul', userid.toString(), 'paipus.txt'), JSON.stringify(paipus));
 
+        let paipuversiontxt = path(dataPath, 'majsoul', userid.toString(), 'paipuversion.txt');
+        fs.writeFileSync(paipuversiontxt, JSON.stringify(paipuversion));
+
         let d = new Date();
         d.setTime(downloadconvertresult[3] * 1000);
         let timestr = d.toString();
@@ -211,8 +219,9 @@ const ready = () => {
     function downloadconvertcallback(data){
         let userid = getUserID();
         downloadconvertresult[1] ++ ;
-        let rawp = path(dataPath, 'majsoul', userid.toString(), 'raw', downloadconvertlist[0]);
-        let paipup = path(dataPath, 'majsoul', userid.toString(), 'paipus', downloadconvertlist[0]);
+        let nowconvert = downloadconvertlist[0];
+        let rawp = path(dataPath, 'majsoul', userid.toString(), 'raw', nowconvert);
+        let paipup = path(dataPath, 'majsoul', userid.toString(), 'paipus', nowconvert);
         downloadconvertlist.splice(0, 1);
         let raw = data.raw, paipu = data.paipu;
         if (raw != undefined){
@@ -221,13 +230,50 @@ const ready = () => {
             fs.writeFileSync(paipup, JSON.stringify(paipu));
             if (paipu.gamedata.endtime > downloadconvertresult[3])
                 downloadconvertresult[3] = paipu.gamedata.endtime;
+            paipuversion[nowconvert] = config.get('Version');
         }
         nextdownloadconvert();
     }
 
     function gotonewpage(str){
         config.set('DefaultURL', str);
-        browseWindow.loadURL(str);
+        bwindowload(str);
+    }
+
+    function collectpaipucallback(err, option, data){
+        if (err != undefined){
+            dialog.showMessageBox({
+                type: 'error',
+                noLink: true,
+                buttons: ['确定'],
+                title: '错误',
+                message: err.type == 'UserID' ? cantgetIDstr : 'uiscript未定义，请确认已经进入雀魂。'
+            });
+            return;
+        }
+        analyzeGameRecord(data);
+        if (option == 'checkpaipugamedata')
+            checkpaipugamedata();
+        else if (option == 'downloadconvertpaipu')
+            downloadconvertpaipu();
+    }
+
+    ipcMain.on('collectpaipucallback', (event, err, option, data) => {
+        collectpaipucallback(err, option, data);
+    });
+
+    function bwindowsendmessage(cmd, d1, d2, d3, d4){ //先放4个参数，不够再加
+        if (browseWindow.injectfinish != 2){
+            dialog.showMessageBox({
+                type: 'error',
+                noLink: true,
+                buttons: ['确定'],
+                title: '错误',
+                message: '还未完成脚本注入，请稍后重试。'
+            });
+            return;
+        }
+        browseWindow.webContents.send(cmd, d1, d2, d3, d4);
     }
 
     var menutemplate = [{
@@ -235,12 +281,12 @@ const ready = () => {
         submenu: [{
             label: '查看已有牌谱情报',
             click: function () {
-                checkpaipugamedata();
+                bwindowsendmessage('collectpaipu', 'checkpaipugamedata');
             }
         }, {
             label: '下载&转换牌谱',
             click: function () {
-                downloadconvertpaipu();
+                bwindowsendmessage('collectpaipu', 'downloadconvertpaipu');
             }
         }]
     }, {
@@ -248,7 +294,7 @@ const ready = () => {
         submenu: [{
             label: '刷新',
             click: function () {
-                browseWindow.reload();
+                bwindowload();
             }
         }, {
             label: '进入国服',
@@ -277,7 +323,10 @@ const ready = () => {
             click: function () {
                 var loginWindow = new BrowserWindow({
                     title: `login`,
-                    show: false
+                    show: false,
+                    webPreferences: {
+                        nodeIntegration: false
+                    }
                 });
                 let str = config.get('DefaultURL');
                 loginWindow.loadURL(str);
@@ -303,6 +352,12 @@ const ready = () => {
                 });
             }
         }, {
+            label: '打开开发者工具',
+            click: function() {
+                newWindow.openDevTools();
+                browseWindow.openDevTools();
+            }
+        }, {
             label: '关于',
             click: function() {
                 dialog.showMessageBox({
@@ -311,7 +366,7 @@ const ready = () => {
                     noLink: true,
                     buttons: ['确定'],
                     message: `MajsoulPaipuCrawler v${config.get('Version')}\nContact: jzjqz17@gmail.com\nGithub: https://github.com/zyr17/MajsoulPaipuAnalyzer`
-                })
+                });
             }
         }]
     }];
@@ -325,48 +380,103 @@ const ready = () => {
         pathname: path(__dirname, 'SimpleMahjong', 'index.html')
     }));
     newWindow.show();
-    newWindow.openDevTools();
-    browseWindow.loadURL(config.get('DefaultURL'));
+    bwindowload(config.get('DefaultURL'));
     browseWindow.show();
-    browseWindow.maximize();
-    browseWindow.openDevTools();
-    ipcMain.on('wshook', (event, sender, data) => {
-        let oldid = getUserID();
-        analyze(sender, data);
-        let userid = getUserID();
-        if (oldid != userid){
-            let root = path(dataPath, 'majsoul', userid.toString());
-            if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
-            if (!fs.existsSync(path(dataPath, 'majsoul'))) fs.mkdirSync(path(dataPath, 'majsoul'));
-            if (!fs.existsSync(root)) fs.mkdirSync(root);
-            let ppp = path(root, 'raw');
-            if (!fs.existsSync(ppp)) fs.mkdirSync(ppp);
-            ppp = path(root, 'paipus');
-            if (!fs.existsSync(ppp)) fs.mkdirSync(ppp);
-            
-            let gamedatatxt = path(root, 'gamedata.txt');
-            let gamedatas = [];
-            if (fs.existsSync(gamedatatxt))
-                gamedatas = fs.readFileSync(gamedatatxt).toString().split('\n');
-            for (let i in gamedatas){
-                let gamedata = gamedatas[i];
-                if (gamedata.length < 2) continue;
-                let gdata = JSON.parse(gamedata);
-                let id = gdata.extra.id;
-                if (paipugamedata[id] == undefined)
-                    paipugamedata[id] = gdata;
+    //browseWindow.maximize();
+    function savegamedata(userid){
+        let root = path(dataPath, 'majsoul', userid.toString());
+        if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
+        if (!fs.existsSync(path(dataPath, 'majsoul'))) fs.mkdirSync(path(dataPath, 'majsoul'));
+        if (!fs.existsSync(root)) fs.mkdirSync(root);
+        let ppp = path(root, 'raw');
+        if (!fs.existsSync(ppp)) fs.mkdirSync(ppp);
+        ppp = path(root, 'paipus');
+        if (!fs.existsSync(ppp)) fs.mkdirSync(ppp);
+        
+        let gamedatatxt = path(root, 'gamedata.txt');
+        let gamedatas = [], oldgamedatas = [];
+        if (fs.existsSync(gamedatatxt))
+            gamedatas = fs.readFileSync(gamedatatxt).toString().split('\n');
+        for (let i in gamedatas){
+            let gamedata = gamedatas[i];
+            if (gamedata.length < 2) continue;
+            let gdata = JSON.parse(gamedata);
+            if (gdata.version == undefined || config.versionconvert(gdata.version) < config.versionconvert(config.get('PaipuMinVersion'))){
+                oldgamedatas.push(gdata);
+                continue;
             }
+            let id = gdata.uuid;
+            if (paipugamedata[id] == undefined)
+                paipugamedata[id] = gdata;
         }
-    });
+        if (oldgamedatas.length > 0)
+            dialog.showMessageBox({
+                type: 'info',
+                noLink: true,
+                buttons: ['确定'],
+                title: '发现旧牌谱',
+                message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，请前往 牌谱 界面重新获取一遍牌谱数据。`
+            });
+
+        paipuversion = {};
+        ppp = path(root, 'paipuversion.txt');
+        if (fs.existsSync(ppp))
+            paipuversion = JSON.parse(String(fs.readFileSync(ppp)));
+        let paipusdirdata = new Set(fs.readdirSync(path(root, 'paipus')));
+        let oldpaipus = [], dirite = paipusdirdata.keys();
+        for (;;){
+            let i = dirite.next();
+            if (i.done) break;
+            i = i.value;
+            let add = false;
+            if (paipuversion.hasOwnProperty(i)){
+                if (config.versionconvert(paipuversion[i]) < config.versionconvert(config.get('PaipuMinVersion')))
+                    add = true;
+            }
+            else add = true;
+            if (add)
+                oldpaipus.push(i);
+        }
+        //console.log(oldpaipus);
+
+        if (oldpaipus.length == 0) return;
+
+        dialog.showMessageBox({
+            type: 'info',
+            noLink: true,
+            buttons: ['确定'],
+            title: '发现旧牌谱',
+            message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱删去，可能需要一定时间。`
+        });
+        for (let i in oldpaipus){
+            ppp = path(root, 'paipus', oldpaipus[i]);
+            fs.unlinkSync(ppp);
+        }
+        dialog.showMessageBox({
+            type: 'info',
+            noLink: true,
+            buttons: ['确定'],
+            title: '发现旧牌谱',
+            message: `旧牌谱删除完成。`
+        });
+    }
     ipcMain.on('downloadconvertresult', (event, data) => {
         downloadconvertcallback(data);
     });
     ipcMain.on('reporterror', (event, data) => {
         reporterror(data);
     });
+    ipcMain.on('userid', (event, data) => {
+        setUserID(data);
+        savegamedata(data);
+        newWindow.webContents.send('userid', data);
+    });
+    ipcMain.on('bwindowinjectfinish', (event) => {
+        browseWindow.injectfinish = 2;
+    });
     
     setTimeout(checknewestversion, 3000);
-}
+};
 
 app.on('ready', ready);
 
