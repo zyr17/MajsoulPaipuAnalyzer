@@ -559,6 +559,102 @@ void testtenpai(){
     std::cout <<  makecc << ' ' << calccc << '-' << tiles.size();
 }
 
+void shantendistributioncheck(const std::string &source, const std::vector<std::string> &ids, CJsonObject &config){
+
+    srand(unsigned(time(NULL)));
+    std::vector<int> yama;
+    for (int i = 0; i < 37; i ++ )
+        for (int j = 0; j < (i == 5 || i == 15 || i == 25 ? 1 : i == 4 || i == 14 || i == 24 ? 3 : 4); j ++ )
+            yama.push_back(i);
+
+    //39起手摸15张牌做国士
+    /* int tot = 0, success = 0, nowyamapos = 0;
+    std::random_shuffle(yama.begin(), yama.end());
+    for (int T = 10000000; success != 20 ; ){
+        std::vector<int> bu;
+        bu.resize(Tiles::TILENUM);
+        if (nowyamapos + 28 >= yama.size()){
+            nowyamapos = 0;
+            std::random_shuffle(yama.begin(), yama.end());
+        }
+        for (int i = 0; i < 13; i ++ )
+            bu[yama[nowyamapos + i]] ++ ;
+        nowyamapos += 13;
+        if (kokushishanten(bu) != 10) continue;
+        tot ++ ;
+        for (int i = 0; i < 15; i ++ )
+            bu[yama[nowyamapos + i]] ++ ;
+        nowyamapos += 15;
+        if (kokushishanten(bu) == -1) success ++ ;
+    }
+    std::cout << "39 start " << tot << " times, " << success << " success\n";
+    return; */
+
+    PaipuAnalyzer pa(config["filter"]);
+    std::vector<double> shantens, shantensno713, tiles;
+    shantens.resize(7);
+    shantensno713.resize(9);
+    tiles.resize(Tiles::TILENUM);
+    int times = 0;
+    for (auto id : ids){
+        std::string paipufile = "data/" + source + "/" + id + "/paipus.txt";
+        //std::cout << "paipu file pos: " + paipufile + '\n';
+        auto paipus = ReadJSON(paipufile);
+        std::cout << "check " << paipus.GetArraySize() << " paipus, id " << id << '\n';
+        int percent = 0;
+        for (int i = 0; i < paipus.GetArraySize(); i ++ ){
+            if (pa.filtercheck(paipus[i])){
+                auto &gamerecord = paipus[i]["record"];
+                for (int ii = 0; ii < gamerecord.GetArraySize(); ii ++ ){
+                    auto hands = gamerecord[ii]["hand"];
+                    for (int j = 0; j < hands.GetArraySize(); j ++ ){
+                        std::string handstr;
+                        hands.Get(j, handstr);
+                        assert(handstr.size() >= 26);
+                        //庄家发了14张。由于雀魂自动洗牌所以忽略庄家起手
+                        if (handstr.size() == 28) continue;
+                        std::vector<int> hand;
+                        for (int k = 0; k < 26; k += 2)
+                            hand.push_back(Tiles::tile2num(handstr.substr(k, 2)));
+                        
+                        /* hand.clear();
+                        std::random_shuffle(yama.begin(), yama.end());
+                        for (int i = 0; i < 13; i ++ )
+                            hand.push_back(yama[i]); */
+
+                        for (auto k : hand)
+                            tiles[k] += 1;
+                        MatchPlayerData mpdata;
+                        mpdata.hand = hand;
+                        shantens[calcshanten(mpdata)] += 1;
+                        shantensno713[calcshanten(mpdata, false)] += 1;
+                        times ++ ;
+                    }
+                }
+            }
+
+            int nowp = i * 100 / paipus.GetArraySize();
+            if (nowp % 100 == 0 && nowp > percent){
+                percent = nowp;
+                std::cout << percent << "% complete\n";
+            }
+        }
+    }
+    for (auto &i : shantens) i /= times;
+    for (auto &i : shantensno713) i /= times;
+    for (auto &i : tiles) i /= times;
+    std::cout << times << " start hand analyzed\n";
+    std::cout << "shanten result: \n";
+    OutputVector(shantens);
+    std::cout << "shanten without chitoi kokushi result: \n";
+    OutputVector(shantensno713);
+    std::cout << "tiles result: \n";
+    for (int i = 0; i < Tiles::TILENUM; i ++ ){
+        std::cout << '[' << Tiles::num2tile[i] << ' ' << tiles[i] << "] ";
+        if (i % 10 == 9) std::cout << '\n';
+    }
+}
+
 int countdora(const PA::MatchPlayerData &pdata, const std::vector<int> &dora){
     int res = 0;
     std::vector<int> tiles;
