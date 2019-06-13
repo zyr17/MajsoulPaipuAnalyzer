@@ -16,10 +16,14 @@ const path                           = require('path').join,
 
 const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, reporterror } = require('./lib/majsoul/analyze');
 
+let InMacOS = process.platform == 'darwin';
+
 var paipuversion = undefined;
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
+
+if (InMacOS) dataPath = __dirname + '../../../../' + dataPath;
 
 //app.disableHardwareAcceleration();
 
@@ -370,6 +374,8 @@ const ready = () => {
             }
         }]
     }];
+
+    if (InMacOS) menutemplate.splice(0, 0, {label: 'MacOS', submenu: []});
 
     var bmenu = Menu.buildFromTemplate(menutemplate);
     Menu.setApplicationMenu(bmenu);
