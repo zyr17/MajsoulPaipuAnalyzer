@@ -23,7 +23,7 @@ var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
 
-if (InMacOS) dataPath = __dirname + '../../../../' + dataPath;
+if (InMacOS) dataPath = __dirname + '/../../../../' + dataPath;
 
 //app.disableHardwareAcceleration();
 
