@@ -1,8 +1,12 @@
 #ifndef _HEADER_H
 #define _HEADER_H
 
-#include <bits/stdc++.h>
-#ifdef linux
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <ctime>
+#include <iomanip>
+#if defined(linux) || defined(__APPLE__)
     #include <dirent.h>
     #include <sys/ioctl.h>
     #include <unistd.h>
