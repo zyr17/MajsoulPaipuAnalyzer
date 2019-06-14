@@ -38,6 +38,8 @@ Windows: Windows 10, nodejs v10.13.0, MinGW-w64 8.1.0
 
 Linux: Ubuntu 18.04 x64, nodejs v8.1.0, g++ 7.4.0
 
+macOS: 10.14 (VMware Workstation 15), nodejs v12.4.0, g++ 4.2.1(映射到clang-1001.0.46.4)
+
 AppVeyor环境请参考[其网站](https://www.appveyor.com/docs/build-environment/)
 
 ### 依赖
