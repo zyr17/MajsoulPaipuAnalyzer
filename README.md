@@ -94,7 +94,6 @@ Windows脚本使用PowerShell。路径不能出现中文。
 
     git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
-    git checkout origin/mac
     npm install
     npm run-script package-darwin
     mkdir bin
