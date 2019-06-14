@@ -1,6 +1,6 @@
 # MajsoulPaipuAnalyzer
 
-自制雀魂牌谱分析工具。支持国服、日服、国际服。
+自制雀魂牌谱分析工具。支持国服、日服、国际服。提供WIndows，Linux，macOS（macOS测试中）版本。
 
 目前仅支持四人麻将牌谱分析，分析项目参考天鳳の牌譜解析プログラム的项目实现。目前实现了除被鸣牌和门清听牌大类外，剩余大类中的大部分数据。
 
@@ -11,6 +11,8 @@
 APPVeyor下载最新版本：
 
 Windows: [![Build status](https://ci.appveyor.com/api/projects/status/fyirnuhsunq73brc?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer) Linux: [![Build status](https://ci.appveyor.com/api/projects/status/i22ex7a644qasmxx?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer-ko5wy)
+
+由于APPVeyor无法编译macOS下软件，因此macOS版本自行使用苹果虚拟机编译，在网盘和releases提供下载。
 
 [releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中可下载已经编译好的文件。由于上传速度较慢可能不是很及时
 
@@ -88,6 +90,28 @@ Windows脚本使用PowerShell。路径不能出现中文。
     cp doc/release-notes.txt result/
     cp -r i18n/ result/
 
+#### macOS
+
+    git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
+    cd MajsoulPaipuAnalyzer
+    git checkout origin/mac
+    npm install
+    npm run-script package-darwin
+    mkdir bin
+    mkdir bin/release
+    cd bin/release
+    cmake ../.. -DCMAKE_BUILD_TYPE=Release
+    make
+    cd ../..
+    cp -r dist/MajsoulPaipuCrawler-darwin-x64 result
+    cp bin/release/PaipuAnalyzer result/
+    mkdir result/data
+    cp config.json result/
+    cp PAADData.json result/
+    cp doc/README.txt result/
+    cp doc/release-notes.txt result/
+    cp -r i18n result/
+
 result中即为结果。
 
 ## 使用
@@ -118,8 +142,6 @@ result中即为结果。
 
 由于作者统计和概率论水平不行，目前安定段位计算为有偏估计。目前安定段位及置信区间的计算参照[这里](doc/stable-rank.md)，欢迎数学好的大佬们在[issue](https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/4)中或其他联系渠道提供正确的安定段位和置信区间的计算方式。
 
-<!-- 分析国际服数据时请确认自己的网络环境可以基本流畅访问Google Facebook等网站，否则很可能无法正常获取牌谱。 -->
-
 Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的情况。目前没有找到解决方法，请使用Terminal执行。
 
 如果运行Electron时出现游戏界面黑屏、白屏、崩溃等问题，有可能是显卡对WebGL的支持问题，可以尝试将resources/app/main.js文件第24行附近的app.isableHardwareAcceleration双斜杠删去，关闭硬件加速运行。
@@ -127,6 +149,8 @@ Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的�
 由于设计时从未参加过比赛场，发现问题后开了个比赛场测试并发现比赛场数据和想象中有较大出入，目前会直接忽略比赛场牌谱数据，在以后做了相关实现后加入。
 
 由于本人较菜没有上圣没法打王座，相关牌谱可能会出现bug。
+
+没钱买苹果电脑，所以用VMware做了个黑苹果编译测试，安装系统版本10.14。在真机上可能会出现问题。
 
 ## 联系
 
