@@ -37,13 +37,14 @@ namespace MAIN{
     }
 
     int readconfig(){
-        if (Algo::Access("config.json", 0) == -1){
+        if (Algo::Access((Header::rootfolderprefix + "config.json").c_str(), 0) == -1){
             Out::cout << "Can't find config.json!\n";
             PAUSEEXIT;
             return 1;
         }
-        config = Algo::ReadJSON("config.json");
-        config.Get("dataprefix", Algo::dataprefix);
+        config = Algo::ReadJSON(Header::rootfolderprefix + "config.json");
+        config.Get("dataprefix", Header::datafolderprefix);
+        Header::datafolderprefix = Header::rootfolderprefix + Header::datafolderprefix;
         std::string lang;
         config.Get("language", lang);
         I18N::I18NInit(lang);
@@ -59,7 +60,7 @@ namespace MAIN{
             return 1;
         }
         config.Get("id", id);
-        std::vector<std::string> ids = findid(Algo::dataprefix, source, id);
+        std::vector<std::string> ids = findid(Header::datafolderprefix, source, id);
         if (!ids.size()){
             Out::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC/*") + source + I18N::get("MAIN", "CANTDATA/SRC/*AFT") + "\n";
             PAUSEEXIT;
@@ -71,11 +72,27 @@ namespace MAIN{
         return 0;
     }
 
+    void setrootfolder(){
+        #ifdef __APPLE__
+            //只有macOS需要重新查找设置rootfolder
+            unsigned int bufferSize = 512;
+            std::vector<char> buffer(bufferSize + 1);
+            _NSGetExecutablePath(&buffer[0], &bufferSize);
+            std::string s = "";
+            for (auto i : buffer)
+                if (i) s += i;
+            s.erase(s.size() - 13); //删去"PaipuAnalyzer"
+            Header::rootfolderprefix = s;
+        #endif
+    }
+
 }
 
 using namespace MAIN;
 
 int main(){
+
+    setrootfolder();
 
     //Algo::testshanten(); return 0;
     //Algo::testtenpai(); return 0;
@@ -84,6 +101,6 @@ int main(){
     if (rcres == 1) return 0;
     PA::analyzemain("data/", source, id, config);
     //MatchDataCompare::mdatacomparemain();
-    //std::string id; Algo::shantendistributioncheck("majsoulold", findid(Algo::dataprefix, "majsoulold", id), config); return 0;
+    //std::string id; Algo::shantendistributioncheck("majsoulold", findid(Header::datafolderprefix, "majsoulold", id), config); return 0;
     return 0;
 }
