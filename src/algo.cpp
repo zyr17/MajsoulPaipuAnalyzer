@@ -332,16 +332,14 @@ void testshanten(){
     std::cout <<  makecc << ' ' << calccc << '-' << tiles.size();
 }
 
-std::string dataprefix = "";
-
 int Access(const char *filename, int mode){
-    return access((dataprefix + filename).c_str(), mode);
+    return access((Header::datafolderprefix + filename).c_str(), mode);
 }
 
 CJsonObject ReadJSON(const std::string &filename){
     std::string jsonstr;
     char *buffer = new char[JSONBUFFERSIZE];
-    auto f = fopen((dataprefix + filename).c_str(), "r");
+    auto f = fopen((Header::datafolderprefix + filename).c_str(), "r");
     for (; ; ){
         int length = fread(buffer, 1, JSONBUFFERSIZE - 1, f);
         buffer[length] = '\0';
@@ -356,7 +354,7 @@ CJsonObject ReadJSON(const std::string &filename){
 }
 
 std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::string &prefix, const std::string &suffix){
-    auto f = fopen((dataprefix + filename).c_str(), "r");
+    auto f = fopen((Header::datafolderprefix + filename).c_str(), "r");
     std::vector<CJsonObject> res;
     for (; ; ){
         std::string ts = prefix;
@@ -377,7 +375,7 @@ void getconsolesize(int &row, int&col){
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
         row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-    #elif linux
+    #elif defined(linux) || defined(__APPLE__)
         winsize w;
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
         row = w.ws_row;

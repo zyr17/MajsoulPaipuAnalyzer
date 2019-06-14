@@ -26,9 +26,7 @@ namespace Algo{
     int calcshanten(const PA::MatchPlayerData &pdata, bool chitoikokushi = true);
     void testshanten();
 
-    //设置读取文件时的前缀，从config.json中获得，调试时用于定位数据文件位置。
     //需要保证所有文件相关均通过下列函数，不要自行使用fopen access等！
-    extern std::string dataprefix;
     int Access(const char *filename, int mode);
     CJsonObject ReadJSON(const std::string &filename);
     std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::string &prefix = "", const std::string &suffix = "");

@@ -1,14 +1,22 @@
 #ifndef _HEADER_H
 #define _HEADER_H
 
-#include <bits/stdc++.h>
-#ifdef linux
+#include <iostream>
+#include <vector>
+#include <cassert>
+#include <ctime>
+#include <iomanip>
+#include <cmath>
+#if defined(linux) || defined(__APPLE__)
     #include <dirent.h>
     #include <sys/ioctl.h>
     #include <unistd.h>
 #endif
 #ifdef _WIN32
     #include <windows.h>
+#endif
+#ifdef __APPLE__
+    #include <mach-o/dyld.h>
 #endif
 
 #define OUTBUFFERSIZE 1048576
@@ -36,5 +44,14 @@
 #endif
 
 using namespace neb;
+
+namespace Header{
+
+    /* 在进行文件操作时，必须在文件路径前添加两个前缀之一 */
+    //设置可执行文件所在文件夹位置。对于Windows和Linux平台启动时pwd即为所在位置因此默认./即可；若为macOS需要获取位置并设置。
+    extern std::string rootfolderprefix;
+    //设置读取data时的前缀，从config.json中获得，调试时用于定位数据文件位置。在完成载入时会将rootfolder作为前缀加入。
+    extern std::string datafolderprefix;
+}
 
 #endif
