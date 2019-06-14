@@ -6,6 +6,7 @@
 #include <cassert>
 #include <ctime>
 #include <iomanip>
+#include <cmath>
 #if defined(linux) || defined(__APPLE__)
     #include <dirent.h>
     #include <sys/ioctl.h>
