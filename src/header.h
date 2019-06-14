@@ -7,7 +7,7 @@
 #include <ctime>
 #include <iomanip>
 #include <cmath>
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux) || defined(__APPLE__)
     #include <dirent.h>
     #include <sys/ioctl.h>
     #include <unistd.h>

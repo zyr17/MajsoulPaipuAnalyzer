@@ -1,7 +1,7 @@
 {
     "CHCP": "chcp 437",
     "MAIN": {
-        "MACROUNDEFINED": "both macro _WIN32 and linux are not defined!",
+        "MACROUNDEFINED": "all macro _WIN32 and __linux and __MACOS__ are not defined!",
         "CANTDATA/SRC": "Can't find data/",
         "CANTDATA/SRCAFT": "!",
         "CANTDATA/SRC/*": "Can't find any folder under data/",

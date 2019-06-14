@@ -1,7 +1,7 @@
 {
     "CHCP": "chcp 950",
     "MAIN": {
-        "MACROUNDEFINED": "宏 _WIN32 和 linux 均未被定義！請確認是否為Windows或者Linux平臺。",
+        "MACROUNDEFINED": "宏 _WIN32 __linux 和 __MACOS__ 均未被定義！請確認是否為Windows, Linux或macOS平臺。",
         "CANTDATA/SRC": "無法找到文件夾 data/",
         "CANTDATA/SRCAFT": "！",
         "CANTDATA/SRC/*": "無法在 data/",

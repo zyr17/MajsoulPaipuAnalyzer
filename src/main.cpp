@@ -18,7 +18,7 @@ namespace MAIN{
                 findi1 = _findnext(findi2, &finddata);
             }
             _findclose(findi2);
-        #elif defined(linux) || defined(__APPLE__)
+        #elif defined(__linux) || defined(__APPLE__)
             DIR *dirptr = opendir((dataprefix + "data/" + source).c_str());
             dirent *entry;
             while (entry = readdir(dirptr)){

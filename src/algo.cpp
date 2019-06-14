@@ -375,7 +375,7 @@ void getconsolesize(int &row, int&col){
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
         row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-    #elif defined(linux) || defined(__APPLE__)
+    #elif defined(__linux) || defined(__APPLE__)
         winsize w;
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
         row = w.ws_row;
