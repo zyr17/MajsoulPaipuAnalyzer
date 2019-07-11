@@ -67,6 +67,9 @@ namespace MAIN{
         }
         Out::cout << '\n';
         Out::cout << I18N::get("MAIN", "SRC") + I18N::get("MISC", "COLON") + source + "\n";
+        #ifdef _WIN32
+            id = Algo::UTF82GBK(id);
+        #endif
         Out::cout << I18N::get("MAIN", "ID") + I18N::get("MISC", "COLON") + id + "\n";
         return 0;
     }

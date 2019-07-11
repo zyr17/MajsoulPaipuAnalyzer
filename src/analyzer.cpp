@@ -1881,12 +1881,80 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     return true;
 }
 
+void analyzetenhou(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
+
+}
+
 void analyzemain(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
     auto &filter = config["filter"];
     std::vector<CJsonObject*> paipus;
-    auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
-    for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
-        paipus.push_back(&paipuarr[i]);
+    std::vector<CJsonObject> savedpaipuarr;
+    savedpaipuarr.reserve(5000);
+    if (source == "tenhou"){
+        //天凤数据不针对id，根据gamedata筛选相关条目
+        //TODO: 单日全部保存量太大；需要移除无用数据
+        auto gamedataf = dataf + "/tenhou/combined/gamedata/";
+        for (int year = 2009; year < 2029; year ++ )
+            for (int month = 1; month <= 12; month ++ ){
+                char buf[256] = {0};
+                sprintf(buf, "%s%04d%02d.txt", gamedataf.c_str(), year, month);
+                //std::cout << buf << std::endl;
+                if (Algo::Access(buf, 0) != - 1){
+                    auto gamedatas = Algo::ReadLineJSON(buf);
+                    std::string lastopen = "00000000.txt";
+                    int opencount = 0;
+                    for (unsigned i = 0; i < gamedatas.size(); i ++ ){
+                        auto &gamedata = gamedatas[i];
+                        auto &playerdata = gamedata["playerdata"];
+                        for (int i = 0; i < playerdata.GetArraySize(); i ++ ){
+                            std::string nowid;
+                            playerdata[i].Get("id", nowid);
+                            #ifdef _WIN32
+                                nowid = Algo::UTF82GBK(nowid);
+                            #endif
+                            //std::cout << nowid << std::endl;
+                            if (nowid == id){
+                                std::string paipufilename, uuid;
+                                gamedata.Get("uuid", uuid);
+                                paipufilename = uuid.substr(0, 8) + ".txt";
+                                //std::cout << uuid << ' ' << paipufilename << std::endl;
+                                assert(lastopen <= paipufilename);
+                                if (lastopen < paipufilename){
+                                    char buf[256] = {0};
+                                    sprintf(buf, "%s/tenhou/combined/paipus/%04d/%s", dataf.c_str(), year, paipufilename.c_str());
+                                    savedpaipuarr.push_back(Algo::ReadJSON(buf));
+                                    //std::cout << buf << '\n';
+                                    if (opencount) std::cout << lastopen << ' ' << opencount << std::endl;
+                                    lastopen = paipufilename;
+                                    opencount = 0;
+                                }
+                                auto &lastpaipu = *savedpaipuarr.rbegin();
+                                bool flag = false;
+                                for (int i = 0; i < lastpaipu.GetArraySize(); i ++ ){
+                                    std::string s;
+                                    lastpaipu[i]["gamedata"].Get("uuid", s);
+                                    //std::cout << s << '\n';
+                                    if (s == uuid){
+                                        lastpaipu[i]["gamedata"]["accountid"] = id;
+                                        paipus.push_back(&lastpaipu[i]);
+                                        opencount ++ ;
+                                        flag = true;
+                                        break;
+                                    }
+                                }
+                                assert(flag);
+                            }
+                        }
+                    }
+                }
+            }
+    }
+    else{
+        savedpaipuarr.push_back(Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt"));
+        auto &paipuarr = *savedpaipuarr.rbegin();
+        for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
+            paipus.push_back(&paipuarr[i]);
+    }
 	//int step = paipus.size() - 1;
 	//for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
     PaipuAnalyzer pa = PaipuAnalyzer(filter);
