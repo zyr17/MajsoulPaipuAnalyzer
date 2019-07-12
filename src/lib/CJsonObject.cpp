@@ -1310,6 +1310,7 @@ bool CJsonObject::Replace(const std::string& strKey, const std::string& strValue
     {
         return(false);
     }
+    m_mapJsonObjectRef.erase(strKey);
     return(true);
 }
 

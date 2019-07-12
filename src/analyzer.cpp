@@ -73,7 +73,8 @@ void MatchData::IDiscardTile(std::string &str){
         dora.push_back(Tiles::tile2num(str.substr(i, 2)));
 
     if (tsumokiri && data[who].hand.size() != 14){
-        assert(data[who].get == tile);
+        //assert(data[who].get == tile);
+        if (data[who].get != tile) throw "data[who].get != tile";
         data[who].get = Tiles::EMPTY;
     }
     else{
@@ -792,7 +793,7 @@ void MatchData::INewGame(CJsonObject &record){
     #ifdef MATCHDATAOUTPUT
         CJsonObject out(record);
         out.Delete("record");
-        std::cout << "-----\n" << out.ToFormattedString() << "\n-----\n";
+        std::cout << "-----\n" << Algo::UTF82GBK(out.ToFormattedString()) << "\n-----\n";
         std::cout << startscore << "\n";
     #endif
 }
@@ -1746,7 +1747,14 @@ bool PaipuAnalyzer::analyze(std::string &paipu){
 }
 
 bool PaipuAnalyzer::analyze(CJsonObject *paipu){
-    return analyze(*paipu);
+    //TODO: try catch
+    try{
+        return analyze(*paipu);
+    }
+    catch (char const *x){
+        std::cout << x << " " << (*paipu)["gamedata"]["uuid"].ToString() << '\n';
+        return false;
+    }
 }
 
 bool PaipuAnalyzer::analyze(CJsonObject &paipu){
@@ -1759,6 +1767,7 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         if (accountid.StrictEqual(pdata[i]["id"]))
             adata.me = i;
     //如果玩家数据中没找到对应ID就跳过该牌谱
+    //std::cout << Algo::UTF82GBK(paipu["gamedata"]["accountid"].ToString() + ' ' + accountid.ToString() + ' ' + paipu["gamedata"].ToString()) << '\n';
     if (adata.me == -1) return false;
     matchdata.INewGame(paipu);
     #ifdef SAVEMATCHDATASTEP
@@ -1871,6 +1880,7 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         pdata[adata.me].Get("finalpoint", endp);
         adata.basedata[basenum] += endp - stp;
 
+        //TODO: 天凤数据不同
         int room, pt;
         pdata[adata.me].Get("deltapt", pt);
         paipu["gamedata"]["roomdata"].Get("room", room);
@@ -1887,12 +1897,12 @@ void analyzetenhou(const std::string &dataf, const std::string &source, const st
 
 void analyzemain(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
     auto &filter = config["filter"];
-    std::vector<CJsonObject*> paipus;
-    std::vector<CJsonObject> savedpaipuarr;
-    savedpaipuarr.reserve(5000);
+    PaipuAnalyzer pa = PaipuAnalyzer(filter);
+    int paipunum = 0;
     if (source == "tenhou"){
         //天凤数据不针对id，根据gamedata筛选相关条目
         //TODO: 单日全部保存量太大；需要移除无用数据
+        CJsonObject lastpaipu;
         auto gamedataf = dataf + "/tenhou/combined/gamedata/";
         for (int year = 2009; year < 2029; year ++ )
             for (int month = 1; month <= 12; month ++ ){
@@ -1909,11 +1919,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
                         for (int i = 0; i < playerdata.GetArraySize(); i ++ ){
                             std::string nowid;
                             playerdata[i].Get("id", nowid);
-                            #ifdef _WIN32
-                                nowid = Algo::UTF82GBK(nowid);
-                            #endif
-                            //std::cout << nowid << std::endl;
-                            if (nowid == id){
+                            if (nowid == id || i == 0){
                                 std::string paipufilename, uuid;
                                 gamedata.Get("uuid", uuid);
                                 paipufilename = uuid.substr(0, 8) + ".txt";
@@ -1922,21 +1928,28 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
                                 if (lastopen < paipufilename){
                                     char buf[256] = {0};
                                     sprintf(buf, "%s/tenhou/combined/paipus/%04d/%s", dataf.c_str(), year, paipufilename.c_str());
-                                    savedpaipuarr.push_back(Algo::ReadJSON(buf));
-                                    //std::cout << buf << '\n';
+                                    lastpaipu = Algo::ReadJSON(buf);
+                                    std::cout << buf << '\n';
                                     if (opencount) std::cout << lastopen << ' ' << opencount << std::endl;
                                     lastopen = paipufilename;
                                     opencount = 0;
                                 }
-                                auto &lastpaipu = *savedpaipuarr.rbegin();
                                 bool flag = false;
                                 for (int i = 0; i < lastpaipu.GetArraySize(); i ++ ){
                                     std::string s;
                                     lastpaipu[i]["gamedata"].Get("uuid", s);
                                     //std::cout << s << '\n';
                                     if (s == uuid){
-                                        lastpaipu[i]["gamedata"]["accountid"] = id;
-                                        paipus.push_back(&lastpaipu[i]);
+                                        //std::cout << uuid << '\n';
+                                        lastpaipu[i]["gamedata"].Replace("accountid", nowid);
+                                        //std::cout << Algo::UTF82GBK(nowid + ' ' + lastpaipu[i]["gamedata"]["accountid"].ToString()) << '\n';
+                                        auto nowjson = lastpaipu[i].ToString();
+                                        paipunum += pa.analyze(&lastpaipu[i]);
+                                        if (nowjson != lastpaipu[i].ToString()){
+                                            std::cout << "changed!";
+                                            exit(0);
+                                        }
+                                        //paipus.push_back(&lastpaipu[i]);
                                         opencount ++ ;
                                         flag = true;
                                         break;
@@ -1950,15 +1963,14 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
             }
     }
     else{
-        savedpaipuarr.push_back(Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt"));
-        auto &paipuarr = *savedpaipuarr.rbegin();
+        std::vector<CJsonObject*> paipus;
+        auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
         for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
             paipus.push_back(&paipuarr[i]);
+        //int step = paipus.size() - 1;
+	    //for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
+        paipunum = pa.analyze(paipus);
     }
-	//int step = paipus.size() - 1;
-	//for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
-    PaipuAnalyzer pa = PaipuAnalyzer(filter);
-    int paipunum = pa.analyze(paipus);
     #ifdef SAVEMATCHDATASTEP
         std::cout << TotalStep.ToString();
     #endif
