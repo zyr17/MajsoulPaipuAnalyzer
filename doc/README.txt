@@ -1,5 +1,5 @@
 MajsoulPaipuAnalyzer简易使用说明
-2019.5.29 对应0.3.0版
+最后更新时间：2019.5.29 - 0.3.0版
 这里给出简易使用说明(虽然也很麻烦)，详细的说明和设置请前往https://github.com/zyr17/MajsoulPaipuAnalyzer
 
 功能介绍
