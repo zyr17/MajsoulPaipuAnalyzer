@@ -73,8 +73,8 @@ void MatchData::IDiscardTile(std::string &str){
         dora.push_back(Tiles::tile2num(str.substr(i, 2)));
 
     if (tsumokiri && data[who].hand.size() != 14){
-        //assert(data[who].get == tile);
-        if (data[who].get != tile) throw "data[who].get != tile";
+        assert(data[who].get == tile);
+        //if (data[who].get != tile) throw "data[who].get != tile";
         data[who].get = Tiles::EMPTY;
     }
     else{
@@ -1747,14 +1747,7 @@ bool PaipuAnalyzer::analyze(std::string &paipu){
 }
 
 bool PaipuAnalyzer::analyze(CJsonObject *paipu){
-    //TODO: try catch
-    try{
-        return analyze(*paipu);
-    }
-    catch (char const *x){
-        std::cout << x << " " << (*paipu)["gamedata"]["uuid"].ToString() << '\n';
-        return false;
-    }
+    return analyze(*paipu);
 }
 
 bool PaipuAnalyzer::analyze(CJsonObject &paipu){
@@ -1901,7 +1894,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     int paipunum = 0;
     if (source == "tenhou"){
         //天凤数据不针对id，根据gamedata筛选相关条目
-        //TODO: 单日全部保存量太大；需要移除无用数据
+        //找到牌谱后直接计算；不先提取所有牌谱
         CJsonObject lastpaipu;
         auto gamedataf = dataf + "/tenhou/combined/gamedata/";
         for (int year = 2009; year < 2029; year ++ )
@@ -1919,7 +1912,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
                         for (int i = 0; i < playerdata.GetArraySize(); i ++ ){
                             std::string nowid;
                             playerdata[i].Get("id", nowid);
-                            if (nowid == id || i == 0){
+                            if (nowid == id){
                                 std::string paipufilename, uuid;
                                 gamedata.Get("uuid", uuid);
                                 paipufilename = uuid.substr(0, 8) + ".txt";
