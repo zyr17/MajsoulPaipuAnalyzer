@@ -22,7 +22,7 @@
 #define OUTBUFFERSIZE 1048576
 #define FLOATAFTERPOINTNUM 4
 
-#include "lib/CJsonObject.hpp"
+#include "CJsonObject/CJsonObject.hpp"
 #include "output.h"
 
 #define JSONBUFFERSIZE 1048576
