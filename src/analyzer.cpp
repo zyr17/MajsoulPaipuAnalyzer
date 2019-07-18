@@ -1897,15 +1897,15 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
         //找到牌谱后直接计算；不先提取所有牌谱
         CJsonObject lastpaipu;
         auto gamedataf = dataf + "/tenhou/combined/gamedata/";
+        std::string lastopen = "00000000.txt";
+        int opencount = 0;
         for (int year = 2009; year < 2029; year ++ )
             for (int month = 1; month <= 12; month ++ ){
                 char buf[256] = {0};
                 sprintf(buf, "%s%04d%02d.txt", gamedataf.c_str(), year, month);
-                //std::cout << buf << std::endl;
                 if (Algo::Access(buf, 0) != - 1){
+                    std::cout << buf << std::endl;
                     auto gamedatas = Algo::ReadLineJSON(buf);
-                    std::string lastopen = "00000000.txt";
-                    int opencount = 0;
                     for (unsigned i = 0; i < gamedatas.size(); i ++ ){
                         auto &gamedata = gamedatas[i];
                         auto &playerdata = gamedata["playerdata"];
@@ -1922,8 +1922,8 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
                                     char buf[256] = {0};
                                     sprintf(buf, "%s/tenhou/combined/paipus/%04d/%s", dataf.c_str(), year, paipufilename.c_str());
                                     lastpaipu = Algo::ReadJSON(buf);
-                                    std::cout << buf << '\n';
                                     if (opencount) std::cout << lastopen << ' ' << opencount << std::endl;
+                                    //std::cout << buf << '\n';
                                     lastopen = paipufilename;
                                     opencount = 0;
                                 }
