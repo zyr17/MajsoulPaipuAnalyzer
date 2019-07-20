@@ -1885,7 +1885,7 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
 }
 
 void analyzetenhou(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
-
+    //TODO: 天凤大量牌谱分析专用，将相关代码移进来
 }
 
 void analyzemain(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
@@ -1970,6 +1970,17 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     Out::cout << I18N::get("ANALYZER", "ANALYZEPAIPUNUM") << paipunum << I18N::get("ANALYZER", "ANALYZEPAIPUNUMAFT") << '\n';
     Out::cout << I18N::get("MISC", "DASH") << '\n';
     pa.analyzedata -> calcresult();
+
+    CJsonObject rrr("{}");
+    for (unsigned i = 0; i < pa.analyzedata -> result.size(); i ++ ){
+        auto res = pa.analyzedata -> result[i];
+        if (isfinite(res))
+            rrr.Add(pa.analyzedata -> ADN.result[i], res);
+        else
+            rrr.Add(pa.analyzedata -> ADN.result[i], "-");
+    }
+    std::cout << id << ": " << rrr.ToString() << ",\n";
+
     //pa.analyzedata -> outputbase();
     pa.analyzedata -> outputresult();
 }

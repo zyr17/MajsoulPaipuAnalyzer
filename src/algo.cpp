@@ -369,6 +369,11 @@ std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::st
     return res;
 }
 
+void WriteJSON(const std::string &filename, const CJsonObject json){
+    FILE *f = fopen((Header::datafolderprefix + filename).c_str(), "w");
+    fprintf(f, "%s", json.ToString().c_str());
+}
+
 void getconsolesize(int &row, int&col){
     #ifdef _WIN32
         CONSOLE_SCREEN_BUFFER_INFO csbi;

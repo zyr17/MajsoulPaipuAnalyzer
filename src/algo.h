@@ -30,6 +30,7 @@ namespace Algo{
     int Access(const char *filename, int mode);
     CJsonObject ReadJSON(const std::string &filename);
     std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::string &prefix = "", const std::string &suffix = "");
+    void WriteJSON(const std::string &filename, const CJsonObject json);
 
     void getconsolesize(int &row, int &col);
     //获取UTF-8字符串的宽度；ASCII字符认为宽度为1，其余为2。出现非ASCII1宽度字体会误判，但是目前无影响。
