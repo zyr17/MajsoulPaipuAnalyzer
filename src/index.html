@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>SimpleMahjong</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <show-data
+            v-for="item in data"
+            :title="i18n[item.title]"
+            :comma="i18n['comma']"
+            :base-data="item.basedata"
+            :data="item.data"
+            :color="colormode[item.colortype][compare(item)]"
+        >
+        </show-data>
+    </div>
+
+    <div id="app">
+        <div class="options-div">
+            TODO:dropdown: i18n, basedata, colored, precision
+        </div>
+        <div
+            class="result-group"
+            v-for="TODO:result-group-list"
+        >
+            <div class="result-group-up">
+                <div class="result-group-button"></div>
+                <div class="result-group-title"></div>
+            </div>
+            <div
+                class="one-result"
+                v-for="TODO:results"
+            >
+                <div class="one-result-title">
+                    TODO:{{ title }}{{ comma }}
+                </div>
+                <div :class="'one-result-data ' + TODO:color-mode">
+                    TODO:{{ data }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+Vue.component('show-data', {
+    props: ['title', 'comma', 'base-data', 'data', 'color'],
+    template: `
+        <div :style="'color: #' + color">
+            {{ title }} {{ comma }} {{ data }}
+        </div>
+    `
+});
+
+Vue.component('', {
+    props: [],
+    template: `
+    `
+});
+
+var app = new Vue({
+    el: '#app',
+    data: {
+        i18n: {
+            '1': '一',
+            '2': '二',
+            '3': '三',
+            '4': '四',
+            'comma': ': '
+        },
+        colormode: {
+            'b': ['FF0000', '000000', '00FF00'],
+            's': ['00FF00', '000000', 'FF0000'],
+            'x': ['000000', '000000', '000000']
+        },
+        data: [
+            {
+                title: '1',
+                basedata: 10,
+                data: 100,
+                colortype: 'b'
+            },
+            {
+                title: '2',
+                basedata: 1000,
+                data: 100,
+                colortype: 's'
+            },
+            {
+                title: '3',
+                basedata: 10,
+                data: 10,
+                colortype: 'x'
+            },
+            {
+                title: '4',
+                basedata: 10,
+                data: 1,
+                colortype: 'b'
+            }
+        ],
+        compare: (a, b) => {
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
+        }
+    }
+    
+});
+
+    </script>
+</body>
+
+</html>
