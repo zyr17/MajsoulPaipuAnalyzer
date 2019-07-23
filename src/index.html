@@ -30,10 +30,10 @@
             box-shadow: 0px 0px 3px 3px #CCC;
             border-radius: 5px;
             background-color: azure;
+            margin: 20px 0px;
         }
         .main-block > * {
             padding: 5px;
-            margin: 20px 0px;
         }
         .main-block > .title-div {
             padding: 5px 5px 5px 20px;
@@ -50,6 +50,9 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
+        }
+        #dropdowns-div .dropdown-item {
+            text-align: right;
         }
         .one-dropdown-div {
             display: flex;
@@ -80,13 +83,26 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
+            padding: 0px;
         }
         .one-result-div {
             display: flex;
             flex-direction: row;
+            justify-content: space-between;
+            padding: 0px 5px;
+            width: 25%;
+        }
+        .one-result-div.borderline {
+            border-bottom: 1px solid #6FF;
+        }
+        .one-result-div.one-result-1 {
+            background: #9FF;
         }
         .data-div {
-            font-size: 50%;
+            display: flex;
+            align-items: center;
+            padding: 0px 0px 0px 10px;
+            font-family: Consolas, "Liberation Mono", Courier, monospace;
         }
     </style>
 </head>
@@ -126,7 +142,8 @@
 /*I18N*/ //TODO:语言文件中加入所需条目
 /*BASEDATA*/
 /*DATA*/
-I18N = {"languages":["zh-CN"],"zh-CN":{"CHCP":"chcp 936","MAIN":{"MACROUNDEFINED":"宏 _WIN32 __linux 和 __MACOS__ 均未被定义！请确认是否为Windows, Linux或macOS平台。","CANTDATA/SRC":"无法找到文件夹 data/","CANTDATA/SRCAFT":"！","CANTDATA/SRC/*":"无法在 data/","CANTDATA/SRC/*AFT":" 下找到任何文件夹！","SRC":"数据源","ID":"ID","CANTDATA/":"找不到 data/ 文件夹！"},"ANALYZER":{"BASEDATA":"基础数据","ANALYZEPAIPUNUM":"共分析了 ","ANALYZEPAIPUNUMAFT":" 个牌谱","ALLRESULT":"全部分析结果一览","OVRESULT":"综合数据","HULERESULT":"和牌数据","CHONGRESULT":"放铳数据","FULURESULT":"副露数据","ALRESULT":"AL数据","REACHRESULT":"立直数据","LIUJURESULT":"流局数据","FULU1RESULT":"1+副露数据","FULU2RESULT":"2+副露数据","FULU3RESULT":"3+副露数据","FULU4RESULT":"4副露数据","STABLERANKRESULT":"安定段位结果（置信水平0.95）","ZHUILIBEIZHUILIRESULT":"追立，被追立和振听立直数据","GANGRESULT":"杠数据","HULEYAKURESULT":"和牌役种数据","CHONGYAKURESULT":"放铳役种数据"},"ADRESULT":{"#1R":"一位率","#2R":"二位率","#3R":"三位率","#4R":"四位率","AL#1#1R":"AL中保一率","AL#234#1R":"AL中逆一率","AL#4#123R":"AL中避四率","ALALR":"AL两次以上率","HULER":"和牌率","ZIMOR":"自摸率","CHONGR":"放铳率","REACHR":"立直率","DAMAHULER":"默听和牌率","CHONGLEDAMAR":"铳了默听率","FULUHULER":"和牌时副露率","FULUCHONGR":"放铳时副露率","HULEP":"和牌得点","CHONGP":"放铳失点","HULESU":"和牌素点","CHONGSU":"放铳素点","DAMAHULEP":"默听和牌得点","CHONGLEDAMAP":"铳了默听失点","HULE3900R":"和了得点3900+率","HULE7700R":"和了得点7700+率","HULE11600R":"和了得点11600+率","CHONG3900R":"放铳失点3900+率","CHONG7700R":"放铳失点7700+率","CHONG11600R":"放铳失点11600+率","HULECC":"和牌巡数","CHONGMYCC":"放铳时自己巡数","CHONGHISCC":"放铳时对方巡数","CHONGSHANTEN":"放铳时向听数","FULUHULECC":"副露和牌巡数","MENQINGHULECC":"门清和牌巡数","REACHINHULER":"和牌时立直率","TANYAOHULER":"断幺率","PINFUHULER":"平和率","CHITOIHULER":"七对率","TOITOIHULER":"对对率","RANSHOUHULER":"染手率","AKAA":"赤宝平均枚数","DORAA":"宝牌平均枚数","URAA":"里宝平均枚数","ALLDORAA":"宝牌总平均枚数","YIPATSUHULER":"一发率","OYAHULER":"庄家时和牌率","CHONGLEREACHR":"铳了立直率","CHONGLEPINFUR":"铳了平和率","CHONGLECHITOIR":"铳了七对率","CHONGLETOITOIR":"铳了对对率","CHONGLETANYAOR":"铳了断幺率","CHONGLERANSHOUR":"铳了染手率","REACHINCHONGR":"放铳时立直率","CHONGLEOYAR":"铳了亲家率","CHONGLEYIPATSUR":"铳了一发率","CHONGLEFULUR":"铳了副露率","BEIZIMOR":"被自摸率","BEIZIMOP":"被自摸失点","BEIZIMOMYCC":"被自摸自己巡数","ZHAZHUANGR":"被炸庄率","ZHAZHUANGP":"被炸庄失点","REACHHULEP":"立直和了得点","REACHHULESU":"立直和了素点","REACH3900R":"立直和3900+率","REACH7700R":"立直和7700+率","REACH11600R":"立直和11600+率","REACHCC":"立直平均巡数","REACHPINFUR":"立直时平和率","REACHTANYAOR":"立直时断幺率","REACHDORA2R":"立直时2宝+率","REACHDORA3R":"立直时3宝+率","REACHDORAA":"立直平均宝牌","FIRSTREACHR":"先制立直率","ZIMOINREACHHULER":"立直和了自摸率","REACHGOODR":"立直为好形率","REACHGOODHULER":"好形和牌率","REACHGOODHULEP":"好形和牌得点","REACHGOODCHONGR":"好形放铳率","REACHGOODCHONGP":"好形放铳失点","REACHGOODPROFIT":"好形立直净利","REACHBADR":"立直为愚形率","REACHBADHULER":"愚形和牌率","REACHBADHULEP":"愚形和牌得点","REACHBADCHONGR":"愚形放铳率","REACHBADCHONGP":"愚形放铳失点","REACHBADPROFIT":"愚形立直净利","REACHPROFIT":"立直净利","CHONGINREACHR":"立直时放铳率","HULEINREACHR":"立直时和牌率","LIUJUTENPAIR":"流局听牌率","LIUJUINP":"流局听牌得点","LIUJUNOTENR":"流局未听率","LIUJUOUTP":"流局未听失点","LIUJUPROFIT":"流局净利","#A":"平均顺位","TOTALROUND":"总局数","TOTALGAME":"总盘数","ROUNDPROFIT":"每局净利","GAMEPROFIT":"每盘净利","LIUJUR":"流局率","FULUR!":"副露率","HULEINFULUR!":"副露时和率","FULUHULEPOINT!":"副露和牌得点","FULUHULESUDIAN!":"副露和牌素点","CHONGINFULUR!":"副露时放铳率","FULUCHONGPOINT!":"副露放铳失点","ZIMOINHULEFULUR!":"副露和了自摸率","FULUHULE3900R!":"副露和3900+率","FULUHULE7700R!":"副露和7700+率","FULUHULE11600R!":"副露和11600+率","FULUCHONG3900R!":"副露铳3900+率","FULUCHONG7700R!":"副露铳7700+率","FULUCHONG11600R!":"副露铳11600+率","FULUDORA2R!":"副露时2宝+率","FULUDORA3R!":"副露时3宝+率","FULUTANYAOR!":"副露时断幺率","FULUYAKUHAIR!":"副露时役牌率","FULUCC1":"第1副露平均巡数","FULUCC2":"第2副露平均巡数","FULUCC3":"第3副露平均巡数","FULUCC4":"第4副露平均巡数","FULUTANYAOHULER!":"副露和了断幺率","FULURANSHOUHULER!":"副露和了染手率","FULUTOITOIHULER!":"副露和了对对率","FULUFIRSTR1":"先制第1副露率","FULUFIRSTR2":"先制第2副露率","FULUFIRSTR3":"先制第3副露率","FULUFIRSTR4":"先制第4副露率","FULUYIPATSUKESHIR1":"第1副露消一发率","FULUYIPATSUKESHIR2":"第2副露消一发率","FULUYIPATSUKESHIR3":"第3副露消一发率","FULUYIPATSUKESHIR4":"第4副露消一发率","FULUPROFIT!":"副露时净利","EASTSR":"东风局安定段位","EASTCIL":"东风安定段位置信下界","EASTCIR":"东风安定段位置信上界","SOUTHSR":"南风局安定段位","SOUTHCIL":"南风安定段位置信下界","SOUTHCIR":"南风安定段位置信上界","ZHUILIR":"追立率","ZHUILIHULER":"追立和了率","ZHUILIHULEP":"追立和了点","ZHUILICHONGR":"追立放铳率","ZHUILICHONGP":"追立放铳点","ZHUILIPROFIT":"追立净利","ZHUILIGOODR":"追立好形率","ZHUILIBADR":"追立愚形率","BEIZHUILIR":"被追立率","BEIZHUILIHULER":"被追立时和了率","BEIZHUILIHULEP":"被追立时和了点","BEIZHUILICHONGR":"被追立时放铳率","BEIZHUILICHONGP":"被追立时放铳点","BEIZHUILIPROFIT":"被追立时净利","BEIZHUILIGOODR":"被追立时好形率","BEIZHUILIBADR":"被追立时愚形率","FURITENR":"振听立直率","FURITENHULER":"振听和了率","FURITENHULEP":"振听和了点","FURITENCHONGR":"振听放铳率","FURITENCHONGP":"振听放铳点","FURITENGOODR":"振听立直好形率","FURITENGOODHULER":"振听好形和了率","FURITENGOODHULEP":"振听好形和了点","FURITENGOODCHONGR":"振听好形放铳率","FURITENGOODCHONGP":"振听好形放铳点","FURITENBADR":"振听立直愚形率","FURITENBADHULER":"振听愚形和了率","FURITENBADHULEP":"振听愚形和了点","FURITENBADCHONGR":"振听愚形放铳率","FURITENBADCHONGP":"振听愚形放铳点","GANGR":"杠率","DAMINGGANGR":"大明杠率","JIAGANGR":"加杠率","ANGANGR":"暗杠率","REACHANGANGR":"立直后暗杠率","GANGHULER":"杠局和了率","GANGHULEP":"杠局和了点","GANGCHONGR":"杠局放铳率","GANGCHONGP":"杠局放铳点","GANGPROFIT":"杠局净利"},"YAKU":{"ZIMO":"自摸","REACH":"立直","YIPATSU":"一发","CHANKAN":"枪杠","RINSHAN":"岭上开花","HAITEI":"海底摸月","HOUTEI":"河里捞鱼","PINFU":"平和","TANYAO":"断幺","YIPEIKOU":"一杯口","JIFUDON":"自风东","JIFUNAN":"自风南","JIFUSHA":"自风西","JIFUPEI":"自风北","BAFUDON":"场风东","BAFUNAN":"场风南","BAFUSHA":"场风西","BAFUPEI":"场风北","HAKU":"白","HATSU":"发","CHUN":"中","WREACH":"双立直","CHITOITSU":"七对子","CHANTA":"混全带幺","YITSU":"一气通贯","SANSHOKU":"三色通顺","SANSHOKUDOUKO":"三色同刻","SANKANTSU":"三杠子","TOITOI":"对对和","SANANKO":"三暗刻","SHOUSANGEN":"小三元","HONROUTOU":"混老头","RYANPEIKOU":"两杯口","JUNCHAN":"纯全带幺","HONYITSU":"混一色","CHINYITSU":"清一色","RENHOU":"人和","TENHOU":"天和","CHIHOU":"地和","DAISANGEN":"大三元","SUANKO":"四暗刻","SUANKOTANKI":"四暗单骑","TSUYISOU":"字一色","RYOUYISOU":"绿一色","CHINROUTOU":"清老头","CHUREN":"九莲宝灯","JUNSEICHUREN":"纯正九莲","KOKUSHI":"国士无双","KOKUSHIJUSAN":"国士十三","DAISUSHI":"大四喜","SHOUSUSHI":"小四喜","SUKANTSU":"四杠子","DORA":"宝牌","URA":"里宝牌","AKA":"赤宝牌"},"MISC":{"WORDNOTEXIST":"要查找的词汇不在词表中！","ERROR":"错误：","DASH":"-----","ENTEREXIT":"按 Enter 键退出程序...","COLON":"：","COMMA":"，","ROUND4GAME":"东风局","ROUND8GAME":"南风局","MAJSOULROOM0":"友人场","MAJSOULROOM1":"铜之间","MAJSOULROOM2":"银之间","MAJSOULROOM3":"金之间","MAJSOULROOM4":"玉之间","MAJSOULROOM5":"王座之间","MAJSOULSTABLERANKCOMMENT":"说明：某个房间的安定段位对应能进入该房间的最低级头衔，如金之间-雀杰。\n特别的，由于目前没人打王座，雀圣1星即为雀豪4星，以此类推。安定段位即安定星数。"}}};
+I18N = {"languages":["zh-CN", "en-US"],"zh-CN":{"CHCP":"chcp 936","MAIN":{"MACROUNDEFINED":"宏 _WIN32 __linux 和 __MACOS__ 均未被定义！请确认是否为Windows, Linux或macOS平台。","CANTDATA/SRC":"无法找到文件夹 data/","CANTDATA/SRCAFT":"！","CANTDATA/SRC/*":"无法在 data/","CANTDATA/SRC/*AFT":" 下找到任何文件夹！","SRC":"数据源","ID":"ID","CANTDATA/":"找不到 data/ 文件夹！"},"ANALYZER":{"BASEDATA":"基础数据","ANALYZEPAIPUNUM":"共分析了 ","ANALYZEPAIPUNUMAFT":" 个牌谱","ALLRESULT":"全部分析结果一览","OVRESULT":"综合数据","HULERESULT":"和牌数据","CHONGRESULT":"放铳数据","FULURESULT":"副露数据","ALRESULT":"AL数据","REACHRESULT":"立直数据","LIUJURESULT":"流局数据","FULU1RESULT":"1+副露数据","FULU2RESULT":"2+副露数据","FULU3RESULT":"3+副露数据","FULU4RESULT":"4副露数据","STABLERANKRESULT":"安定段位结果（置信水平0.95）","ZHUILIBEIZHUILIRESULT":"追立，被追立和振听立直数据","GANGRESULT":"杠数据","HULEYAKURESULT":"和牌役种数据","CHONGYAKURESULT":"放铳役种数据"},"ADRESULT":{"#1R":"一位率","#2R":"二位率","#3R":"三位率","#4R":"四位率","AL#1#1R":"AL中保一率","AL#234#1R":"AL中逆一率","AL#4#123R":"AL中避四率","ALALR":"AL两次以上率","HULER":"和牌率","ZIMOR":"自摸率","CHONGR":"放铳率","REACHR":"立直率","DAMAHULER":"默听和牌率","CHONGLEDAMAR":"铳了默听率","FULUHULER":"和牌时副露率","FULUCHONGR":"放铳时副露率","HULEP":"和牌得点","CHONGP":"放铳失点","HULESU":"和牌素点","CHONGSU":"放铳素点","DAMAHULEP":"默听和牌得点","CHONGLEDAMAP":"铳了默听失点","HULE3900R":"和了得点3900+率","HULE7700R":"和了得点7700+率","HULE11600R":"和了得点11600+率","CHONG3900R":"放铳失点3900+率","CHONG7700R":"放铳失点7700+率","CHONG11600R":"放铳失点11600+率","HULECC":"和牌巡数","CHONGMYCC":"放铳时自己巡数","CHONGHISCC":"放铳时对方巡数","CHONGSHANTEN":"放铳时向听数","FULUHULECC":"副露和牌巡数","MENQINGHULECC":"门清和牌巡数","REACHINHULER":"和牌时立直率","TANYAOHULER":"断幺率","PINFUHULER":"平和率","CHITOIHULER":"七对率","TOITOIHULER":"对对率","RANSHOUHULER":"染手率","AKAA":"赤宝平均枚数","DORAA":"宝牌平均枚数","URAA":"里宝平均枚数","ALLDORAA":"宝牌总平均枚数","YIPATSUHULER":"一发率","OYAHULER":"庄家时和牌率","CHONGLEREACHR":"铳了立直率","CHONGLEPINFUR":"铳了平和率","CHONGLECHITOIR":"铳了七对率","CHONGLETOITOIR":"铳了对对率","CHONGLETANYAOR":"铳了断幺率","CHONGLERANSHOUR":"铳了染手率","REACHINCHONGR":"放铳时立直率","CHONGLEOYAR":"铳了亲家率","CHONGLEYIPATSUR":"铳了一发率","CHONGLEFULUR":"铳了副露率","BEIZIMOR":"被自摸率","BEIZIMOP":"被自摸失点","BEIZIMOMYCC":"被自摸自己巡数","ZHAZHUANGR":"被炸庄率","ZHAZHUANGP":"被炸庄失点","REACHHULEP":"立直和了得点","REACHHULESU":"立直和了素点","REACH3900R":"立直和3900+率","REACH7700R":"立直和7700+率","REACH11600R":"立直和11600+率","REACHCC":"立直平均巡数","REACHPINFUR":"立直时平和率","REACHTANYAOR":"立直时断幺率","REACHDORA2R":"立直时2宝+率","REACHDORA3R":"立直时3宝+率","REACHDORAA":"立直平均宝牌","FIRSTREACHR":"先制立直率","ZIMOINREACHHULER":"立直和了自摸率","REACHGOODR":"立直为好形率","REACHGOODHULER":"好形和牌率","REACHGOODHULEP":"好形和牌得点","REACHGOODCHONGR":"好形放铳率","REACHGOODCHONGP":"好形放铳失点","REACHGOODPROFIT":"好形立直净利","REACHBADR":"立直为愚形率","REACHBADHULER":"愚形和牌率","REACHBADHULEP":"愚形和牌得点","REACHBADCHONGR":"愚形放铳率","REACHBADCHONGP":"愚形放铳失点","REACHBADPROFIT":"愚形立直净利","REACHPROFIT":"立直净利","CHONGINREACHR":"立直时放铳率","HULEINREACHR":"立直时和牌率","LIUJUTENPAIR":"流局听牌率","LIUJUINP":"流局听牌得点","LIUJUNOTENR":"流局未听率","LIUJUOUTP":"流局未听失点","LIUJUPROFIT":"流局净利","#A":"平均顺位","TOTALROUND":"总局数","TOTALGAME":"总盘数","ROUNDPROFIT":"每局净利","GAMEPROFIT":"每盘净利","LIUJUR":"流局率","FULUR!":"副露率","HULEINFULUR!":"副露时和率","FULUHULEPOINT!":"副露和牌得点","FULUHULESUDIAN!":"副露和牌素点","CHONGINFULUR!":"副露时放铳率","FULUCHONGPOINT!":"副露放铳失点","ZIMOINHULEFULUR!":"副露和了自摸率","FULUHULE3900R!":"副露和3900+率","FULUHULE7700R!":"副露和7700+率","FULUHULE11600R!":"副露和11600+率","FULUCHONG3900R!":"副露铳3900+率","FULUCHONG7700R!":"副露铳7700+率","FULUCHONG11600R!":"副露铳11600+率","FULUDORA2R!":"副露时2宝+率","FULUDORA3R!":"副露时3宝+率","FULUTANYAOR!":"副露时断幺率","FULUYAKUHAIR!":"副露时役牌率","FULUCC1":"第1副露平均巡数","FULUCC2":"第2副露平均巡数","FULUCC3":"第3副露平均巡数","FULUCC4":"第4副露平均巡数","FULUTANYAOHULER!":"副露和了断幺率","FULURANSHOUHULER!":"副露和了染手率","FULUTOITOIHULER!":"副露和了对对率","FULUFIRSTR1":"先制第1副露率","FULUFIRSTR2":"先制第2副露率","FULUFIRSTR3":"先制第3副露率","FULUFIRSTR4":"先制第4副露率","FULUYIPATSUKESHIR1":"第1副露消一发率","FULUYIPATSUKESHIR2":"第2副露消一发率","FULUYIPATSUKESHIR3":"第3副露消一发率","FULUYIPATSUKESHIR4":"第4副露消一发率","FULUPROFIT!":"副露时净利","EASTSR":"东风局安定段位","EASTCIL":"东风安定段位置信下界","EASTCIR":"东风安定段位置信上界","SOUTHSR":"南风局安定段位","SOUTHCIL":"南风安定段位置信下界","SOUTHCIR":"南风安定段位置信上界","ZHUILIR":"追立率","ZHUILIHULER":"追立和了率","ZHUILIHULEP":"追立和了点","ZHUILICHONGR":"追立放铳率","ZHUILICHONGP":"追立放铳点","ZHUILIPROFIT":"追立净利","ZHUILIGOODR":"追立好形率","ZHUILIBADR":"追立愚形率","BEIZHUILIR":"被追立率","BEIZHUILIHULER":"被追立时和了率","BEIZHUILIHULEP":"被追立时和了点","BEIZHUILICHONGR":"被追立时放铳率","BEIZHUILICHONGP":"被追立时放铳点","BEIZHUILIPROFIT":"被追立时净利","BEIZHUILIGOODR":"被追立时好形率","BEIZHUILIBADR":"被追立时愚形率","FURITENR":"振听立直率","FURITENHULER":"振听和了率","FURITENHULEP":"振听和了点","FURITENCHONGR":"振听放铳率","FURITENCHONGP":"振听放铳点","FURITENGOODR":"振听立直好形率","FURITENGOODHULER":"振听好形和了率","FURITENGOODHULEP":"振听好形和了点","FURITENGOODCHONGR":"振听好形放铳率","FURITENGOODCHONGP":"振听好形放铳点","FURITENBADR":"振听立直愚形率","FURITENBADHULER":"振听愚形和了率","FURITENBADHULEP":"振听愚形和了点","FURITENBADCHONGR":"振听愚形放铳率","FURITENBADCHONGP":"振听愚形放铳点","GANGR":"杠率","DAMINGGANGR":"大明杠率","JIAGANGR":"加杠率","ANGANGR":"暗杠率","REACHANGANGR":"立直后暗杠率","GANGHULER":"杠局和了率","GANGHULEP":"杠局和了点","GANGCHONGR":"杠局放铳率","GANGCHONGP":"杠局放铳点","GANGPROFIT":"杠局净利"},"YAKU":{"ZIMO":"自摸","REACH":"立直","YIPATSU":"一发","CHANKAN":"枪杠","RINSHAN":"岭上开花","HAITEI":"海底摸月","HOUTEI":"河里捞鱼","PINFU":"平和","TANYAO":"断幺","YIPEIKOU":"一杯口","JIFUDON":"自风东","JIFUNAN":"自风南","JIFUSHA":"自风西","JIFUPEI":"自风北","BAFUDON":"场风东","BAFUNAN":"场风南","BAFUSHA":"场风西","BAFUPEI":"场风北","HAKU":"白","HATSU":"发","CHUN":"中","WREACH":"双立直","CHITOITSU":"七对子","CHANTA":"混全带幺","YITSU":"一气通贯","SANSHOKU":"三色通顺","SANSHOKUDOUKO":"三色同刻","SANKANTSU":"三杠子","TOITOI":"对对和","SANANKO":"三暗刻","SHOUSANGEN":"小三元","HONROUTOU":"混老头","RYANPEIKOU":"两杯口","JUNCHAN":"纯全带幺","HONYITSU":"混一色","CHINYITSU":"清一色","RENHOU":"人和","TENHOU":"天和","CHIHOU":"地和","DAISANGEN":"大三元","SUANKO":"四暗刻","SUANKOTANKI":"四暗单骑","TSUYISOU":"字一色","RYOUYISOU":"绿一色","CHINROUTOU":"清老头","CHUREN":"九莲宝灯","JUNSEICHUREN":"纯正九莲","KOKUSHI":"国士无双","KOKUSHIJUSAN":"国士十三","DAISUSHI":"大四喜","SHOUSUSHI":"小四喜","SUKANTSU":"四杠子","DORA":"宝牌","URA":"里宝牌","AKA":"赤宝牌"},"MISC":{"WORDNOTEXIST":"要查找的词汇不在词表中！","ERROR":"错误：","DASH":"-----","ENTEREXIT":"按 Enter 键退出程序...","COLON":"：","COMMA":"，","ROUND4GAME":"东风局","ROUND8GAME":"南风局","MAJSOULROOM0":"友人场","MAJSOULROOM1":"铜之间","MAJSOULROOM2":"银之间","MAJSOULROOM3":"金之间","MAJSOULROOM4":"玉之间","MAJSOULROOM5":"王座之间","MAJSOULSTABLERANKCOMMENT":"说明：某个房间的安定段位对应能进入该房间的最低级头衔，如金之间-雀杰。\n特别的，由于目前没人打王座，雀圣1星即为雀豪4星，以此类推。安定段位即安定星数。"}}};
+I18N['en-US'] = {"CHCP":"chcp 437","MAIN":{"MACROUNDEFINED":"all macro _WIN32 and __linux and __MACOS__ are not defined!","CANTDATA/SRC":"Can't find data/","CANTDATA/SRCAFT":"!","CANTDATA/SRC/*":"Can't find any folder under data/","CANTDATA/SRC/*AFT":"!","SRC":"Source","ID":"ID","CANTDATA/":"Can't find folder data/ !"},"ANALYZER":{"BASEDATA":"Basedata","ANALYZEPAIPUNUM":"analyzed ","ANALYZEPAIPUNUMAFT":" paipus","ALLRESULT":"All results","OVRESULT":"overall data","HULERESULT":"hule data","CHONGRESULT":"fangchong data","FULURESULT":"fulu data","ALRESULT":"AL data","REACHRESULT":"reach data","LIUJURESULT":"liuju data","FULU1RESULT":"fulu 1+ data","FULU2RESULT":"fulu 2+ data","FULU3RESULT":"fulu 3+ data","FULU4RESULT":"fulu 4+ data","STABLERANKRESULT":"stable rank result (confidence level 0.95)","ZHUILIBEIZHUILIRESULT":"zhuili & beizhuili & furiten reach data","GANGRESULT":"gang data","HULEYAKURESULT":"hule yaku data","CHONGYAKURESULT":"fangchong yaku data"},"ADRESULT":{"#1R":"#1 rate","#2R":"#2 rate","#3R":"#3 rate","#4R":"#4 rate","AL#1#1R":"AL keep #1 rate","AL#234#1R":"AL reach #1 rate","AL#4#123R":"AL prevent from #4 rate","ALALR":"AL more than 2 times rate","HULER":"hule rate","ZIMOR":"tsumo rate","CHONGR":"fangchong rate","REACHR":"reach rate","DAMAHULER":"dama hule rate","CHONGLEDAMAR":"fangchong dama rate","FULUHULER":"fulu when hule rate","FULUCHONGR":"fulu when fangchong rate","HULEP":"hule point","CHONGP":"fangchong point","HULESU":"hule sudian","CHONGSU":"fangchong sudian","DAMAHULEP":"dama hule point","CHONGLEDAMAP":"fangchong dama point","HULE3900R":"hule 3900+ rate","HULE7700R":"hule 7700+ rate","HULE11600R":"hule 11600+ rate","CHONG3900R":"fangchong 3900+ rate","CHONG7700R":"fangchong 7700+ rate","CHONG11600R":"fangchong 11600+ rate","HULECC":"hule circle","CHONGMYCC":"fangchong my circle","CHONGHISCC":"fangchong his circle","CHONGSHANTEN":"fangchong shanten","FULUHULECC":"fulu hule circle","MENQINGHULECC":"menqing hule circle","REACHINHULER":"reach when hule rate","TANYAOHULER":"tanyao hule rate","PINFUHULER":"pinfu hule rate","CHITOIHULER":"chitoi hule rate","TOITOIHULER":"toitoi hule rate","RANSHOUHULER":"hon/chinyitsu hule rate","AKAA":"aka dora average","DORAA":"dora average","URAA":"ura average","ALLDORAA":"all dora average","YIPATSUHULER":"yipatsu hule rate","OYAHULER":"oya hule rate","CHONGLEREACHR":"fangchong reach rate","CHONGLEPINFUR":"fangchong pinfu rate","CHONGLECHITOIR":"fangchong chitoi rate","CHONGLETOITOIR":"fangchong toitoi rate","CHONGLETANYAOR":"fangchong tanyao rate","CHONGLERANSHOUR":"fangchong hon/chinyi rate","REACHINCHONGR":"reach when fangchong rate","CHONGLEOYAR":"fangchong oya rate","CHONGLEYIPATSUR":"fangchong yipatsu rate","CHONGLEFULUR":"fangchong fulu rate","BEIZIMOR":"beizimo rate","BEIZIMOP":"beizimo point","BEIZIMOMYCC":"beizimo my circle","ZHAZHUANGR":"zhazhuang rate","ZHAZHUANGP":"zhazhuang point","REACHHULEP":"reach hule point","REACHHULESU":"reach hule sudian","REACH3900R":"reach 3900+ rate","REACH7700R":"reach 7700+ rate","REACH11600R":"reach 11600+ rate","REACHCC":"reach circle","REACHPINFUR":"reach pinfu rate","REACHTANYAOR":"reache & tanyao rate","REACHDORA2R":"reach & dora2+ rate","REACHDORA3R":"reach & dora3+ rate","REACHDORAA":"reach dora average","FIRSTREACHR":"first reach rate","ZIMOINREACHHULER":"tsumo when reach hule rate","REACHGOODR":"good type reach rate","REACHGOODHULER":"reach good hule rate","REACHGOODHULEP":"reach good hule point","REACHGOODCHONGR":"reach good fangchong rate","REACHGOODCHONGP":"reach good fangchong point","REACHGOODPROFIT":"reach good profit","REACHBADR":"bad type reach rate","REACHBADHULER":"reach bad hule rate","REACHBADHULEP":"reach bad hule point","REACHBADCHONGR":"reach bad fangchong rate","REACHBADCHONGP":"reach bad fangchong point","REACHBADPROFIT":"reach bad profit","REACHPROFIT":"reach profit","CHONGINREACHR":"fangchong when reach rate","HULEINREACHR":"hule when reach rate","LIUJUTENPAIR":"liuju tenpai rate","LIUJUINP":"liuju tenpai point","LIUJUNOTENR":"liuju noten rate","LIUJUOUTP":"liuju noten point","LIUJUPROFIT":"liuju profit","#A":"rank average","TOTALROUND":"total round","TOTALGAME":"total game","ROUNDPROFIT":"round profit","GAMEPROFIT":"game profit","LIUJUR":"normal liuju rate","FULUR!":"fulu rate","HULEINFULUR!":"fulu hule rate","FULUHULEPOINT!":"fulu hule point","FULUHULESUDIAN!":"fulu hule sudian","CHONGINFULUR!":"fulu fangchong rate","FULUCHONGPOINT!":"fulu fangchong point","ZIMOINHULEFULUR!":"fulu hule tsumo rate","FULUHULE3900R!":"fulu hule 3900+ rate","FULUHULE7700R!":"fulu hule 7700+ rate","FULUHULE11600R!":"fulu hule 11600+ rate","FULUCHONG3900R!":"fulu fangchong 3900+ rate","FULUCHONG7700R!":"fulu fangchong 7700+ rate","FULUCHONG11600R!":"fulu fangchong 11600+ rate","FULUDORA2R!":"fulu & dora 2+ rate","FULUDORA3R!":"fulu & dora 3+ rate","FULUTANYAOR!":"fulu & tanyao rate","FULUYAKUHAIR!":"fulu & yakuhai rate","FULUCC1":"fulu 1 circle","FULUCC2":"fulu 2 circle","FULUCC3":"fulu 3 circle","FULUCC4":"fulu 4 circle","FULUTANYAOHULER!":"fulu hule tanyao rate","FULURANSHOUHULER!":"fulu hule ranshou rate","FULUTOITOIHULER!":"fulu hule toitoi rate","FULUFIRSTR1":"first fulu 1 rate","FULUFIRSTR2":"first fulu 2 rate","FULUFIRSTR3":"first fulu 3 rate","FULUFIRSTR4":"first fulu 4 rate","FULUYIPATSUKESHIR1":"fulu 1 yipatsu keshi rate","FULUYIPATSUKESHIR2":"fulu 2 yipatsu keshi rate","FULUYIPATSUKESHIR3":"fulu 3 yipatsu keshi rate","FULUYIPATSUKESHIR4":"fulu 4 yipatsu keshi rate","FULUPROFIT!":"fulu profit","EASTSR":"east stable rank","EASTCIL":"east confidence interval lower bound","EASTCIR":"east confidence interval upper bound","SOUTHSR":"south stable rank","SOUTHCIL":"south confidence interval lower bound","SOUTHCIR":"south confidence interval upper bound","ZHUILIR":"zhuili rate","ZHUILIHULER":"zhuili hule rate","ZHUILIHULEP":"zhuili hule point","ZHUILICHONGR":"zhuili fangchong rate","ZHUILICHONGP":"zhuili fangchong point","ZHUILIPROFIT":"zhuili profit","ZHUILIGOODR":"zhuili good type rate","ZHUILIBADR":"zhuili bad type rate","BEIZHUILIR":"beizhuili rate","BEIZHUILIHULER":"beizhuili hule rate","BEIZHUILIHULEP":"beizhuili hule point","BEIZHUILICHONGR":"beizhuili fangchong rate","BEIZHUILICHONGP":"beizhuili fangchong point","BEIZHUILIPROFIT":"beizhuili profit","BEIZHUILIGOODR":"beizhuili good type rate","BEIZHUILIBADR":"beizhuili bad type rate","FURITENR":"furiten reach rate","FURITENHULER":"furiten hule rate","FURITENHULEP":"furiten hule point","FURITENCHONGR":"furiten fangchong rate","FURITENCHONGP":"furiten fangchong point","FURITENGOODR":"furiten good reach rate","FURITENGOODHULER":"furiten good hule rate","FURITENGOODHULEP":"furiten good hule point","FURITENGOODCHONGR":"furiten good fangchong rate","FURITENGOODCHONGP":"furiten good fangchong point","FURITENBADR":"furiten bad reach rate","FURITENBADHULER":"furiten bad hule rate","FURITENBADHULEP":"furiten bad hule point","FURITENBADCHONGR":"furiten bad fangchong rate","FURITENBADCHONGP":"furiten bad fangchong point","GANGR":"gang rate","DAMINGGANGR":"daminggang rate","JIAGANGR":"jiagang rate","ANGANGR":"angang rate","REACHANGANGR":"reach then angang rate","GANGHULER":"gang hule rate","GANGHULEP":"gang hule point","GANGCHONGR":"gang fangchong rate","GANGCHONGP":"gang fangchong point","GANGPROFIT":"gang profit"},"YAKU":{"ZIMO":"zimo","REACH":"reach","YIPATSU":"yipatsu","CHANKAN":"chankan","RINSHAN":"rinshan","HAITEI":"haitei","HOUTEI":"houtei","PINFU":"pinfu","TANYAO":"tanyao","YIPEIKOU":"yipeikou","JIFUDON":"jifudon","JIFUNAN":"jifunan","JIFUSHA":"jifusha","JIFUPEI":"jifupei","BAFUDON":"bafudon","BAFUNAN":"bafunan","BAFUSHA":"bafusha","BAFUPEI":"bafupei","HAKU":"haku","HATSU":"hatsu","CHUN":"chun","WREACH":"wreach","CHITOITSU":"chitoi","CHANTA":"chanta","YITSU":"yitsu","SANSHOKU":"shanshokudoujun","SANSHOKUDOUKO":"sanshokudouko","SANKANTSU":"sankantsu","TOITOI":"toitoi","SANANKO":"sananko","SHOUSANGEN":"shousangen","HONROUTOU":"honroutou","RYANPEIKOU":"ryanpeikou","JUNCHAN":"junchan","HONYITSU":"honyitsu","CHINYITSU":"chinyitsu","RENHOU":"renhou","TENHOU":"tenhou","CHIHOU":"chihou","DAISANGEN":"daisangen","SUANKO":"suanko","SUANKOTANKI":"suankotanki","TSUYISOU":"tsuyisou","RYOUYISOU":"ryouyisou","CHINROUTOU":"chinroutou","CHUREN":"churen","JUNSEICHUREN":"junseichuren","KOKUSHI":"kokushi","KOKUSHIJUSAN":"kokushijusan","DAISUSHI":"daisushi","SHOUSUSHI":"shousushi","SUKANTSU":"sukantsu","DORA":"dora","URA":"ura","AKA":"aka"},"MISC":{"WORDNOTEXIST":"requested word not in list","ERROR":"Error: ","DASH":"-----","ENTEREXIT":"Press Enter to exit.","COLON":": ","COMMA":", ","ROUND4GAME":"east wind game ","ROUND8GAME":"south wind game ","MAJSOULROOM0":"friend room","MAJSOULROOM1":"bronze room","MAJSOULROOM2":"silver room","MAJSOULROOM3":"gold room","MAJSOULROOM4":"jade room","MAJSOULROOM5":"king room","MAJSOULSTABLERANKCOMMENT":"Comment: stable rank in certain room considers the lowest title, e.g. gold room -> quejie. \nSpecially, no one plays in king room, so quesheng 1 star equals to quehao 4 star etc. stable rank means stable star."}}
 RESULTGROUP = {"order":["OVRESULT","HULERESULT","CHONGRESULT","REACHRESULT","ZHUILIBEIZHUILIRESULT","LIUJURESULT","GANGRESULT","ALRESULT","STABLERANKRESULT"],"data":{"TODOLIST":["FULUYIPATSUKESHIR!","REACHPINFUR"],"OVRESULT":["TOTALGAME","TOTALROUND","#1R","#2R","#3R","#4R","#A","HULER","ZIMOR","CHONGR","REACHR","FULUR","LIUJUTENPAIR","GAMEPROFIT","ROUNDPROFIT"],"HULERESULT":["HULER","ZIMOR","DAMAHULER","FULUHULER","HULEP","HULESU","DAMAHULEP","HULE3900R","HULE7700R","HULE11600R","HULECC","FULUHULECC","MENQINGHULECC","REACHINHULER","TANYAOHULER","PINFUHULER","CHITOIHULER","TOITOIHULER","RANSHOUHULER","AKAA","DORAA","URAA","ALLDORAA","YIPATSUHULER","OYAHULER"],"HULEYAKURESULT":[],"CHONGRESULT":["CHONGR","CHONGLEDAMAR","FULUCHONGR","CHONGP","CHONGSU","CHONGLEDAMAP","CHONG3900R","CHONG7700R","CHONG11600R","CHONGMYCC","CHONGHISCC","CHONGSHANTEN","CHONGLEREACHR","CHONGLEPINFUR","CHONGLECHITOIR","CHONGLETOITOIR","CHONGLETANYAOR","CHONGLERANSHOUR","REACHINCHONGR","CHONGLEOYAR","CHONGLEYIPATSUR","CHONGLEFULUR","BEIZIMOR","BEIZIMOP","BEIZIMOMYCC","ZHAZHUANGR","ZHAZHUANGP"],"CHONGYAKURESULT":[],"REACHRESULT":["REACHR","REACHHULEP","REACHHULESU","REACH3900R","REACH7700R","REACH11600R","REACHCC","REACHTANYAOR","REACHDORA2R","REACHDORA3R","REACHDORAA","FIRSTREACHR","HULEINREACHR","CHONGINREACHR","ZIMOINREACHHULER","REACHGOODR","REACHGOODHULER","REACHGOODHULEP","REACHGOODCHONGR","REACHGOODCHONGP","REACHGOODPROFIT","REACHBADR","REACHBADHULER","REACHBADHULEP","REACHBADCHONGR","REACHBADCHONGP","REACHBADPROFIT","REACHPROFIT"],"LIUJURESULT":["LIUJUR","LIUJUTENPAIR","LIUJUINP","LIUJUNOTENR","LIUJUOUTP","LIUJUPROFIT"],"ALRESULT":["AL#1#1R","AL#234#1R","AL#4#123R","ALALR"],"FULU!1!4!RESULT":["FULUR!","HULEINFULUR!","FULUHULEPOINT!","FULUHULESUDIAN!","CHONGINFULUR!","FULUCHONGPOINT!","ZIMOINHULEFULUR!","FULUHULE3900R!","FULUHULE7700R!","FULUHULE11600R!","FULUCHONG3900R!","FULUCHONG7700R!","FULUCHONG11600R!","FULUDORA2R!","FULUDORA3R!","FULUTANYAOR!","FULUYAKUHAIR!","FULUCC!","FULUTANYAOHULER!","FULURANSHOUHULER!","FULUTOITOIHULER!","FULUFIRSTR!","FULUPROFIT!"],"STABLERANKRESULT":["EASTSR","EASTCIL","EASTCIR","SOUTHSR","SOUTHCIL","SOUTHCIR"],"ZHUILIBEIZHUILIRESULT":["ZHUILIR","ZHUILIHULER","ZHUILIHULEP","ZHUILICHONGR","ZHUILICHONGP","ZHUILIPROFIT","ZHUILIGOODR","ZHUILIBADR","BEIZHUILIR","BEIZHUILIHULER","BEIZHUILIHULEP","BEIZHUILICHONGR","BEIZHUILICHONGP","BEIZHUILIPROFIT","BEIZHUILIGOODR","BEIZHUILIBADR","FURITENR","FURITENHULER","FURITENHULEP","FURITENCHONGR","FURITENCHONGP","FURITENGOODR","FURITENGOODHULER","FURITENGOODHULEP","FURITENGOODCHONGR","FURITENGOODCHONGP","FURITENBADR","FURITENBADHULER","FURITENBADHULEP","FURITENBADCHONGR","FURITENBADCHONGP"],"GANGRESULT":["GANGR","DAMINGGANGR","JIAGANGR","ANGANGR","REACHANGANGR","GANGHULER","GANGHULEP","GANGCHONGR","GANGCHONGP","GANGPROFIT"]}}
 BASEDATA = {
     EAST:{
@@ -158,7 +175,8 @@ I18N['zh-CN']['WEB'] = {
             PRECISION: '数据精度'
         },
         LANGUAGES: {
-            'zh-CN': '简体中文'
+            'zh-CN': '简体中文',
+            'en-US': '英文'
         },
         BASEDATAROUND: {
             EAST: '东风战',
@@ -166,7 +184,7 @@ I18N['zh-CN']['WEB'] = {
             ALL: '全部'
         },
         DATASHOW: {
-            ORIGINAL: '原始数据',
+            ORIGINAL: '牌谱分析数据',
             DELTA: '基础数据之差'
         },
         COLORED: {
@@ -176,24 +194,91 @@ I18N['zh-CN']['WEB'] = {
         }
     },
     RESULTS: {
-
+        BASEDATA: '基础比较数据',
+        DATA: '牌谱分析数据',
+        DELTA: '牌谱分析数据与基础数据之差'
     }
 };
 
+I18N['en-US']['WEB'] = {
+    TITLE: {
+        MAIN: 'Result',
+        OPTIONS: 'Display Options',
+    },
+    DROPDOWNS: {
+        TITLE: {
+            LANGUAGES: 'Language',
+            BASEDATAROUND: 'Base data source',
+            BASEDATAID: 'Base data ID',
+            DATASHOW: 'Data display',
+            COLORED: 'Color way',
+            PRECISION: 'Data precision'
+        },
+        LANGUAGES: {
+            'zh-CN': 'Chinese Simplified',
+            'en-US': 'English'
+        },
+        BASEDATAROUND: {
+            EAST: 'East',
+            SOUTH: 'South',
+            ALL: 'All'
+        },
+        DATASHOW: {
+            ORIGINAL: 'Original anlyzed data',
+            DELTA: 'Delta of base data'
+        },
+        COLORED: {
+            COLORBOLD: 'Colored / Bold',
+            COLOR: 'Colored',
+            NO: 'No'
+        }
+    },
+    RESULTS: {
+        BASEDATA: 'Base data',
+        DATA: 'Analyzed data',
+        DELTA: 'Delta of base data and analyzed data'
+    }
+};
+
+var dropdown_functions = {
+    LANGUAGES: function (index) {
+        use_language = index;
+        updateDropdowns();
+        updateMainTitles();
+        updateResultGroups();
+    },
+    BASEDATAROUND: function (index) {
+        use_round = dropdowns[1].list_s[index];
+        updateDropdowns();
+        updateResultGroups();
+    },
+    BASEDATAID: function (index) {
+        use_id = dropdowns[2].list[index];
+        updateResultGroups();
+    },
+    DATASHOW: function (index) {
+        app.mode = dropdowns[3].list_s[index];
+    },
+    COLORED: null,
+    PRECISION: function (index) {
+        app.precision = dropdowns[5].list_s[index];
+    }
+}
+
 var dropdowns = [
-    {title: 'LANGUAGES', list: JSON.parse(JSON.stringify(I18N.languages)), click: function (index) { console.log(1, index); }},
-    {title: 'BASEDATAROUND', list: ['ALL', 'EAST', 'SOUTH'], click: function (index) { console.log(2, index); updateDropdowns(); }},
-    {title: 'BASEDATAID', list: ['AAA'], click: function (index) { console.log(3, index); }},
-    {title: 'DATASHOW', list: ['ORIGINAL', 'DELTA'], click: function (index) { console.log(4, index); }},
-    {title: 'COLORED', list: ['COLORBOLD', 'COLOR', 'NO'], click: function (index) { console.log(5, index); }},
-    {title: 'PRECISION', list: [2, 4, 6], click: function (index) { console.log(6, index); }}
+    {title: 'LANGUAGES', list: JSON.parse(JSON.stringify(I18N.languages)), click: dropdown_functions.LANGUAGES},
+    {title: 'BASEDATAROUND', list: ['ALL', 'EAST', 'SOUTH'], click: dropdown_functions.BASEDATAROUND},
+    {title: 'BASEDATAID', list: ['AAA'], click: dropdown_functions.BASEDATAID},
+    {title: 'DATASHOW', list: ['ORIGINAL', 'DELTA'], click: dropdown_functions.DATASHOW},
+    {title: 'COLORED', list: ['COLORBOLD', 'COLOR', 'NO'], click: dropdown_functions.COLORED},
+    {title: 'PRECISION', list: [6, 4, 2], click: dropdown_functions.PRECISION}
 ];
 
 //设置目前使用的语言
 var use_language = 0;
 var use_round = 'ALL';
 var use_id = '';
-var use_comma = ': ';
+var use_colon = ': ';
 
 //移动title和list，初始化index
 for (let i = 0; i < dropdowns.length; i ++ ){
@@ -244,6 +329,7 @@ for (let i = 0; i < RESULTGROUP.order.length; i ++ ){
 }
 
 function updateResultGroups(){
+    use_colon = I18N[I18N.languages[use_language]].MISC.COLON;
     for (let i = 0; i < resultGroups.length; i ++ ){
         let rg = resultGroups[i];
         rg.title = I18N[I18N.languages[use_language]].ANALYZER[rg.title_s];
@@ -262,7 +348,7 @@ updateResultGroups();
 Vue.component('custom-dropdown', {
     props: ['title', 'list', 'chosenindex', 'click'],
     methods: {
-        liClick: function(e) {
+        aClick: function(e) {
             var a = e.currentTarget;
             var index = parseInt($(a).attr('index'));
             this.$emit('update:chosenindex', index);
@@ -277,7 +363,7 @@ Vue.component('custom-dropdown', {
         <div class="btn-group">
             <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown"><span>{{ chosenindex == undefined ? list[0] : list[chosenindex] }}</span> <span class="caret"></span></button>
             <div class="dropdown-menu" role="menu">
-                <a class="dropdown-item" v-for="(text, index) in list" href="javascript:void(0)" :index="index" @click="liClick($event)">{{ text }}</a>
+                <a class="dropdown-item" v-for="(text, index) in list" href="javascript:void(0)" :index="index" @click="aClick($event)">{{ text }}</a>
             </div>
         </div>
     </div>
@@ -285,24 +371,24 @@ Vue.component('custom-dropdown', {
 });
 
 Vue.component('one-result', {
-    props: ['title', 'basedata', 'data', 'mode', 'colormode', 'precision'],
+    props: ['title', 'basedata', 'data', 'mode', 'colormode', 'precision', 'index', 'maxlength'],
     methods: {
         generateTitle: function () {
             let res = '';
-            res += I18N[I18N.languages[use_language]].WEB.RESULTS.BASEDATA + use_comma + (basedata == '-' ? '-' : basedata.toFixed(precision));
-            if (mode == 'ORIGINAL')
-                res += I18N[I18N.languages[use_language]].WEB.RESULTS.DELTA + use_comma + (data == '-' || basedata == '-' ? '-' : (data - basedata).toFixed(precision));
+            res += I18N[I18N.languages[use_language]].WEB.RESULTS.BASEDATA + use_colon + (this.basedata == '-' ? '-' : this.basedata.toFixed(this.precision)) + '\n';
+            if (this.mode == 'ORIGINAL')
+                res += I18N[I18N.languages[use_language]].WEB.RESULTS.DELTA + use_colon + (this.data == '-' || this.basedata == '-' ? '-' : (this.data - this.basedata).toFixed(this.precision));
             else
-                res += I18N[I18N.languages[use_language]].WEB.RESULTS.DATA + use_comma + (data == '-' ? '-' : data.toFixed(precision));
+                res += I18N[I18N.languages[use_language]].WEB.RESULTS.DATA + use_colon + (this.data == '-' ? '-' : this.data.toFixed(this.precision));
             return res;
         }
     },
     template: `
-    <div class="one-result-div">
+    <div :class="'one-result-div one-result-' + index % 2 + (index < parseInt((maxlength - 1) / 4) * 4 ? ' borderline' : '')" :title="generateTitle()" :style="index % 4 == 3 && index + 1 == maxlength ? 'border-radius: 0px 0px 5px 0px;' : ''">
         <div class="title-div">
             <span class="one-result-title">{{ title }}</span>
         </div>
-        <div :class="'data-div one-result-color-' + colormode" :title="TODO:generateTitle">
+        <div :class="'data-div one-result-color-' + colormode">
             <span class="one-result-data">{{ (data == '-' || mode == 'DELTA' && basedata == '-') ? '-' : ((mode == 'ORIGINAL' ? data : data - basedata).toFixed(precision)) }}</span>
         </div>
     </div>
@@ -317,19 +403,21 @@ Vue.component('results-div', {
         }
     },
     template: `
-        <div class="results-div">
+        <div class="results-div main-block">
             <div class="title-div">
                 <span class="results-title">{{ resulttitle }}</span>
             </div>
             <div class="one-results-div">
                 <one-result
-                    v-for="oneres in resultgroup"
+                    v-for="(oneres, index) in resultgroup"
                     :title="oneres.title"
                     :basedata="oneres.basedata"
                     :data="oneres.data"
                     :mode="mode"
                     :colormode="getColormode"
                     :precision="precision"
+                    :index="index"
+                    :maxlength="resultgroup.length"
                 >
                 </one-result>
             </div>
