@@ -104,6 +104,18 @@
             padding: 0px 0px 0px 10px;
             font-family: Consolas, "Liberation Mono", Courier, monospace;
         }
+        .color-COLORBOLD.color-level-5, .color-COLORBOLD.color-level-1 {
+            font-weight: bold;
+        }
+        .color-level-1, .color-level-2 {
+            color: red;
+        }
+        .color-level-4, .color-level-5 {
+            color: green;
+        }
+        .color-NO {
+            color: black;
+        }
     </style>
 </head>
 
@@ -259,7 +271,9 @@ var dropdown_functions = {
     DATASHOW: function (index) {
         app.mode = dropdowns[3].list_s[index];
     },
-    COLORED: null,
+    COLORED: function (index) {
+        app.colormode = dropdowns[4].list_s[index];
+    },
     PRECISION: function (index) {
         app.precision = dropdowns[5].list_s[index];
     }
@@ -375,7 +389,7 @@ Vue.component('custom-dropdown', {
 });
 
 Vue.component('one-result', {
-    props: ['title', 'basedata', 'data', 'mode', 'colormode', 'precision', 'index', 'maxlength'],
+    props: ['title', 'basedata', 'data', 'mode', 'colormode', 'colorlevel', 'precision', 'index', 'maxlength'],
     methods: {
         generateTitle: function () {
             let res = '';
@@ -390,7 +404,7 @@ Vue.component('one-result', {
         <div class="title-div">
             <span class="one-result-title">{{ title }}</span>
         </div>
-        <div :class="'data-div one-result-color-' + colormode">
+        <div :class="'data-div color-' + colormode + ' color-level-' + colorlevel">
             <span class="one-result-data">{{ (data == '-' || mode == 'DELTA' && basedata == '-') ? '-' : ((mode == 'ORIGINAL' ? data : data - basedata).toFixed(precision)) }}</span>
         </div>
     </div>
@@ -400,8 +414,15 @@ Vue.component('one-result', {
 Vue.component('results-div', {
     props: ['resultgroup', 'resulttitle', 'mode', 'colormode', 'precision'],
     methods: {
-        getColormode: function () {
-            return this.colormode;
+        getColorlevel: function (oneres) {
+            let data = oneres.data, basedata = oneres.basedata;
+            if (data == '-' || basedata == '-' || data == basedata) return 3;
+            let line = [0, 0.5, 0.85, 1.15, 1.5, 1e100];
+            let mm = basedata == 0 ? 100 * data / Math.abs(data) : data / basedata;
+            let dd = data - basedata;
+            for (let i = 0; i < line.length; i ++ )
+                if (line[i] > mm) return i;
+            return 5;
         }
     },
     template: `
@@ -416,7 +437,8 @@ Vue.component('results-div', {
                     :basedata="oneres.basedata"
                     :data="oneres.data"
                     :mode="mode"
-                    :colormode="getColormode"
+                    :colormode="colormode"
+                    :colorlevel="getColorlevel(oneres)"
                     :precision="precision"
                     :index="index"
                     :maxlength="resultgroup.length"
@@ -434,7 +456,7 @@ var app = new Vue({
         resultGroups,
         mode: 'ORIGINAL',
         precision: 6,
-        colormode: 'CB'
+        colormode: 'COLORBOLD'
     }
 });
 
