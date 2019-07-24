@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 let savename = __dirname + '/resulthtml.h';
-let filename = __dirname + '/result.html';
+let filename = __dirname + '/../result.html';
 let result = 
 `const std::string resulthtml = 
 `;
