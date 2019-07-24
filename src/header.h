@@ -52,6 +52,7 @@ namespace Header{
     extern std::string rootfolderprefix;
     //设置读取data时的前缀，从config.json中获得，调试时用于定位数据文件位置。在完成载入时会将rootfolder作为前缀加入。
     extern std::string datafolderprefix;
+    #include "resulthtml.h"
 }
 
 #endif

@@ -323,8 +323,12 @@ var resultGroups = [];
 for (let i = 0; i < RESULTGROUP.order.length; i ++ ){
     let key = RESULTGROUP.order[i];
     let rg = { title_s: key, item: [] };
+    rg.item.length = RESULTGROUP.data[key].length;
+    let row = 4;
+    let col = parseInt((rg.item.length - 1) / row + 1), add1 = (rg.item.length - 1) % row + 1;
     for (let j = 0; j < RESULTGROUP.data[key].length; j ++ )
-        rg.item.push({ title_s: RESULTGROUP.data[key][j], title: '', data: DATA[RESULTGROUP.data[key][j]], basedata: 0 });
+        rg.item[j < add1 * col ? (parseInt(j / col) + j % col * row) : (parseInt((j - add1 * col) / (col - 1)) + (j - add1 * col) % (col - 1) * row + add1)] = 
+            { title_s: RESULTGROUP.data[key][j], title: '', data: DATA[RESULTGROUP.data[key][j]], basedata: 0 };
     resultGroups.push(rg);
 }
 
@@ -376,10 +380,8 @@ Vue.component('one-result', {
         generateTitle: function () {
             let res = '';
             res += I18N[I18N.languages[use_language]].WEB.RESULTS.BASEDATA + use_colon + (this.basedata == '-' ? '-' : this.basedata.toFixed(this.precision)) + '\n';
-            if (this.mode == 'ORIGINAL')
-                res += I18N[I18N.languages[use_language]].WEB.RESULTS.DELTA + use_colon + (this.data == '-' || this.basedata == '-' ? '-' : (this.data - this.basedata).toFixed(this.precision));
-            else
-                res += I18N[I18N.languages[use_language]].WEB.RESULTS.DATA + use_colon + (this.data == '-' ? '-' : this.data.toFixed(this.precision));
+            res += I18N[I18N.languages[use_language]].WEB.RESULTS.DATA + use_colon + (this.data == '-' ? '-' : this.data.toFixed(this.precision)) + '\n';
+            res += I18N[I18N.languages[use_language]].WEB.RESULTS.DELTA + use_colon + (this.data == '-' || this.basedata == '-' ? '-' : (this.data - this.basedata).toFixed(this.precision));
             return res;
         }
     },

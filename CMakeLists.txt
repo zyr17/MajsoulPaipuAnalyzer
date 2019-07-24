@@ -13,3 +13,10 @@ IF(APPLE)
 ELSE()
     SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -std=c++11 -O3 -static")
 ENDIF()
+
+set(FAKE_TARGET fakeTarget)
+add_custom_target(fakeTarget
+    node ${CMAKE_CURRENT_SOURCE_DIR}/src/resulthtml_generate.js
+    COMMENT "Generate resulthtml.cpp Over"
+)
+add_dependencies(${PROJECT_NAME} ${FAKE_TARGET})
