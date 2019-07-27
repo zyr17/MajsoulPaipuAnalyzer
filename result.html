@@ -116,6 +116,19 @@
         .color-NO {
             color: black;
         }
+        .hide-button, .show-button {
+            width: 20px;
+            height: 20px;
+            margin: 4px 10px 0px 0px;
+            border: 2px solid black;
+            cursor: pointer;
+        }
+        .hide-button {
+            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAL0lEQVQ4T2P8////fwYKAOOoAQyDKAwYGRlJikxY7MO9QLEBJFmPpHgQBeII9gIAveRF0QK/W4IAAAAASUVORK5CYII=");
+        }
+        .show-button {
+            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAO0lEQVQ4T2P8////fwYKACNNDWBkZAS7DZ8j8bpgpBkA8y+xMQoLWHggUmwANptHWizQJAyIiVKKcyMADWdj0VQTTDUAAAAASUVORK5CYII=");
+        }
     </style>
 </head>
 
@@ -150,6 +163,24 @@
     </div>
 
     <script>
+
+function ResultTitleClick(self){
+    let resdiv = $(self).parent().parent();
+    let titlediv = $(resdiv.find('>.title-div'));
+    let oneresdiv = $(resdiv.find('>.one-results-div'));
+    if (oneresdiv.css('display') == 'flex'){
+        //折叠
+        oneresdiv.css('display', 'none');
+        titlediv.css('border-radius', '5px');
+        $(self).attr('class', 'show-button');
+    }
+    else{
+        //展示
+        oneresdiv.css('display', 'flex');
+        titlediv.css('border-radius', '5px 5px 0px 0px');
+        $(self).attr('class', 'hide-button');
+    }
+}
 
 /*I18N*/ //TODO:语言文件中加入所需条目
 /*RESULTGROUP*/
@@ -454,6 +485,7 @@ Vue.component('results-div', {
     template: `
         <div class="results-div main-block">
             <div class="title-div">
+                <div class="hide-button" onclick="javascript:ResultTitleClick(this)"></div>
                 <span class="results-title">{{ resulttitle }}</span>
             </div>
             <div class="one-results-div">
