@@ -183,7 +183,7 @@ namespace PA{
 
     public:
         AnalyzeData *analyzedata;
-        PaipuAnalyzer(std::string filterstr = "{}");
+        PaipuAnalyzer(std::string filterstr = "{\"include\":{\"id\":[],\"name\":[],\"source\":[],\"room\":[],\"player\":[],\"round\":[],\"speed\":[],\"timebefore\":\"2099-12-31 23:59:59\",\"timeafter\":\"2000-01-01 00:00:00\"},\"exclude\":{\"id\":[],\"name\":[],\"source\":[],\"room\":[],\"player\":[],\"round\":[],\"speed\":[],\"timebefore\":\"2000-01-01 00:00:00\",\"timeafter\":\"2099-12-31 23:59:59\"}}");
         PaipuAnalyzer(const CJsonObject &filterjson);
         void setfilter(std::string &filterstr);
         void setfilter(const CJsonObject &filterjson);
@@ -197,6 +197,7 @@ namespace PA{
         bool analyze(CJsonObject &paipu);
     };
 
+    void analyzebasedata(const std::string &savepath);
     void analyzemain(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config);
 
 }

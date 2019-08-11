@@ -1884,6 +1884,76 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     return true;
 }
 
+void analyzebasedata(const std::string &savepath){
+    system("chcp 65001");
+    system("cls");
+    //东 南 全
+    //全 各位天凤大佬
+    const int TENHOUID_NUM = 16;
+    const std::string tenhouid[TENHOUID_NUM] = {
+        "ALLHOUOU",
+        "ALLTENHOU",
+        "ASAPIN",
+        "（≧▽≦）",
+        "独歩",
+        "すずめクレイジー",
+        "太くないお",
+        "タケオしゃん",
+        "コーラ下さい",
+        "かにマジン",
+        "就活生@川村軍団",
+        "ウルトラ立直",
+        "トトリ先生19歳",
+        "おかもと",
+        "gousi",
+        "お知らせ",
+    };
+    const std::string roundtype[3] = { "ALL", "EAST", "SOUTH" };
+    PaipuAnalyzer pa[3][TENHOUID_NUM];
+    int paipunum[3][TENHOUID_NUM] = {0};
+    CJsonObject lastpaipu;
+    std::string paipuf = "data/tenhou/combined/paipus/";
+    std::string lastopen = "00000000.txt";
+    for (int year = 2009; year < 2010; year ++ )
+        for (int month = 1; month <= 12; month ++ )
+            for (int day = 1; day <= 31; day ++ ){
+                char buf[256] = {0};
+                sprintf(buf, "%s%04d/%04d%02d%02d.txt", paipuf.c_str(), year, year, month, day);
+                if (Algo::Access(buf, 0) != - 1){
+                    std::cout << buf << std::endl;
+                    auto paipus = Algo::ReadJSON(buf);
+                    for (int i = 0; i < paipus.GetArraySize(); i ++ ){
+                        auto &paipu = paipus[i];
+                        int round;
+                        paipu["gamedata"]["roomdata"].Get("round", round);
+                        auto &playerdata = paipu["gamedata"]["playerdata"];
+                        for (int j = 0; j < playerdata.GetArraySize(); j ++ ){
+                            auto nowid = playerdata[j]("id");
+                            int tenhouindex = -1;
+                            for (int l = 2; l < TENHOUID_NUM; l ++ )
+                                if (nowid == tenhouid[l])
+                                    tenhouindex = l;
+                            paipu["gamedata"].Replace("accountid", nowid);
+                            for (int k = 0; k < 3; k ++ )
+                                if (k * 4 == round || !k){
+                                    paipunum[k][0] += pa[k][0].analyze(paipu);
+                                    if (~tenhouindex){
+                                        std::cout << nowid << '\n';
+                                        paipunum[k][1] += pa[k][1].analyze(paipu);
+                                        paipunum[k][tenhouindex] += pa[k][tenhouindex].analyze(paipu);
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
+    for (auto &i : paipunum){
+        for (auto &j : i)
+            std::cout << j << ' ';
+        std::cout << '\n';
+    }
+}
+
 void analyzetenhou(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
     //TODO: 天凤大量牌谱分析专用，将相关代码移进来
 }
@@ -1938,10 +2008,6 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
                                         //std::cout << Algo::UTF82GBK(nowid + ' ' + lastpaipu[i]["gamedata"]["accountid"].ToString()) << '\n';
                                         auto nowjson = lastpaipu[i].ToString();
                                         paipunum += pa.analyze(&lastpaipu[i]);
-                                        if (nowjson != lastpaipu[i].ToString()){
-                                            std::cout << "changed!";
-                                            exit(0);
-                                        }
                                         //paipus.push_back(&lastpaipu[i]);
                                         opencount ++ ;
                                         flag = true;

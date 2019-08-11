@@ -94,7 +94,7 @@ namespace MAIN{
 
 using namespace MAIN;
 
-int main(){
+int main(int argc, char *argv[]){
 
     setrootfolder();
 
@@ -103,6 +103,15 @@ int main(){
 
     auto rcres = readconfig();
     if (rcres == 1) return 0;
+
+    if (argc > 1 && argv[1] == std::string("--tenhou-basedata")){
+        std::string basedata_savepath = "basedata.json";
+        if (argc > 2) basedata_savepath = argv[2];
+        std::cout << "Analyze tenhou data, save in " << basedata_savepath << std::endl;
+        PA::analyzebasedata(basedata_savepath);
+        return 0;
+    }
+
     PA::analyzemain("data/", source, id, config);
     //MatchDataCompare::mdatacomparemain();
     //std::string id; Algo::shantendistributioncheck("majsoulold", findid(Header::datafolderprefix, "majsoulold", id), config); return 0;
