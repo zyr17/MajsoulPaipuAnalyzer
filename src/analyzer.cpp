@@ -1454,6 +1454,7 @@ void AnalyzeData::makehanddata(std::vector<long long> &vec){
 void AnalyzeData::calcresult(){
     result.clear();
     result.resize(ADN.result.size());
+    resultjson("{}");
 
     for (auto &i : hulebasedata)
         makehanddata(i);
@@ -1517,6 +1518,26 @@ void AnalyzeData::calcresult(){
         //std::cout << ADN.result[i] << ' ' << ADN.resultexpr[i] << '\n';
         result[i] = AE.calcexpr(ADN.resultexpr[i]);
     }
+
+    for (unsigned i = 0; i < ADN.result.size(); i ++ )
+        if (isfinite(result[i])) resultjson.Add(ADN.result[i], result[i]);
+        else resultjson.Add(ADN.result[i], "-");
+    CJsonObject huleyaku("{}"), chongleyaku("{}");
+    for (unsigned i = 0; i < num2yakudata.size(); i ++ ){
+        if (i == 36){
+            assert(num2yakudata[i] == "RENHOU");
+            continue;
+        }
+        auto tmp = AE.calcexpr("HULEYAKU_HULEYAKU_" + num2yakudata[i] + "_ALL / HULE_HULE_ALL");
+        if (isfinite(tmp)) huleyaku.Add(num2yakudata[i], tmp);
+        else huleyaku.Add(num2yakudata[i], "-");
+        tmp = AE.calcexpr("HULEYAKU_CHONGLEYAKU_" + num2yakudata[i] + "_ALL / HULE_FANGCHONG_ALL");
+        if (isfinite(tmp)) chongleyaku.Add(num2yakudata[i], tmp);
+        else chongleyaku.Add(num2yakudata[i], "-");
+    }
+    resultjson.Add("HULEYAKU", huleyaku);
+    resultjson.Add("CHONGLEYAKU", chongleyaku);
+    //std::cout << resultjson.ToFormattedString();
 }
 
 void AnalyzeData::outputbase(){
@@ -2037,6 +2058,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     Out::cout << I18N::get("MISC", "DASH") << '\n';
     pa.analyzedata -> calcresult();
 
+    /*
     CJsonObject rrr("{}");
     for (unsigned i = 0; i < pa.analyzedata -> result.size(); i ++ ){
         auto res = pa.analyzedata -> result[i];
@@ -2046,6 +2068,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
             rrr.Add(pa.analyzedata -> ADN.result[i], "-");
     }
     std::cout << id << ": " << rrr.ToString() << ",\n";
+    */
 
     //pa.analyzedata -> outputbase();
     pa.analyzedata -> outputresult();

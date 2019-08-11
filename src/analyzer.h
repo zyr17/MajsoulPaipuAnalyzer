@@ -137,6 +137,8 @@ namespace PA{
 
         std::vector<double> floatdata;
 
+        CJsonObject resultjson;
+
         AnalyzeData();
         int gethandtype(const MatchPlayerData &pdata);
         void calcresult();
