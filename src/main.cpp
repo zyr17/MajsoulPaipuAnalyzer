@@ -105,7 +105,9 @@ int main(int argc, char *argv[]){
     if (rcres == 1) return 0;
 
     if (argc > 1 && argv[1] == std::string("--tenhou-basedata")){
-        std::string basedata_savepath = "basedata.json";
+        system("chcp 65001");
+        system("cls");
+        std::string basedata_savepath = "basedatacode.js";
         if (argc > 2) basedata_savepath = argv[2];
         std::cout << "Analyze tenhou data, save in " << basedata_savepath << std::endl;
         PA::analyzebasedata(basedata_savepath);

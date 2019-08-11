@@ -1906,11 +1906,9 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
 }
 
 void analyzebasedata(const std::string &savepath){
-    system("chcp 65001");
-    system("cls");
     //东 南 全
     //全 各位天凤大佬
-    const int TENHOUID_NUM = 16;
+    const int TENHOUID_NUM = 16, ROUNDTYPE_NUM = 3;
     const std::string tenhouid[TENHOUID_NUM] = {
         "ALLHOUOU",
         "ALLTENHOU",
@@ -1929,14 +1927,14 @@ void analyzebasedata(const std::string &savepath){
         "gousi",
         "お知らせ",
     };
-    const std::string roundtype[3] = { "ALL", "EAST", "SOUTH" };
-    PaipuAnalyzer pa[3][TENHOUID_NUM];
-    int paipunum[3][TENHOUID_NUM] = {0};
+    const std::string roundtype[ROUNDTYPE_NUM] = { "ALL", "EAST", "SOUTH" };
+    PaipuAnalyzer pa[ROUNDTYPE_NUM][TENHOUID_NUM];
+    int paipunum[ROUNDTYPE_NUM][TENHOUID_NUM] = {0};
     CJsonObject lastpaipu;
     std::string paipuf = "data/tenhou/combined/paipus/";
     std::string lastopen = "00000000.txt";
-    for (int year = 2009; year < 2010; year ++ )
-        for (int month = 1; month <= 12; month ++ )
+    for (int year = 2009; year < 2011; year ++ )
+        for (int month = 1; month <= 4; month ++ )
             for (int day = 1; day <= 31; day ++ ){
                 char buf[256] = {0};
                 sprintf(buf, "%s%04d/%04d%02d%02d.txt", paipuf.c_str(), year, year, month, day);
@@ -1959,7 +1957,7 @@ void analyzebasedata(const std::string &savepath){
                                 if (k * 4 == round || !k){
                                     paipunum[k][0] += pa[k][0].analyze(paipu);
                                     if (~tenhouindex){
-                                        std::cout << nowid << '\n';
+                                        //std::cout << nowid << '\n';
                                         paipunum[k][1] += pa[k][1].analyze(paipu);
                                         paipunum[k][tenhouindex] += pa[k][tenhouindex].analyze(paipu);
                                     }
@@ -1968,11 +1966,45 @@ void analyzebasedata(const std::string &savepath){
                     }
                 }
             }
+    /*
     for (auto &i : paipunum){
         for (auto &j : i)
             std::cout << j << ' ';
         std::cout << '\n';
     }
+    */
+    CJsonObject basedatajson("{}"), i18njson("{}"), resultgroupjson("{}"), resultcomparejson("{}");
+    for (int i = 0; i < ROUNDTYPE_NUM; i ++ ){
+        CJsonObject oneround("{}");
+        for (int j = 0; j < TENHOUID_NUM; j ++ ){
+            pa[i][j].analyzedata -> calcresult();
+            if (paipunum[i][j] != 0) oneround.Add(tenhouid[j], pa[i][j].analyzedata -> resultjson);
+        }
+        basedatajson.Add(roundtype[i], oneround);
+    }
+    const std::string languages[] = { "zh-CN", "zh-TW", "en-US", "ja-JP", "fr-FR", "de-DE", "ko-KR" };
+    for (auto &lang : languages)
+        if (Algo::Access(("i18n/" + lang + ".json").c_str(), 0) != -1)
+            i18njson.Add(lang, Algo::ReadJSON("i18n/" + lang + ".json"));
+    CJsonObject rgorder("[]"), rgdata("{}");
+    for (auto &order : pa[0][0].analyzedata -> ADN.resultgrouporder){
+        rgorder.Add(order);
+        CJsonObject onedata("[]");
+        for (auto &item : pa[0][0].analyzedata -> ADN.resultgroupmap[order])
+            onedata.Add(item);
+        rgdata.Add(order, onedata);
+    }
+    resultgroupjson.Add("order", rgorder);
+    resultgroupjson.Add("data", rgdata);
+    resultcomparejson = Algo::ReadJSON("PAADData.json")["resultcompare"];
+    std::string resultcode = "";
+    resultcode += "BASEDATA = " + basedatajson.ToString() + ";\n\n";
+    resultcode += "I18N = " + i18njson.ToString() + ";\n\n";
+    resultcode += "RESULTGROUP = " + resultgroupjson.ToString() + ";\n\n";
+    resultcode += "RESULTCOMPARE = " + resultcomparejson.ToString() + ";\n\n";
+    auto f = fopen(savepath.c_str(), "w");
+    fprintf(f, "%s", resultcode.c_str());
+    std::cout << "saved in " + savepath + "\n";
 }
 
 void analyzetenhou(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
@@ -2070,6 +2102,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     std::cout << id << ": " << rrr.ToString() << ",\n";
     */
 
+    std::cout << pa.analyzedata -> resultjson.ToString() << '\n';
     //pa.analyzedata -> outputbase();
     pa.analyzedata -> outputresult();
 }
