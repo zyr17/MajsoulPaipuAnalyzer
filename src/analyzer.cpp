@@ -1894,7 +1894,10 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
         pdata[adata.me].Get("finalpoint", endp);
         adata.basedata[basenum] += endp - stp;
 
-        //TODO: 天凤数据不同
+        //天凤数据暂时不计算安定段位
+        if (paipu["gamedata"]("source") == "tenhou")
+            return true;
+        //TODO: 天凤安定段位
         int room, pt;
         pdata[adata.me].Get("deltapt", pt);
         paipu["gamedata"]["roomdata"].Get("room", room);
@@ -1933,8 +1936,8 @@ void analyzebasedata(const std::string &savepath){
     CJsonObject lastpaipu;
     std::string paipuf = "data/tenhou/combined/paipus/";
     std::string lastopen = "00000000.txt";
-    for (int year = 2009; year < 2011; year ++ )
-        for (int month = 1; month <= 4; month ++ )
+    for (int year = 2009; year < 2029; year ++ )
+        for (int month = 1; month <= 12; month ++ )
             for (int day = 1; day <= 31; day ++ ){
                 char buf[256] = {0};
                 sprintf(buf, "%s%04d/%04d%02d%02d.txt", paipuf.c_str(), year, year, month, day);
@@ -2102,7 +2105,7 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
     std::cout << id << ": " << rrr.ToString() << ",\n";
     */
 
-    std::cout << pa.analyzedata -> resultjson.ToString() << '\n';
+    //std::cout << pa.analyzedata -> resultjson.ToString() << '\n';
     //pa.analyzedata -> outputbase();
     pa.analyzedata -> outputresult();
 }

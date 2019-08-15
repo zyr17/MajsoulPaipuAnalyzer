@@ -286,6 +286,90 @@
         "MAJSOULROOM3": "gold room",
         "MAJSOULROOM4": "jade room",
         "MAJSOULROOM5": "king room",
-        "MAJSOULSTABLERANKCOMMENT": "Comment: stable rank in certain room considers the lowest title, e.g. gold room -> quejie. \nSpecially, no one plays in king room, so quesheng 1 star equals to quehao 4 star etc. stable rank means stable star."
+        "MAJSOULSTABLERANKCOMMENT": "Comment: stable rank in certain room considers the lowest title, e.g. gold room -> quejie. \nSpecially, no one plays in king room, so quesheng 1 star equals to quehao 4 star etc. stable rank means stable star.\nYou can get detail data in result.html."
+    },
+    "WEB": {
+        "DESCRIPTION": {
+            "MAIN": [
+                "Note for This Page",
+                "",
+                "This page is generated altomatically by PaipuAnalyzer, and can only show data. If you want to analyze data, please run PaipuAnalyzer again.",
+                "Besides showing analyzed data, this page can also compare analyzed data with Tenhou datas.",
+                "It will use different colors to highlight datas based on data difference. Green means better, red means worse, black means almost same or can't compare.",
+                "Tenhou data is analyzed from all paipus before Dec 31th, 2018.",
+                "",
+                "<b>Options Can be Done in This Page:</b>",
+                "1.Change display options.",
+                "2.For every data blocks, you can hide it by clicking \"-\" on left-top.",
+                "3.Hover on a data will show detail datas.",
+                "",
+                "<b>About Display Options:</b>",
+                "<b>Language: </b>Choose a language.",
+                "<b>Base data source: </b>Choose east, south, or all data wto compare.",
+                "<b>Base data ID: </b>Choose whose data to compare. All Houou Player analyzed all players' data, All Tenhou analyzed all Tenhous' data, Others are Tenhous. Note that because some Tenhous seldom play east, some data may not useful.",
+                "<b>Data Display: </b>Can show analyzed data or delta of base data.",
+                "<b>Color Way: </b>Show data in colored and bold, or colord, or without color.",
+                "<b>Data Precision: </b>The precision when showing data."
+            ],
+            "SR": [
+                "About Stable Rank",
+                "",
+                "<b>Stable Rank: </b>",
+                "Stable rank is stable stars in Mahjongsoul, which is calculated by analyzed paipus, and means the title and stars you will stay when you take unlimited matches.",
+                "Because we can't compare Tenhou's stable rank with Mahjongsoul, it is temporary no stable rank data for Tenhous.",
+                "Because when you are Novice won't have last place penalty, and only Novice can play Bronze Room, so we can't calculate stable stars in Bronze Room.",
+                "Different stable stars in different room corresponding to the latter title to enter this room. e.g. stable stars 4.5 in Gold Room means Expert 4.5.",
+                "About Expert 4.5, when stable stars bigger than 3, with enough matches you will upgrade your title. For upgrading title will change the penalty step and open new rooms, we can't cimply say Expert 4.5 = Master 1.5. For same reason, when stable ranks is less than 1, you will fall with enough matches.",
+                "",
+                "<b>Confidence Interval: </b>",
+                "For confidence interval, in simple, the more matches analyzed, the smaller the confidence interval, and the stable stars is more accurate. alpha=0.05",
+                "The procedure when calculating confidence interval may having many mistakes, if you are good at this (and familiar with Chinese), please help me.",
+                "Below are some data about these in Chinese.",
+                "<b>Issue: </b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/4\">Github Issue</a>",
+                "<b>Introduction of calculating stable rank and confidence interval: </b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/blob/master/doc/stable-rank.md\">stable-rank.md</a>"
+            ]
+        },
+        "TITLE": {
+            "MAIN": "Result",
+            "OPTIONS": "Display Options"
+        },
+        "DROPDOWNS": {
+            "TITLE": {
+                "LANGUAGES": "Language",
+                "BASEDATAROUND": "Base data source",
+                "BASEDATAID": "Base data ID",
+                "DATASHOW": "Data display",
+                "COLORED": "Color way",
+                "PRECISION": "Data precision"
+            },
+            "LANGUAGES": {
+                "zh-CN": "Chinese Simplified",
+                "en-US": "English",
+                "zh-TW": "Chinese Traditional"
+            },
+            "BASEDATAROUND": {
+                "EAST": "East",
+                "SOUTH": "South",
+                "ALL": "All"
+            },
+            "BASEDATAID": {
+                "ALLHOUOU": "All Houou Player",
+                "ALLTENHOU": "All Tenhou"
+            },
+            "DATASHOW": {
+                "ORIGINAL": "Original anlyzed data",
+                "DELTA": "Delta of base data"
+            },
+            "COLORED": {
+                "COLORBOLD": "Colored / Bold",
+                "COLOR": "Colored",
+                "NO": "No"
+            }
+        },
+        "RESULTS": {
+            "BASEDATA": "Base data",
+            "DATA": "Analyzed data",
+            "DELTA": "Delta of base data and analyzed data"
+        }
     }
 }
