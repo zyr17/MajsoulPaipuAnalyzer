@@ -1,3 +1,8 @@
+0.4.0
+1.在config.json中添加了UTF-8字符用于避免Windows下部分编辑器会将文件保存成GBK格式。
+2.PaipuAnalyzer在分析后会生成一个网页PaipuAnalyzeResult.html用于更方便的查看分析数据。
+3.在PaipuAnalyzeResult.html中预置了分析天凤凤凰桌牌谱得到的数据用于和自己的数据进行比较。
+
 0.3.1-1
 1.macOS版本测试性发布，由于使用macOS虚拟机生成，需要真实macOS下测试。
 
