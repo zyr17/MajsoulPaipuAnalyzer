@@ -56,23 +56,24 @@ namespace Algo{
     namespace SR{
 
         const int INVALIDROOM = -1;
+        const int ROOMNUMBER = 6;
 
-        const bool considerroom[] = {0, 0, 1, 1, 1, 0};
-        const int roombaseeast[] = {0, 0, 0, 30, 70, 100};
-        const int roomdeltaeast[] = {0, 0, 10, 10, 10, 10};
-        const int roombasesouth[] = {0, 0, 0, 60, 150, 195};
-        const int roomdeltasouth[] = {0, 0, 20, 20, 15, 15};
+        const bool considerroom[ROOMNUMBER] = {0, 0, 1, 1, 1, 0};
+        const int roombaseeast[ROOMNUMBER] = {0, 0, 0, 30, 70, 100};
+        const int roomdeltaeast[ROOMNUMBER] = {0, 0, 10, 10, 10, 10};
+        const int roombasesouth[ROOMNUMBER] = {0, 0, 0, 60, 150, 195};
+        const int roomdeltasouth[ROOMNUMBER] = {0, 0, 20, 20, 15, 15};
 
         struct RoundData{
-            const int *roombase, *roomdelta;
+            const int roombase, roomdelta;
             int room = INVALIDROOM;
             std::vector<double> pt123, pt4;
-            RoundData(const int *roombase, const int *roomdelta) : roombase(roombase), roomdelta(roomdelta) {}
+            RoundData(const int roombase, const int roomdelta) : roombase(roombase), roomdelta(roomdelta) {}
         };
         
         double tdist(double x, long long v);
         std::pair<double, double> confidenceinterval(const std::vector<double> &sample, double alpha = 0.05);
-        void stablerank(int round, double &stablerank, std::pair<double, double> &CI);
+        void stablerank(int round, double &stablerank, std::pair<double, double> &CI, int roomnumber = -1);
         void addgamedata(int room, int round, int rank, int pt, int point);
         int getroom(int round);
     }

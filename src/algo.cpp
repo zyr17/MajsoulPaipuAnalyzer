@@ -716,7 +716,14 @@ bool isyakuhai(const PA::MatchPlayerData &pdata, int wind, int round){
 
 namespace SR{
 
-    RoundData S(roombasesouth, roomdeltasouth), E(roombaseeast, roomdeltaeast);
+    std::vector<RoundData> MS, ME;
+
+    void initializerounddata(){
+        for (int i = 0; i < ROOMNUMBER; i ++ ){
+            MS.push_back(RoundData(roombasesouth[i], roomdeltasouth[i]));
+            ME.push_back(RoundData(roombaseeast[i], roomdeltaeast[i]));
+        }
+    }
 
     double tdist(double x, long long v){
         //v = 0时分布不存在，返回nan
@@ -751,9 +758,17 @@ namespace SR{
         return std::make_pair(avg - delta, avg + delta);
     }
 
-    void stablerank(int round, double &stablerank, std::pair<double, double> &CI){
+    void stablerank(int round, double &stablerank, std::pair<double, double> &CI, int roomnumber){
         assert(round == 4 || round == 8);
-        RoundData &rd(round == 4 ? E : S);
+        if (ME.size() != ROOMNUMBER) initializerounddata();
+        auto &rds = round == 4 ? ME : MS;
+        if (roomnumber == -1){
+            roomnumber = getroom(round);
+            if (roomnumber == INVALIDROOM)
+                roomnumber= 0;
+        }
+        assert(roomnumber == 0 || (roomnumber >= 0 && roomnumber < ROOMNUMBER && considerroom[roomnumber]));
+        auto &rd = rds[roomnumber];
         if (!(rd.pt123.size() + rd.pt4.size())){
             stablerank = CI.first = CI.second = NAN;
             return;
@@ -770,23 +785,18 @@ namespace SR{
         for (auto i : rd.pt4)
             pt.push_back(i - every4);
         CI = confidenceinterval(pt);
-        stablerank = (every4 - rd.roombase[rd.room]) / rd.roomdelta[rd.room];
-        CI.first = CI.first / rd.roomdelta[rd.room] / r4 + stablerank;
-        CI.second = CI.second / rd.roomdelta[rd.room] / r4 + stablerank;
+        stablerank = (every4 - rd.roombase) / rd.roomdelta;
+        CI.first = CI.first / rd.roomdelta / r4 + stablerank;
+        CI.second = CI.second / rd.roomdelta / r4 + stablerank;
         //std::cout << total << ' ' << r4 << ' ' << every4 << ' ' << stablerank << ' ' << CI.first << ' ' << CI.second << '\n';
     }
 
     void addgamedata(int nroom, int round, int rank, int pt, int point){
-        assert(nroom >= 0 && nroom <= 5);
+        assert(nroom >= 0 && nroom < ROOMNUMBER);
         if (round != 4 && round != 8) return;
-        RoundData &rd(round == 4 ? E : S);
+        if (ME.size() != ROOMNUMBER) initializerounddata();
+        auto &rd = round == 4 ? ME[nroom] : MS[nroom];
         if (!considerroom[nroom]) return;
-        if (nroom < rd.room) return;
-        if (nroom > rd.room){
-            rd.room = nroom;
-            rd.pt123.clear();
-            rd.pt4.clear();
-        }
         if (rank != 4) rd.pt123.push_back(pt);
         else{
             pt = (point - 25000) / 1000;
@@ -796,9 +806,14 @@ namespace SR{
 
     int getroom(int round){
         if (round != 4 && round != 8) return INVALIDROOM;
-        int room = round == 4 ? E.room : S.room;
-        if (room < 0 || room > 5 || !considerroom[room]) return INVALIDROOM;
-        return room;
+        if (ME.size() != ROOMNUMBER) initializerounddata();
+        auto &rds = round == 4 ? ME : MS;
+        int roomnumber = INVALIDROOM;
+        for (int i = 0; i < ROOMNUMBER; i ++ ){
+                if (considerroom[i] && (rds[i].pt123.size() + rds[i].pt4.size()))
+                    roomnumber = i;}
+        if (roomnumber < 0 || roomnumber > 5 || !considerroom[roomnumber]) return INVALIDROOM;
+        return roomnumber;
     }
 
 }

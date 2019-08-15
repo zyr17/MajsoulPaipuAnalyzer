@@ -1519,6 +1519,7 @@ void AnalyzeData::calcresult(){
         result[i] = AE.calcexpr(ADN.resultexpr[i]);
     }
 
+    //将分析数据存成JSON用于网页载入
     for (unsigned i = 0; i < ADN.result.size(); i ++ )
         if (isfinite(result[i])) resultjson.Add(ADN.result[i], result[i]);
         else resultjson.Add(ADN.result[i], "-");
@@ -1535,6 +1536,40 @@ void AnalyzeData::calcresult(){
         if (isfinite(tmp)) chongleyaku.Add(num2yakudata[i], tmp);
         else chongleyaku.Add(num2yakudata[i], "-");
     }
+    //网页空间浪费一点没关系，展示所有房间的安定星数和置信区间
+    for (int i = 0; i < Algo::SR::ROOMNUMBER; i ++ )
+        if (Algo::SR::considerroom[i]){
+            double stablerank;
+            std::pair<double, double> CI;
+            Algo::SR::stablerank(4, stablerank, CI, i);
+            std::string key = "EASTSR0";
+            key[6] += i;
+            if (isfinite(stablerank)) resultjson.Add(key, stablerank);
+            else resultjson.Add(key, "-");
+            key = "EASTCIL0";
+            key[7] += i;
+            if (isfinite(stablerank)) resultjson.Add(key, CI.first);
+            else resultjson.Add(key, "-");
+            key = "EASTCIR0";
+            key[7] += i;
+            if (isfinite(stablerank)) resultjson.Add(key, CI.second);
+            else resultjson.Add(key, "-");
+
+            Algo::SR::stablerank(8, stablerank, CI, i);
+            key = "SOUTHSR0";
+            key[7] += i;
+            if (isfinite(stablerank)) resultjson.Add(key, stablerank);
+            else resultjson.Add(key, "-");
+            key = "SOUTHCIL0";
+            key[8] += i;
+            if (isfinite(stablerank)) resultjson.Add(key, CI.first);
+            else resultjson.Add(key, "-");
+            key = "SOUTHCIR0";
+            key[8] += i;
+            if (isfinite(stablerank)) resultjson.Add(key, CI.second);
+            else resultjson.Add(key, "-");
+        }
+    //和牌役种和铳役种需要自行组装
     resultjson.Add("HULEYAKU", huleyaku);
     resultjson.Add("CHONGLEYAKU", chongleyaku);
     //std::cout << resultjson.ToFormattedString();
@@ -1588,6 +1623,9 @@ void AnalyzeData::outputresult(){
     Algo::getconsolesize(row, col);
     for (auto key : ADN.resultgrouporder){
         auto title = I18N::get("ANALYZER", key) + I18N::get("MISC", "COLON");
+        //命令行展示下节约空间不展示3 4副露结果
+        if (key == "FULU3RESULT" || key == "FULU4RESULT")
+            continue;
         if (key == "STABLERANKRESULT"){
             //对于安定段位标题还需要加上东风和南风统计的房间级别
             std::string room = "MAJSOULROOM";
@@ -1603,7 +1641,8 @@ void AnalyzeData::outputresult(){
         }
         outputonerect(title, key, col);
     }
-    PAUSEEXIT;
+    Out::outputhtml(resultjson.ToString(), I18N::language);
+    //PAUSEEXIT;
 }
 
 void PaipuAnalyzer::initializeresult(){

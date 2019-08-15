@@ -3,7 +3,13 @@
 
 #include "header.h"
 
+namespace I18N{
+    //TODO:重整代码，避免恶心的include和声明
+    std::string get(const std::string &word1, const std::string &word2);
+}
+
 namespace Out{
+    const std::string htmlname = "PaipuAnalyzeResult.html";
     class MyCout{
     private:
         std::string buffer;
@@ -25,6 +31,7 @@ namespace Out{
         void flush();
     };
     extern MyCout cout;
+    void outputhtml(const std::string &jsonstring, const std::string &language = "zh-CN");
 }
 
 #endif

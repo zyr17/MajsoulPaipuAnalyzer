@@ -26,7 +26,7 @@
         "FULU2RESULT": "fulu 2+ data",
         "FULU3RESULT": "fulu 3+ data",
         "FULU4RESULT": "fulu 4+ data",
-        "STABLERANKRESULT": "stable rank result (confidence level 0.95)",
+        "STABLERANKRESULT": "stable rank result",
         "ZHUILIBEIZHUILIRESULT": "zhuili & beizhuili & furiten reach data",
         "GANGRESULT": "gang data",
         "HULEYAKURESULT": "hule yaku data",
@@ -286,14 +286,18 @@
         "MAJSOULROOM3": "gold room",
         "MAJSOULROOM4": "jade room",
         "MAJSOULROOM5": "king room",
-        "MAJSOULSTABLERANKCOMMENT": "Comment: stable rank in certain room considers the lowest title, e.g. gold room -> quejie. \nSpecially, no one plays in king room, so quesheng 1 star equals to quehao 4 star etc. stable rank means stable star.\nYou can get detail data in result.html."
+        "MAJSOULSTABLERANKCOMMENT": "Comment: stable rank in certain room considers the lowest title, e.g. gold room -> quejie. \nSpecially, no one plays in king room, so quesheng 1 star equals to quehao 4 star etc. stable rank means stable star.\nAlpha for confidence interval is 0.05.\nYou can get detail data in PaipuAnalyzerResult.html.",
+        "HTMLHINT": "Piapu analyze over, PaipuAnalyzeResult.html is generated.",
+        "HTMLOPENWIN": "Try to open html page with Windows default browser... You can open it manually if it is failed.",
+        "HTMLOPENLINUX": "Try to open html page with Firefox... You can open it manually if it is failed.",
+        "HTMLOPENAPPLE": "Try to open html page with Safari... You can open it manually if it is failed."
     },
     "WEB": {
         "DESCRIPTION": {
             "MAIN": [
                 "Note for This Page",
                 "",
-                "This page is generated altomatically by PaipuAnalyzer, and can only show data. If you want to analyze data, please run PaipuAnalyzer again.",
+                "This page is generated altomatically by PaipuAnalyzer, and can only show data. <b>If you want to analyze data, please run PaipuAnalyzer again</b>.",
                 "Besides showing analyzed data, this page can also compare analyzed data with Tenhou datas.",
                 "It will use different colors to highlight datas based on data difference. Green means better, red means worse, black means almost same or can't compare.",
                 "Tenhou data is analyzed from all paipus before Dec 31th, 2018.",
@@ -330,7 +334,7 @@
             ]
         },
         "TITLE": {
-            "MAIN": "Result",
+            "MAIN": "Paipu Analyze Result",
             "OPTIONS": "Display Options"
         },
         "DROPDOWNS": {

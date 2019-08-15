@@ -1,4 +1,5 @@
 #include "output.h"
+#include "resulthtml.h"
 
 namespace Out{
 
@@ -83,5 +84,39 @@ namespace Out{
 
     void MyCout::flush(){
         output();
+    }
+
+    void outputhtml(const std::string &jsonstring, const std::string &language){
+        std::string result = "";
+        for (int i = 0; i < resulthtml.size(); i ++ ){
+            if (resulthtml[i] == '/' && i < resulthtml.size() - 8 && resulthtml.substr(i, 8) == "/*DATA*/"){
+                result += "DATA = " + jsonstring + ";";
+                i += 7;
+                continue;
+            }
+            else if (resulthtml[i] == '/' && i < resulthtml.size() - 8 && resulthtml.substr(i, 15) == "/*USELANGUAGE*/"){
+                result += "use_language = '" + language + "';";
+                i += 14;
+                continue;
+            }
+            result += resulthtml[i];
+        }
+        auto f = fopen(htmlname.c_str(), "w");
+        fprintf(f, "%s", result.c_str());
+        fclose(f);
+        cout << I18N::get("MISC", "HTMLHINT") << '\n';
+        //char c = getchar();
+        //if (c == 'x' || c == 'X') return;
+        std::string command = "PaipuAnalyzeResult.html";
+        #ifdef __linux
+            cout << I18N::get("MISC", "HTMLOPENLINUX") << '\n';
+            command = "firefox " + command + " &";
+        #elif __APPLE__
+            cout << I18N::get("MISC", "HTMLOPENMAC") << '\n';
+            command = "open -a Safari " + command;
+        #elif _WIN32
+            cout << I18N::get("MISC", "HTMLOPENWIN") << '\n';
+        #endif
+        system(command.c_str());
     }
 }
