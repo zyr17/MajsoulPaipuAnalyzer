@@ -1642,7 +1642,7 @@ void AnalyzeData::outputresult(){
         outputonerect(title, key, col);
     }
     Out::outputhtml(resultjson.ToString(), I18N::language);
-    //PAUSEEXIT;
+    PAUSEEXIT;
 }
 
 void PaipuAnalyzer::initializeresult(){
@@ -1655,7 +1655,7 @@ bool PaipuAnalyzer::filterinclude(CJsonObject *p, CJsonObject *f, bool emptyresu
     int arrsize = f -> GetArraySize();
     bool result = (arrsize == 0 ? emptyresult : false);
     for (int i = 0; i < arrsize; i ++ )
-        result = result || (p->StrictEqual((*f)[i]));
+        result = result || (*p == (*f)[i]);
     return result;
 }
 
@@ -1817,7 +1817,7 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     auto &accountid = paipu["gamedata"]["accountid"];
     auto &pdata = paipu["gamedata"]["playerdata"];
     for (int i = 0; i < 4; i ++ )
-        if (accountid.StrictEqual(pdata[i]["id"]))
+        if (accountid == pdata[i]["id"])
             adata.me = i;
     //如果玩家数据中没找到对应ID就跳过该牌谱
     //std::cout << Algo::UTF82GBK(paipu["gamedata"]["accountid"].ToString() + ' ' + accountid.ToString() + ' ' + paipu["gamedata"].ToString()) << '\n';

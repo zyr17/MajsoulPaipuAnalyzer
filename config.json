@@ -26,5 +26,6 @@
             "timebefore": "2000-01-01 00:00:00",
             "timeafter": "2099-12-31 23:59:59"
         }
-    }
+    },
+    "UTF-8": "用于固定文件编码为UTF-8，请勿随意修改此行/To ensure file encoding is UTF-8, please don't change this line."
 }
