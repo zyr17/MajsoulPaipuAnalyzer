@@ -101,7 +101,7 @@ namespace Out{
             }
             result += resulthtml[i];
         }
-        auto f = fopen(htmlname.c_str(), "w");
+        auto f = fopen((Header::rootfolderprefix + htmlname).c_str(), "w");
         fprintf(f, "%s", result.c_str());
         fclose(f);
         cout << I18N::get("MISC", "HTMLHINT") << '\n';
@@ -112,8 +112,8 @@ namespace Out{
             cout << I18N::get("MISC", "HTMLOPENLINUX") << '\n';
             command = "firefox " + command + " &";
         #elif __APPLE__
-            cout << I18N::get("MISC", "HTMLOPENMAC") << '\n';
-            command = "open -a Safari " + command;
+            cout << I18N::get("MISC", "HTMLOPENAPPLE") << '\n';
+            command = "open -a Safari " + Header::rootfolderprefix + command;
         #elif _WIN32
             cout << I18N::get("MISC", "HTMLOPENWIN") << '\n';
         #endif
