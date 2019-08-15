@@ -54,7 +54,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
 
 #### Windows
     
-    git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
+    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
     npm install
     npm run-script package-win
@@ -75,7 +75,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
 
 #### Linux
 
-    git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
+    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
     npm install
     npm run-script package-linux
@@ -96,7 +96,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
 
 #### macOS
 
-    git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
+    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
     npm install
     npm run-script package-darwin
