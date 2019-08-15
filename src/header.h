@@ -7,10 +7,10 @@
 #include <ctime>
 #include <iomanip>
 #include <cmath>
+#include <unistd.h>
 #if defined(__linux) || defined(__APPLE__)
     #include <dirent.h>
     #include <sys/ioctl.h>
-    #include <unistd.h>
 #endif
 #ifdef _WIN32
     #include <windows.h>
