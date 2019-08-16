@@ -32,6 +32,10 @@ PaipuAnalyzer使用C++编写，分析收集到的牌谱数据并在命令行窗�
 
 ![PaipuAnalyzer](doc/img/PA.png)
 
+同时PaipuAnalyzer会生成用于查看和比较数据的网页PaipuAnalyzeResult.html。
+
+![PaipuAnalyzeResult.html](doc/img/PaipuAnalyzeResult.png)
+
 ## 安装
 
 ### 编译/测试环境
