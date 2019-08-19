@@ -51,7 +51,7 @@ const ready = () => {
 
     browseWindow.webContents.on('dom-ready', function (){
         //browseinject();
-        if (!/^https:\/\/(?:majsoul|game.mahjongsoul|mahjongsoul)/.test(browseWindow.webContents.getURL())){
+        if (!/^https:\/\/(?:(?:www\.)?majsoul|game.mahjongsoul|mahjongsoul)/.test(browseWindow.webContents.getURL())){
             if (browseWindow.nowingamepage)
                 dialog.showMessageBox({
                     type: 'info',
@@ -303,7 +303,7 @@ const ready = () => {
         }, {
             label: '进入国服',
             click: function () {
-                gotonewpage('https://majsoul.union-game.com/0/');
+                gotonewpage('https://www.majsoul.com/1/');
             }
         }, {
             label: '进入日服',
