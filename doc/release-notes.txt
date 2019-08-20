@@ -1,3 +1,6 @@
+0.4.1
+1.更新国服雀魂网址。
+
 0.4.0
 1.在config.json中添加了UTF-8字符用于避免Windows下部分编辑器会将文件保存成GBK格式。
 2.PaipuAnalyzer在分析后会生成一个网页PaipuAnalyzeResult.html用于更方便的查看分析数据。
