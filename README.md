@@ -16,7 +16,7 @@ Windows: [![Build status](https://ci.appveyor.com/api/projects/status/fyirnuhsun
 
 由于APPVeyor无法编译macOS下软件，因此macOS版本自行使用苹果虚拟机编译，在网盘和releases提供下载。
 
-[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中可下载已经编译好的文件。由于上传速度较慢可能不是很及时
+[releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中可下载已经编译好的文件。
 
 [百度网盘](https://pan.baidu.com/s/1mu31kzaF7aHkY2IeBjCLyg) 提取码：k34a
 
