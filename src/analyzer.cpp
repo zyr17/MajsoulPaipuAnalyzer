@@ -1533,7 +1533,7 @@ void AnalyzeData::calcresult(){
         if (isfinite(tmp)) huleyaku.Add(num2yakudata[i], tmp);
         else huleyaku.Add(num2yakudata[i], "-");
         tmp = AE.calcexpr("HULEYAKU_CHONGLEYAKU_" + num2yakudata[i] + "_ALL / HULE_FANGCHONG_ALL");
-        if (isfinite(tmp)) chongleyaku.Add(num2yakudata[i], tmp);
+        if (isfinite(tmp) && num2yakudata[i] != "ZIMO" && num2yakudata[i] != "CHIHOU" && num2yakudata[i] != "TENHOU" && num2yakudata[i] != "SUANKO") chongleyaku.Add(num2yakudata[i], tmp);
         else chongleyaku.Add(num2yakudata[i], "-");
     }
     //网页空间浪费一点没关系，展示所有房间的安定星数和置信区间
