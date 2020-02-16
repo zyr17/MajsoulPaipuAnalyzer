@@ -321,7 +321,7 @@
                 "<b>Stable Rank: </b>",
                 "Stable rank is stable stars in Mahjongsoul, which is calculated by analyzed paipus, and means the title and stars you will stay when you take unlimited matches.",
                 "Because we can't compare Tenhou's stable rank with Mahjongsoul, it is temporary no stable rank data for Tenhous.",
-                "Because when you are Novice won't have last place penalty, and only Novice can play Bronze Room, so we can't calculate stable stars in Bronze Room.",
+                "Because when you are Novice won't have last place penalty, and only Novice can play Bronze Room, so we can't calculate stable stars in Bronze Room. Also if you never get 4th place or only get 4th place in some room, we also can't calculate stable rank. If we can't calculate one room's stable rank, we won't show the data of this room.",
                 "Different stable stars in different room corresponding to the latter title to enter this room. e.g. stable stars 4.5 in Gold Room means Expert 4.5.",
                 "About Expert 4.5, when stable stars bigger than 3, with enough matches you will upgrade your title. For upgrading title will change the penalty step and open new rooms, we can't cimply say Expert 4.5 = Master 1.5. For same reason, when stable ranks is less than 1, you will fall with enough matches.",
                 "",

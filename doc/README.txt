@@ -16,7 +16,7 @@ MajsoulPaipuAnalyzer简易使用说明
 6. 转到数据分析窗口，选择 牌谱-下载&转换牌谱。会弹窗展示下载牌谱数量，然后窗口左上角会给出进度。全部完成会弹窗提示。
 7. 由于技术原因，较新的牌谱(约3天内)无法下载，请以后重试。
 8. 关闭两个窗口，编辑config.json设置分析牌谱类型。常用设置在下文给出。
-9. 运行PaipuAnalyzer.exe查看结果。
+9. 运行PaipuAnalyzer.exe查看结果，会在命令行窗口中展示结果，也会生成一个结果网页用于查看和比较结果。
 
 
 config.json常用设置
@@ -41,5 +41,3 @@ config.json常用设置
 例 "room": [3, 4],"round": [8],"timeafter": "2019-02-02 00:00:00" 分析在19年2月2日以后打的金场南风及玉场南风
 
 6. 更多配置请参考https://github.com/zyr17/MajsoulPaipuAnalyzer/blob/master/doc/config.md
-
-7. 若在文件中添加了中文（如name中使用了中文字符串），请确保文件以UTF-8编码保存。例如对于Windows记事本需要另存为并在下方编码选择UTF-8。

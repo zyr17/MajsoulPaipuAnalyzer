@@ -9,6 +9,10 @@ build_script:
 
     nvm use 8.1.0
 
+    git submodule init
+
+    git submodule update
+
     npm install
 
     npm run-script package-linux

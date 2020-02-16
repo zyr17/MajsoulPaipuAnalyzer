@@ -1,8 +1,10 @@
 # MajsoulPaipuAnalyzer
 
-自制雀魂牌谱分析工具。支持国服、日服、国际服。提供Windows，Linux，macOS（macOS测试中）版本。
+自制雀魂牌谱分析工具。支持国服、日服、国际服。提供Windows，Linux，macOS版本。
 
 目前仅支持四人麻将牌谱分析，分析项目参考天鳳の牌譜解析プログラム的项目实现。目前实现了除被鸣牌和门清听牌大类外，剩余大类中的大部分数据。
+
+在结果展示网页中带有分析天凤凤凰桌牌谱得到的数据，可以用于和自己的数据进行比较。
 
 [更新内容说明文件](doc/release-notes.txt)
 
@@ -30,6 +32,10 @@ PaipuAnalyzer使用C++编写，分析收集到的牌谱数据并在命令行窗�
 
 ![PaipuAnalyzer](doc/img/PA.png)
 
+同时PaipuAnalyzer会生成用于查看和比较数据的网页PaipuAnalyzeResult.html。
+
+![PaipuAnalyzeResult.html](doc/img/PaipuAnalyzeResult.png)
+
 ## 安装
 
 ### 编译/测试环境
@@ -52,7 +58,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
 
 #### Windows
     
-    git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
+    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
     npm install
     npm run-script package-win
@@ -73,7 +79,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
 
 #### Linux
 
-    git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
+    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
     npm install
     npm run-script package-linux
@@ -94,7 +100,7 @@ Windows脚本使用PowerShell。路径不能出现中文。
 
 #### macOS
 
-    git clone https://github.com/zyr17/MajsoulPaipuAnalyzer
+    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
     cd MajsoulPaipuAnalyzer
     npm install
     npm run-script package-darwin

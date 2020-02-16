@@ -62,5 +62,8 @@
                 "timebefore": "1970-01-01 08:00:00",
                 "timeafter": "2099-12-31 23:59:59"
             }
-        }
+        },
+
+    由于文件不包含非ASCII字符时使用记事本编辑会默认使用GBK编码保存，因此加入包含中文的一行来避免这种情况，可以无视这行的存在。    
+    "UTF-8": "用于固定文件编码为UTF-8，请勿随意修改此行/To ensure file encoding is UTF-8, please don't change this line."
     }
