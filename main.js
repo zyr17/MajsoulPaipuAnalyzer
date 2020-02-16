@@ -97,7 +97,7 @@ const ready = () => {
         paipuversion = undefined;
         if (url == undefined)
             browseWindow.reload();
-        else browseWindow.loadURL(url);
+        else browseWindow.loadURL(url, {userAgent: 'Chrome'});
         browseinject();
     }
 
@@ -333,7 +333,7 @@ const ready = () => {
                     }
                 });
                 let str = config.get('DefaultURL');
-                loginWindow.loadURL(str);
+                loginWindow.loadURL(str, {userAgent: 'Chrome'});
                 loginWindow.show();
             }
         }]
