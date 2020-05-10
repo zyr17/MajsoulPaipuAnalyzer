@@ -236,7 +236,7 @@ const ready = () => {
             noLink: true,
             buttons: ['确定'],
             title: '下载转换完成',
-            message: '完成 ' + downloadconvertresult[0] + '/' + downloadconvertresult[2] + ' 个下载转换任务。下载成功牌谱的最晚时间是' + timestr + '\n-----\n注意：由于技术原因，最近2-4天的牌谱可能暂时无法获取，请在几天后再次尝试。'
+            message: '完成 ' + downloadconvertresult[0] + '/' + downloadconvertresult[2] + ' 个下载转换任务。下载成功牌谱的最晚时间是' + timestr
         });
         downloadconvertresult = undefined;
         downloadconvertlist = undefined;

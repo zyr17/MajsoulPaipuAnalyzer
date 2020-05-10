@@ -11,7 +11,12 @@ ipcr.on('downloadconvert', function (event, gamedata, arr, bytearr = null) {
     $('#cornerinformation').text(arr[1] + '/' + arr[2] + ', ' + arr[0] + ' SUCCESS, ' + (arr[1] - arr[0]) + ' FAIL');
     majsoulpaipuanalyzer.ipcrsend = true;
     if (!bytearr){
-        majsoulpaipuanalyzer.convertsomepaipu([gamedata]);
+        if (gamedata.url){
+            let prefix = gamedata.url.replace(gamedata.uuid, '');
+            //console.log(gamedata.url, gamedata.uuid, prefix);
+            majsoulpaipuanalyzer.convertsomepaipu([gamedata], prefix);
+        }
+        else majsoulpaipuanalyzer.convertsomepaipu([gamedata]);
     }
     else majsoulpaipuanalyzer.convertpaipuwithbytes(gamedata, bytearr);
 });
