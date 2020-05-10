@@ -310,6 +310,11 @@ const ready = () => {
                 bwindowsendmessage('collectpaipu', 'checkpaipugamedata');
             }
         }, {
+            label: '自动获取牌谱数据',
+            click: function () {
+                bwindowsendmessage('collectallpaipu');
+            }
+        }, {
             label: '下载&转换牌谱',
             click: function () {
                 bwindowsendmessage('collectpaipu', 'downloadconvertpaipu');
