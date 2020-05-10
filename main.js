@@ -190,8 +190,30 @@ const ready = () => {
             return;
         }
         let id = downloadconvertlist[0];
-        newWindow.webContents.send('downloadconvert', paipugamedata[id], downloadconvertresult);
+        browseWindow.webContents.send('fetchpaipudata', paipugamedata[id].uuid);
+        //newWindow.webContents.send('downloadconvert', paipugamedata[id], downloadconvertresult);
     }
+
+    function fetchpaipudatacallback(error, bytearr, url){
+        if (error){
+            if (error) console.log('read browseinject.js error: ' + error);
+            nextdownloadconvert();
+            return;
+        }
+        let id = downloadconvertlist[0];
+        let gamedata = paipugamedata[id];
+        if (url){
+            gamedata.url = url;
+            newWindow.webContents.send('downloadconvert', gamedata, downloadconvertresult);
+        }
+        else{
+            newWindow.webContents.send('downloadconvert', gamedata, downloadconvertresult, bytearr);
+        }
+    }
+
+    ipcMain.on('fetchpaipudatacallback', (event, err, bytearr, url) => {
+        fetchpaipudatacallback(err, bytearr, url);
+    });
 
     function finaldownloadconvert(){
         //把牌谱连成一个数组减少分析时磁盘读取次数

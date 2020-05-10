@@ -57,22 +57,24 @@ class majsoulpaipuanalyze{
         this.analyzenextpart();
     }
 
-    getfile(filelink){
+    getfile(filelink, bytearr = null){
         if (this.onepaipu == undefined){
             this.onepaipu = { gamedata: { extra: { id: filelink } } };
         }
         InitialOya = 0;
         View.INewGame({startscore: 25000});
-        let request = new XMLHttpRequest();
-        request.open('GET', filelink, true);
-        request.responseType = 'blob';
-        function loadfunc () {
-            let reader = new FileReader();
-            reader.readAsArrayBuffer(request.response);
+        let request;
+        function loadfunc (resp, bytearr) {
             function rloadfunc (e) {
                 try{
-                    let data = e.target.result;
-                    data = new Uint8Array(data);
+                    let data;
+                    if (e.target){
+                        data = e.target.result;
+                        data = new Uint8Array(data);
+                    }
+                    else{
+                        data = e;
+                    }
 
                     this.rawdata = data;
                     //console.log(arr, this.nowgamedata, this.gamedatas[this.nowgamedata].extra.id, this.gamedatas[this.nowgamedata]);
@@ -112,13 +114,31 @@ class majsoulpaipuanalyze{
                 this.nowgamedata ++ ;
                 if (this.paipus != undefined) this.converttoonepaipu();
             }
-            reader.onload = rloadfunc.bind(this);
+            if (!bytearr){
+                let reader = new FileReader();
+                reader.readAsArrayBuffer(request.response);
+                reader.onload = rloadfunc.bind(this);
+            }
+            else{
+                rloadfunc.bind(this)(bytearr);
+            }
         }
-        request.onload = loadfunc.bind(this);
-        request.send();
+        if (filelink){
+            request = new XMLHttpRequest();
+            request.open('GET', filelink, true);
+            request.responseType = 'blob';
+            request.onload = loadfunc.bind(this);
+            request.send();
+        }
+        else{
+            if (!bytearr) console.error('filelink and bytearr all null');
+            else{
+                loadfunc.bind(this)(null, bytearr);
+            }
+        }
     }
 
-    converttoonepaipu(){
+    converttoonepaipu(bytearr = null){
         if (this.nowgamedata >= this.gamedatas.length){
             console.log("paipu convert over");
             if (this.ipcrsend != undefined && this.ipcrsend && ipcr != undefined){
@@ -146,7 +166,7 @@ class majsoulpaipuanalyze{
         UserID = gamedata.accountid;
         InitialOya = 0;
         View.INewGame({startscore: gamedata.roomdata.init_point});
-        this.getfile(link);
+        this.getfile(bytearr ? null : link, bytearr);
     }
 
     convertsomepaipu(gamedatas, linkprefix = 'https://mj-srv-3.majsoul.com:7343/majsoul/game_record/'){
@@ -157,6 +177,13 @@ class majsoulpaipuanalyze{
         this.gamedatas = gamedatas;
         this.nowgamedata = 0;
         this.converttoonepaipu();
+    }
+
+    convertpaipuwithbytes(gamedata, bytearr){
+        this.paipus = [];
+        this.gamedatas = [gamedata];
+        this.nowgamedata = 0;
+        this.converttoonepaipu(bytearr);
     }
 
     getgamedatafromlink(filelink, startnum = 0, endnum = 10, linkprefix = 'https://mj-srv-3.majsoul.com:7343/majsoul/game_record/'){
