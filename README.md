@@ -17,7 +17,7 @@ APPVeyor下载最新版本：
 
 Windows: [![Build status](https://ci.appveyor.com/api/projects/status/fyirnuhsunq73brc?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer) Linux: [![Build status](https://ci.appveyor.com/api/projects/status/i22ex7a644qasmxx?svg=true)](https://ci.appveyor.com/project/zyr17/majsoulpaipuanalyzer-ko5wy)
 
-由于APPVeyor无法编译macOS下软件，因此macOS版本自行使用苹果虚拟机编译，在网盘和releases提供下载。
+新增Github Actions持续集成，在网盘和releases提供下载。
 
 [releases](https://github.com/zyr17/MajsoulPaipuAnalyzer/releases)中可下载已经编译好的文件。
 
