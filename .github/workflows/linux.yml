@@ -1,0 +1,59 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Linux CI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    if: "!github.event.release.prerelease"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm
+      run: |
+        npm ci
+        npm run-script package-linux
+    - name: cmake
+      run: |
+        git submodule update --init --recursive
+        mkdir bin
+        mkdir bin/release
+        cd bin/release
+        cmake ../.. -DCMAKE_BUILD_TYPE=Release
+        make -j
+    - name: collect
+      run: |
+        cp -r dist/MajsoulPaipuCrawler-linux-x64 result
+        cp bin/release/PaipuAnalyzer result/
+        mkdir result/data
+        cp config.json result/
+        cp PAADData.json result/
+        cp doc/README.txt result/
+        cp doc/release-notes.txt result/
+        cp -r i18n/ result/
+        mv result MajsoulPaipuAnalyzer-linux-x64
+    - name: archive
+      run: 7z a MajsoulPaipuAnalyzer-linux-x64.7z MajsoulPaipuAnalyzer-linux-x64 -m0=LZMA2 -mmt
+    # - uses: actions/upload-artifact@v2
+    #   with:
+    #     name: MajsoulPaipuAnalyzer-linux-x64.7z
+    #     path: MajsoulPaipuAnalyzer-linux-x64.7z
+    # - name: fake artifact
+    #   run: mv result.html MajsoulPaipuAnalyzer-linux-x64.7z
+    - name: Upload to release
+      run: |
+        cp .github/asset.js .
+        node asset.js ${{ secrets.ACCESS_TOKEN }} $GITHUB_EVENT_PATH $GITHUB_REPOSITORY MajsoulPaipuAnalyzer-linux-x64.7z application/octet_stream

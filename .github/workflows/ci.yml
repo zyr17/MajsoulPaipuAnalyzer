@@ -1,0 +1,57 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: master CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+  
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm
+      run: |
+        npm ci
+        npm run-script package-win
+    - name: cmake
+      run: |
+        git submodule update --init --recursive
+        mkdir bin
+        mkdir bin/release
+        cd bin/release
+        cmake ../.. -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles"
+        make -j
+    - name: collect
+      run: |
+        cp -r dist/MajsoulPaipuCrawler-win32-x64 result
+        cp bin/release/PaipuAnalyzer.exe result/
+        mkdir result/data
+        cp config.json result/
+        cp PAADData.json result/
+        cp doc/README.txt result/
+        cp doc/release-notes.txt result/
+        cp -r i18n/ result/
+        mv result MajsoulPaipuAnalyzer-win-x64
+    - name: archive
+      run: 7z a MajsoulPaipuAnalyzer-win-x64.7z MajsoulPaipuAnalyzer-win-x64 -m0=LZMA2 -mmt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: MajsoulPaipuAnalyzer-win-x64.7z
+        path: MajsoulPaipuAnalyzer-win-x64.7z
+    # - name: check GITHUB_EVENT_PATH
+    #   run: echo $env:GITHUB_EVENT_PATH; echo `cat $env:GITHUB_EVENT_PATH`
