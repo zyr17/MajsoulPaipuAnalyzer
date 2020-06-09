@@ -51,7 +51,7 @@ const ready = () => {
 
     browseWindow.webContents.on('dom-ready', function (){
         //browseinject();
-        if (!/^https:\/\/(?:(?:www\.)?majsoul|game.mahjongsoul|mahjongsoul)/.test(browseWindow.webContents.getURL())){
+        if (!/^https:\/\/(?:(?:www\.)?majsoul|game.mah?jo?n?g?-?soul|mahjongsoul)/.test(browseWindow.webContents.getURL())){
             if (browseWindow.nowingamepage)
                 dialog.showMessageBox({
                     type: 'info',
@@ -328,9 +328,9 @@ const ready = () => {
                 bwindowload();
             }
         }, {
-            label: '进入国服',
+            label: '进入中文服',
             click: function () {
-                gotonewpage('https://www.majsoul.com/1/');
+                gotonewpage('https://game.maj-soul.com/1/');
             }
         }, {
             label: '进入日服',
@@ -348,6 +348,11 @@ const ready = () => {
                     title: '国际服提示',
                     message: '由于技术原因，使用国际服时请确保当前网络能够较为通畅的访问Google, FaceBook等，否则很可能无法正确获取牌谱数据。'
                 }); */
+            }
+        }, {
+            label: '进入国服（已关服）',
+            click: function () {
+                gotonewpage('https://www.majsoul.com/1/');
             }
         }, {
             label: '登录专用窗口',
