@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "electron": "^9.4.0",
+    "protobufjs": "^6.11.2",
     "request": "^2.88.2"
   }
 }

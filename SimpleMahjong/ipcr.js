@@ -20,3 +20,7 @@ ipcr.on('downloadconvert', function (event, gamedata, arr, bytearr = null) {
     }
     else majsoulpaipuanalyzer.convertpaipuwithbytes(gamedata, bytearr);
 });
+
+ipcr.on('fetchliqijsoncallback', (event, data) => {
+    ProtobufInit(data);
+});

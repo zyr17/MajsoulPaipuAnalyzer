@@ -14,7 +14,7 @@ const path                           = require('path').join,
       url                            = require('url'),
       { config, checknewestversion } = require('./lib/config.js');
 
-const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, reporterror } = require('./lib/majsoul/analyze');
+const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, ProtobufInit, reporterror } = require('./lib/majsoul/analyze');
 
 let InMacOS = process.platform == 'darwin';
 
@@ -511,6 +511,11 @@ const ready = () => {
     });
     ipcMain.on('bwindowinjectfinish', (event) => {
         browseWindow.injectfinish = 2;
+    });
+
+    ipcMain.on('fetchliqijsoncallback', (event, data) => {
+        ProtobufInit(data);
+        newWindow.webContents.send('fetchliqijsoncallback', data);
     });
     
     setTimeout(checknewestversion, 3000);
