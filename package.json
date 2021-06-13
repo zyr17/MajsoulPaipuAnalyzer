@@ -1,6 +1,6 @@
 {
   "name": "majsoul-paipu-crawler",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Get Paipu from Majsoul",
   "main": "main.js",
   "scripts": {
@@ -16,11 +16,11 @@
   "author": "zyr17",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^4.1.1",
-    "electron-packager": "^13.1.1"
+    "electron-packager": "^15.2.0"
   },
   "dependencies": {
-    "electron": "^4.1.1",
-    "request": "^2.88.0"
+    "electron": "^9.4.0",
+    "protobufjs": "^6.11.2",
+    "request": "^2.88.2"
   }
 }
