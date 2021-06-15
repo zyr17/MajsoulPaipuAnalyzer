@@ -651,18 +651,36 @@ class ViewPic extends Viewprototype{
             return;
         let ltrb = num2ltrb[num];
         let hand = $('.' + ltrb + '.hand');
-        hand.empty();
-        let handtilediv = this.gettilediv(this.matchdata.data[num].hand.join(''));
-        handtilediv.appendTo(hand);
+        let handleftdiv = $('.' + ltrb + '.hand > .leftorder');
+        let inhanddiv = $('.' + ltrb + '.hand .inhand');
+        let getdiv = $('.' + ltrb + '.hand .get');
+        let showdiv = $('.' + ltrb + '.hand .show');
+        // hand.empty();
+        inhanddiv.empty();
+        getdiv.empty();
+        showdiv.empty();
+        let inhandtilediv = this.gettilediv(this.matchdata.data[num].hand.join(''));
+        inhandtilediv.appendTo(inhanddiv);
         let get = this.matchdata.data[num].get;
+        let gettiledivi = this.gettilediv(get);
         if (get != undefined && get != null && get.length != 0){
-            let getdiv = this.gettilediv(get);
-            getdiv.appendTo(hand);
+            gettiledivi.appendTo(getdiv);
         }
+        let showtiledivwidth = 0;
         for (var i = 0; i < this.matchdata.data[num].show.length; i ++ ){
-            let showdiv = this.gettilediv(this.matchdata.data[num].show[i]);
-            showdiv.appendTo(hand);
+            let showtilediv = this.gettilediv(this.matchdata.data[num].show[i]);
+            showtilediv.appendTo(showdiv);
+            showtiledivwidth += showtilediv.width();
+            showtilediv.width(showtilediv.width());
         }
+        // set div width 
+        inhanddiv.width(inhandtilediv.width());
+        getdiv.width(gettiledivi.width());
+        showdiv.width(showtiledivwidth);
+        let handwidth = hand.width();
+        showdiv.width(this.matchdata.data[num].show.length * 200);
+        handleftdiv.width(handwidth - showdiv.width());
+        console.log(inhandtilediv.width(), gettiledivi.width(), showtiledivwidth);
     }
 
     updatetable(num, shownakitile = false){

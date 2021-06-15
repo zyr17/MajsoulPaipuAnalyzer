@@ -6,6 +6,7 @@ class majsoulpaipuanalyze{
         this.steppause = steppause;
         this.selfpause = selfpause;
         this.oneroundpause = oneroundpause;
+        this.onlydownload = false;
     }
     
     analyzeandpause(data){
@@ -77,6 +78,7 @@ class majsoulpaipuanalyze{
                     }
 
                     this.rawdata = data;
+                    if (this.onlydownload) throw "only download this paipu";
                     //console.log(arr, this.nowgamedata, this.gamedatas[this.nowgamedata].extra.id, this.gamedatas[this.nowgamedata]);
                     let d = new Date();
                     if (this.paipus != undefined) d.setTime(this.gamedatas[this.nowgamedata].endtime * 1000);
@@ -101,15 +103,21 @@ class majsoulpaipuanalyze{
                     }
                 }
                 catch (err){
-                    if (this.ipcrsend != undefined && this.ipcrsend && ipcr != undefined){
-                        let data = {
-                            position: 'SimpleMahjong-paipu-majsoulpaipuanalyzer',
-                            message: '牌谱分析错误',
-                            gamedata: this.gamedatas[this.nowgamedata]
-                        };
-                        ipcr.send('reporterror', data);
+                    if (this.onlydownload){
+                        console.log(err);
                     }
-                    console.error(err);
+                    else {
+                        if (this.ipcrsend != undefined && this.ipcrsend && ipcr != undefined){
+                            let data = {
+                                position: 'SimpleMahjong-paipu-majsoulpaipuanalyzer',
+                                message: '牌谱分析错误',
+                                gamedata: this.gamedatas[this.nowgamedata]
+                            };
+                            ipcr.send('reporterror', data);
+                        }
+                        console.error(err);
+                    }
+                    this.onepaipu = null;
                 }
                 this.nowgamedata ++ ;
                 if (this.paipus != undefined) this.converttoonepaipu();
@@ -152,12 +160,14 @@ class majsoulpaipuanalyze{
             return;
         }
         let gamedata = this.gamedatas[this.nowgamedata];
+        /*
         if (gamedata.roomdata.player == 3){
             console.log('paipu #' + this.nowgamedata + ' is 3 player mahjong, skip');
             this.nowgamedata ++ ;
             this.converttoonepaipu();
             return;
         }
+        */
         let linkprefix = this.linkprefix;
         let link = linkprefix + gamedata.uuid;
         this.onepaipu = {
@@ -169,9 +179,22 @@ class majsoulpaipuanalyze{
         this.getfile(bytearr ? null : link, bytearr);
     }
 
+    protobufinit(){
+        if (this.protobufready) return;
+        let request = new XMLHttpRequest();
+        request.open('GET', 'https://t.zyr17.cn/static/majsoulpaipu/liqi.json');
+        function loadfunc() { 
+            let liqi = JSON.parse(request.response);
+            AnalyzeInit(liqi);
+            this.protobufready = true;
+        }
+        request.onload = loadfunc.bind(this);
+        request.send();
+    }
+
     convertsomepaipu(gamedatas, linkprefix = 'https://mj-srv-3.majsoul.com:7343/majsoul/game_record/'){
         if (linkprefix == 't')
-            linkprefix = 'http://t.zyr17.cn/static/majsoulpaipu/';
+            linkprefix = 'https://t.zyr17.cn/static/majsoulpaipu/';
         this.linkprefix = linkprefix;
         this.paipus = [];
         this.gamedatas = gamedatas;
@@ -187,6 +210,7 @@ class majsoulpaipuanalyze{
     }
 
     getgamedatafromlink(filelink, startnum = 0, endnum = 10, linkprefix = 'https://mj-srv-3.majsoul.com:7343/majsoul/game_record/'){
+        this.protobufinit();
         let request = new XMLHttpRequest();
         request.open('GET', filelink, true);
         function loadfunc () {
@@ -200,7 +224,11 @@ class majsoulpaipuanalyze{
             this.convertsomepaipu(gamedatas, linkprefix);
         }
         request.onload = loadfunc.bind(this);
-        request.send();
+        let protobufafterid = setInterval(() => {
+            if (!this.protobufready) return;
+            clearInterval(protobufafterid);
+            request.send();
+        }, 200);
     }
 
 }
