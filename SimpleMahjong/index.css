@@ -170,14 +170,40 @@ div{
     align-items: center;
     justify-content: center;
 }
-.hand, .tilediv{
+.tilediv{
     display: flex;
     align-items: flex-end;
     justify-content: center;
 }
-.hand > div{
+.hand{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+.hand > .leftorder{
+    display: flex;
+    align-items: flex-end;
+    justify-content: left;
+    margin: 0 5px 0 50px;
+}
+.hand > .show{
+    margin: 0 50px 0 5px;
+}
+.hand > .leftorder, .hand .inhand, .hand .get, .hand .show{
+    display: flex;
+    align-items: flex-end;
     position: relative;
+    height: 100%;
+}
+.hand .inhand, .hand .get{
     margin: 0 5px 0 5px;
+}
+.hand .show{
+    justify-content: right;
+}
+.hand .show > div{
+    margin: 0 5px 0 5px;
+    position: relative;
 }
 .tilediv > div, .table > div{
     position: relative;
