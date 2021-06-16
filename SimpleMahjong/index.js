@@ -655,6 +655,7 @@ class ViewPic extends Viewprototype{
         let inhanddiv = $('.' + ltrb + '.hand .inhand');
         let getdiv = $('.' + ltrb + '.hand .get');
         let showdiv = $('.' + ltrb + '.hand .show');
+        let lastshownum = showdiv.children().length;
         // hand.empty();
         inhanddiv.empty();
         getdiv.empty();
@@ -673,14 +674,15 @@ class ViewPic extends Viewprototype{
             showtiledivwidth += showtilediv.width();
             showtilediv.width(showtilediv.width());
         }
-        // set div width 
-        inhanddiv.width(inhandtilediv.width());
-        getdiv.width(gettiledivi.width());
-        showdiv.width(showtiledivwidth);
-        let handwidth = hand.width();
-        showdiv.width(this.matchdata.data[num].show.length * 200);
-        handleftdiv.width(handwidth - showdiv.width());
-        console.log(inhandtilediv.width(), gettiledivi.width(), showtiledivwidth);
+        if (lastshownum != this.matchdata.data[num].show.length){
+            // set div width 
+            inhanddiv.width(inhandtilediv.width());
+            getdiv.width(gettiledivi.width());
+            showdiv.width(showtiledivwidth);
+            let handwidth = hand.width();
+            showdiv.width(this.matchdata.data[num].show.length * 200);
+            handleftdiv.width(handwidth - showdiv.width());
+        }
     }
 
     updatetable(num, shownakitile = false){
