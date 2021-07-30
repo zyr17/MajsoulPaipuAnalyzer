@@ -44,7 +44,7 @@ const ready = () => {
         title: `browser`,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: false
         }
     });
 
@@ -67,6 +67,7 @@ const ready = () => {
     });
 
     browseWindow.webContents.on('did-navigate', function (){
+        return;
         if (browseWindow.injectfinish == 2){
             //如果跳转页面时已注入，那么标记为未注入并调用browseinject
             browseWindow.injectfinish = 0;
@@ -394,16 +395,19 @@ const ready = () => {
         submenu: [{
             label: '查看已有牌谱情报',
             click: function () {
+                dialog.showMessageBox({type: 'error', noLink: true, buttons: ['确定'], title: '错误', message: '牌谱获取出现严重问题，目前已屏蔽相关功能防止造成严重后果，请待工具更新再尝试使用。'}); return;
                 bwindowsendmessage('collectpaipu', 'checkpaipugamedata');
             }
         }, {
             label: '自动获取牌谱数据',
             click: function () {
+                dialog.showMessageBox({type: 'error', noLink: true, buttons: ['确定'], title: '错误', message: '牌谱获取出现严重问题，目前已屏蔽相关功能防止造成严重后果，请待工具更新再尝试使用。'}); return;
                 bwindowsendmessage('collectallpaipu');
             }
         }, {
             label: '下载&转换牌谱',
             click: function () {
+                dialog.showMessageBox({type: 'error', noLink: true, buttons: ['确定'], title: '错误', message: '牌谱获取出现严重问题，目前已屏蔽相关功能防止造成严重后果，请待工具更新再尝试使用。'}); return;
                 bwindowsendmessage('collectpaipu', 'downloadconvertpaipu');
             }
         }]
