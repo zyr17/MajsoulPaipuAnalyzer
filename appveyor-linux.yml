@@ -5,9 +5,9 @@ branches:
   - master
 build_script:
 - sh: >-
-    nvm install 8.1.0
+    nvm install stable
 
-    nvm use 8.1.0
+    nvm use stable
 
     git submodule init
 

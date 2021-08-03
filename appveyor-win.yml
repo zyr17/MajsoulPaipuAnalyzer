@@ -13,6 +13,10 @@ build_script:
 
     git submodule update
 
+    nvm install stable
+
+    nvm use stable
+
     npm install
     
     npm run-script package-win
