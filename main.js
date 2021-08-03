@@ -183,7 +183,7 @@ const ready = () => {
                 noLink: true,
                 buttons: ['确定'],
                 title: '错误',
-                message: '存在正在执行的下载转换任务！'
+                message: '存在正在执行的下载转换任务！如果转换异常停止请重启工具。'
             });
             return;
         }
