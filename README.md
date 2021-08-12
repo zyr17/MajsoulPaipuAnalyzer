@@ -160,6 +160,8 @@ Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的�
 
 没钱买苹果电脑，所以用VMware做了个黑苹果编译测试，安装系统版本10.14。在真机上可能会出现问题。
 
+0.4.9版部分数据准确性存疑，正在尝试找到问题。
+
 ## 联系
 
 如果发现任何bug，可以通过[github](https://github.com/zyr17/MajsoulPaipuAnalyzer/issues)或是jzjqz17@gmail.com说明。

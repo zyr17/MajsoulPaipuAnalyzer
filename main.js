@@ -18,6 +18,7 @@ const path                           = require('path').join,
 const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, AnalyzeInit, Protobuf2Object, reporterror } = require('./lib/majsoul/analyze');
 
 let InMacOS = process.platform == 'darwin';
+let activate_devtool = 0;
 
 var paipuversion = undefined;
 var appPath = app.getAppPath();
@@ -30,8 +31,8 @@ if (InMacOS) dataPath = __dirname + '/../../../../' + dataPath;
 
 const ready = () => {
     var newWindow = new BrowserWindow({
-        width: 600,
-        height: 650,
+        width: 650,
+        height: 700,
         title: `Simple Mahjong`,
         show: false,
         webPreferences: {
@@ -39,8 +40,8 @@ const ready = () => {
         }
     });
     var browseWindow = new BrowserWindow({
-        width: 800,
-        height: 500,
+        width: 1280,
+        height: 770,
         title: `browser`,
         show: false,
         webPreferences: {
@@ -462,18 +463,17 @@ const ready = () => {
         submenu: [{
             label: '清除配置数据',
             click: function() {
-                dialog.showMessageBox({
+                let response = dialog.showMessageBoxSync({
                     type: 'warning',
                     title: '警告',
                     message: '是否清除配置数据？\n错误上报、默认服务器、更新检查等相关配置会被清除，data文件夹和config.json不会改动。',
                     cancelId: 1,
                     noLink: true,
                     buttons: ['是', '否']
-                }, function (response) {
-                    if (response == 0){
-                        config.clear();
-                    }
                 });
+                if (response == 0){
+                    config.clear();
+                }
             }
         }, {
             label: '打开开发者工具',
@@ -484,6 +484,8 @@ const ready = () => {
         }, {
             label: '下载牌谱并保存',
             click: function() {
+                if (activate_devtool != 3)
+                    return;
                 prompt({
                     title: '输入牌谱号',
                     label: '牌谱号：',
@@ -493,15 +495,33 @@ const ready = () => {
                 });
             }
         }, {
+            label: '选择牌谱并保存元信息',
+            click: function() {
+                if (activate_devtool != 3)
+                    return;
+                let path = dialog.showOpenDialogSync({
+                    title: '牌谱文件',
+                    multiSelections: true
+                });
+                if (!path)
+                    return;
+                for (let i in path){
+                    let data = fs.readFileSync(path[i]);
+                    data = analyze(data);
+                    fs.writeFileSync(path[i] + '.json', JSON.stringify(data.toJSON()));
+                }
+            }
+        }, {
             label: '关于',
             click: function() {
-                dialog.showMessageBox({
+                let response = dialog.showMessageBoxSync({
                     type: 'info', 
                     title: '关于',
                     noLink: true,
-                    buttons: ['确定'],
+                    buttons: ['确定', '取消'],
                     message: `MajsoulPaipuCrawler v${config.get('Version')}\nContact: jzjqz17@gmail.com\nGithub: https://github.com/zyr17/MajsoulPaipuAnalyzer`
                 });
+                activate_devtool |= response + 1;
             }
         }]
     }];
@@ -538,7 +558,7 @@ const ready = () => {
             let gamedata = gamedatas[i];
             if (gamedata.length < 2) continue;
             let gdata = JSON.parse(gamedata);
-            if (gdata.version == undefined || config.versionconvert(gdata.version) < config.versionconvert(config.get('PaipuMinVersion'))){
+            if (gdata.version == undefined || config.versionconvert(gdata.version) < config.versionconvert(config.get('GamedataMinVersion'))){
                 oldgamedatas.push(gdata);
                 continue;
             }
@@ -555,6 +575,7 @@ const ready = () => {
                 message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，请前往 牌谱 界面重新获取一遍牌谱数据。`
             });
 
+        const paipu_bk_folder_name = 'old_paipu_backup';
         paipuversion = {};
         ppp = path(root, 'paipuversion.txt');
         if (fs.existsSync(ppp))
@@ -565,6 +586,8 @@ const ready = () => {
             let i = dirite.next();
             if (i.done) break;
             i = i.value;
+            if (i == paipu_bk_folder_name)
+                continue;
             let add = false;
             if (!paipuversion.hasOwnProperty(i)){
                 let paipudata = JSON.parse(String(fs.readFileSync(path(root, 'paipus', i))));
@@ -585,18 +608,35 @@ const ready = () => {
             noLink: true,
             buttons: ['确定'],
             title: '发现旧牌谱',
-            message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱删去，可能需要一定时间。`
+            message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱移至备份文件夹，可能需要一定时间。`
         });
+        let bkpaipupath = path(root, 'paipus', paipu_bk_folder_name);
+        if (fs.existsSync(bkpaipupath)){
+            /*
+            no need to do anything
+            dialog.showMessageBoxSync({
+                type: 'warning',
+                noLink: true,
+                buttons: ['确定'],
+                title: '备份文件夹已存在',
+                message: '备份文件夹已存在，可能由之前的牌谱备份操作创建，'
+            });
+            */
+        }
+        else{
+            fs.mkdirSync(bkpaipupath);
+        }
         for (let i in oldpaipus){
-            ppp = path(root, 'paipus', oldpaipus[i]);
-            fs.unlinkSync(ppp);
+            let ppp = path(root, 'paipus', oldpaipus[i]);
+            let ttt = path(bkpaipupath, oldpaipus[i]);
+            fs.renameSync(ppp, ttt);
         }
         dialog.showMessageBox({
             type: 'info',
             noLink: true,
             buttons: ['确定'],
             title: '发现旧牌谱',
-            message: `旧牌谱删除完成。`
+            message: `旧牌谱转移完成。`
         });
     }
     ipcMain.on('downloadconvertresult', (event, data) => {
