@@ -86,6 +86,13 @@ class majsoulpaipuanalyze{
                         //太短是因为牌谱未被归档导致返回错误信息
                         let pdata = Protobuf2Object(data);
                         this.pdatarecords = pdata.records;
+                        if (pdata.version && pdata.actions && pdata.actions.length){
+                            let records = [];
+                            for (let i in pdata.actions)
+                                if (pdata.actions[i].result && pdata.actions[i].result.constructor.name.indexOf('Array') == -1)
+                                    records.push(pdata.actions[i].result);
+                            this.pdatarecords = records;
+                        }
                         //for (let i in pdata.records) View.IAction(pdata.records[i]);
                         this.analyzenextpart();
                         if (this.paipus != undefined){
