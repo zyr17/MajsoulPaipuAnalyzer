@@ -15,16 +15,20 @@ const path                           = require('path').join,
       prompt                         = require('electron-prompt'),
       { config, checknewestversion } = require('./lib/config.js');
 
-const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, AnalyzeInit, Protobuf2Object, reporterror } = require('./lib/majsoul/analyze');
+const { analyze, paipugamedata, paipugamedata0, analyzeGameRecord, getUserID, setUserID, AnalyzeInit, Protobuf2Object, reporterror } = require('./lib/majsoul/analyze');
 
 let InMacOS = process.platform == 'darwin';
 let activate_devtool = 0;
+let tempUserID = null;
+let nowgamedata = null;
 
 var paipuversion = undefined;
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
 const paipu_bk_folder_name = 'old_paipu_backup';
+const metadata_query_step = 100; // How many uuids to query once. In test, 850 is safe and 1500 will be banned.     
+const metadata_fetch_delay = 1000; // ms to delay after fetching metadata
 
 if (InMacOS) dataPath = __dirname + '/../../../../' + dataPath;
 
@@ -37,7 +41,8 @@ const ready = () => {
         title: `Simple Mahjong`,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     });
     var browseWindow = new BrowserWindow({
@@ -46,9 +51,22 @@ const ready = () => {
         title: `browser`,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     });
+
+    newWindow.on('closed', () => {
+        newWindow = null;
+        if (browseWindow)
+            browseWindow.close();
+    })
+
+    browseWindow.on('closed', () => {
+        browseWindow = null;
+        if (newWindow)
+            newWindow.close();
+    })
 
     browseWindow.nowingamepage = true;
 
@@ -79,17 +97,22 @@ const ready = () => {
         }
     });
 
-    function browseinject() {
+    function browseinject_one(filepath) {
         if (browseWindow.injectfinish != 0)
             //1 2对应注入请求发送未执行；注入完成。均不需要尝试注入
             return;
-        fs.readFile(path(__dirname, 'lib', 'majsoul', 'browseinject.js'), function (error, browsedata) {
+        fs.readFile(filepath, function (error, browsedata) {
             if (error) console.log('read browseinject.js error: ' + error);
             else{
                 browseWindow.injectfinish = 1;
                 browseWindow.webContents.executeJavaScript(String(browsedata));
             }
         });
+    }
+
+    function browseinject() {
+        browseinject_one(path(__dirname, 'lib', 'majsoul', 'browseinject.js'));
+        browseinject_one(path(__dirname, 'lib', 'majsoul', 'majsoul2tenhou.js'));
     }
     
     function bwindowload(url){
@@ -117,12 +140,65 @@ const ready = () => {
     }
 
     function isspecialrule(roomdata){
-        return roomdata.fanfu > 1 //>1番缚
+        let isspecialrule = roomdata.fanfu > 1 //>1番缚
             || roomdata.guyi_mode //古役
             || roomdata.begin_open_mode //配牌明牌
             || roomdata.xuezhandaodi //血战到底
             || roomdata.huansanzhang //换三张
+            || roomdata.jiuchao_mode //鸠巢
+            || roomdata.reveal_discard //暗夜之战
         ;
+        const basicrule = {
+            "dora_count":3,
+            "shiduan":true,
+            "can_jifei":true,
+            "tianbian_value":0,  // TODO what's mean of tianbian
+            "liqibang_value":1000,
+            "changbang_value":300,
+            "noting_fafu_1":1000,
+            "noting_fafu_2":1500,
+            "noting_fafu_3":3000,
+            "have_liujumanguan":true,
+            "have_qieshangmanguan":false,
+            "have_biao_dora":true,
+            "have_gang_biao_dora":true,
+            "ming_dora_immediately_open":false,
+            "have_li_dora":true,
+            "have_gang_li_dora":true,
+            "have_sifenglianda":true,
+            "have_sigangsanle":true,
+            "have_sijializhi":true,
+            "have_jiuzhongjiupai":true,
+            "have_sanjiahele":false,
+            "have_toutiao":false,
+            "have_helelianzhuang":true,
+            "have_helezhongju":true,
+            "have_tingpailianzhuang":true,
+            "have_tingpaizhongju":true,
+            "have_yifa":true,
+            "have_nanruxiru":true,
+            "disable_multi_yukaman":false,
+            "disable_leijiyiman":false,
+            "fanfu":1,
+        }
+        const basickey = [
+            "player", "round", "init_point", "fandian", "time_fixed", 
+            "time_add", "room", "contest_id", "has_ai", "bianjietishi",
+            "ai_level"
+        ]
+        let isbasicrule = true;
+        for (let i in basicrule){
+            if (!((roomdata[i] == undefined) || roomdata[i] == basicrule[i]))
+                console.log(i, roomdata[i], basicrule[i]);
+            isbasicrule = isbasicrule && ((roomdata[i] == undefined) || roomdata[i] == basicrule[i]);
+        }
+        for (let i in roomdata)
+            if (false && basicrule[i] == undefined && !basickey.includes(i) && roomdata[i]){
+                // TODO 存在不是基本规则或是基本参数的内容，当做特殊规则。没调试好先disable
+                console.log(i, roomdata[i]);
+                isspecialrule = true;
+            }
+        return isspecialrule || !isbasicrule;
     }
 
     function iserrorpaipu(gamedata){
@@ -130,22 +206,22 @@ const ready = () => {
         return !gamedata //空数据
             || !gamedata.roomdata //空房间数据
             || gamedata.roomdata.room == undefined //无房间号
-            || gamedata.roomdata.room >= 100 //房间号>=100是活动场
+            || gamedata.roomdata.room > 100 //房间号>100是活动场
             || isspecialrule(gamedata.roomdata) //包含特殊规则
         ;
     }
     
     function checkpaipugamedata(){
         let msgstr = '', root, paipu4 = 0, paipu3 = 0, downloaded = 0, converted = 0, userid = getUserID(), errordata = 0;
-        if (userid <= 0){
+        if (userid < 0){
             showcantgetIDmsg();
             return;
         }
         root = path(dataPath, 'majsoul', userid.toString());
         let rawdirdata = new Set(fs.readdirSync(path(root, 'raw')));
         let paipusdirdata = new Set(fs.readdirSync(path(root, 'paipus')));
-        for (let id in paipugamedata){
-            let data = paipugamedata[id];
+        for (let id in nowgamedata){
+            let data = nowgamedata[id];
             if (iserrorpaipu(data)) errordata ++ ;
             else if (data.roomdata.player == 3) paipu3 ++ ;
             else paipu4 ++ ;
@@ -172,7 +248,7 @@ const ready = () => {
 
     function downloadconvertpaipu(){
         let userid = getUserID();
-        if (userid <= 0){
+        if (userid < 0){
             showcantgetIDmsg();
             return;
         }
@@ -192,8 +268,8 @@ const ready = () => {
         downloadconvertlist = [];
         downloadconvertresult = [0, 0, 0, 0, 0]; // convert-success, index, total, time
         downloadnumber = convertnumber = downloadcount = convertcount = 0;
-        for (let id in paipugamedata){
-            let needpaipu = !iserrorpaipu(paipugamedata[id]) && paipugamedata[id].roomdata.player == 4;
+        for (let id in nowgamedata){
+            let needpaipu = !iserrorpaipu(nowgamedata[id]) && nowgamedata[id].roomdata.player == 4;
             if (!rawdirdata.has(id) || !paipusdirdata.has(id) && needpaipu){
                 let needconvert = needpaipu && !paipusdirdata.has(id);
                 // id, (false: only download, true: download and convert)
@@ -227,8 +303,8 @@ const ready = () => {
             return;
         }
         let id = downloadconvertlist[0][0];
-        browseWindow.webContents.send('fetchpaipudata', paipugamedata[id].uuid);
-        //newWindow.webContents.send('downloadconvert', paipugamedata[id], downloadconvertresult);
+        browseWindow.webContents.send('fetchpaipudata', nowgamedata[id].uuid);
+        //newWindow.webContents.send('downloadconvert', nowgamedata[id], downloadconvertresult);
     }
 
     function fetchpaipudatacallback(res){
@@ -240,7 +316,7 @@ const ready = () => {
             return;
         }
         let id = downloadconvertlist[0][0], isconvert = downloadconvertlist[0][1];
-        let gamedata = paipugamedata[id];
+        let gamedata = nowgamedata[id];
         if (url){
             gamedata.url = url;
             newWindow.webContents.send('downloadconvert', gamedata, isconvert, downloadconvertresult);
@@ -314,6 +390,10 @@ const ready = () => {
         });
         downloadconvertresult = undefined;
         downloadconvertlist = undefined;
+        if (tempUserID){
+            setUserID(tempUserID);
+            tempUserID = null;
+        }
     }
 
     function downloadconvertcallback(data){
@@ -365,10 +445,7 @@ const ready = () => {
             return;
         }
         analyzeGameRecord(data);
-        let gamedatatxt = path(dataPath, 'majsoul', getUserID().toString(), 'gamedata.txt');
-        fs.writeFileSync(gamedatatxt, '');
-        for (let id in paipugamedata)
-            fs.appendFileSync(gamedatatxt, JSON.stringify(paipugamedata[id]) + '\n');
+        savegamedata(getUserID(), nowgamedata);
         if (option == 'checkpaipugamedata')
             checkpaipugamedata();
         else if (option == 'downloadconvertpaipu')
@@ -377,6 +454,10 @@ const ready = () => {
 
     ipcMain.on('collectpaipucallback', (event, err, option, data) => {
         collectpaipucallback(err, option, data);
+    });
+
+    ipcMain.on('collectallpaipucallback', (event) => {
+        savegamedata(getUserID(), nowgamedata);
     });
 
     function bwindowsendmessage(cmd, d1, d2, d3, d4){ //先放4个参数，不够再加
@@ -393,22 +474,106 @@ const ready = () => {
         browseWindow.webContents.send(cmd, d1, d2, d3, d4);
     }
 
+    function convert2tenhou() {
+        let uuids = [];
+        let heads = {};
+        for (let uuid in nowgamedata)
+            if (!iserrorpaipu(nowgamedata[uuid]) && nowgamedata[uuid].roomdata.player == 4)
+                uuids.push(uuid);
+        dialog.showMessageBox({
+            type: 'info',
+            noLink: true,
+            buttons: ['确定'],
+            title: '转换牌谱到天凤格式',
+            message: `尝试转换 ${uuids.length} 个牌谱到天凤格式中。只有能被正常分析且已经下载的四人牌谱才会被尝试转换。\n转换代码来自 GitHub: Equim-chan，转换结果仅供参考，不保证正确性。`
+        });
+
+        function restore() {
+            if (tempUserID) {
+                setUserID(tempUserID);
+                tempUserID = null;
+            }
+        }
+
+        let task_count = 0;
+        let success_count = 0;
+
+        ipcMain.removeAllListeners('converttenhoulogcallback');
+        ipcMain.on('converttenhoulogcallback', function (event, uuid, result) {
+            let tenhoufolder = path(dataPath, 'majsoul', getUserID().toString(), 'tenhou');
+            if (!fs.existsSync(tenhoufolder))
+                fs.mkdirSync(tenhoufolder);
+            if (result != undefined) {
+                success_count ++ ;
+                fs.writeFileSync(path(tenhoufolder, uuid), JSON.stringify(result));
+            }
+            if ( -- task_count == 0) {
+                dialog.showMessageBox({
+                    type: 'info',
+                    noLink: true,
+                    buttons: ['确定'],
+                    title: '转换完成',
+                    message: `转换了 ${success_count} 个牌谱。\n存储位置: ${path('data', 'majsoul', getUserID().toString(), 'tenhou')}`
+                });
+                restore();
+            }
+        });
+
+        function realconvert(heads) {
+            let rawfolder = path(dataPath, 'majsoul', getUserID().toString(), 'raw');
+            for (let uuid in heads)
+                if (fs.existsSync(path(rawfolder, uuid)))
+                    task_count ++ ;
+            for (let uuid in heads)
+                if (fs.existsSync(path(rawfolder, uuid)))
+                    browseWindow.webContents.send('converttenhoulog', heads[uuid], fs.readFileSync(path(rawfolder, uuid)));
+            if (!task_count)
+                restore();
+        }
+
+        function sendmetadataquery() {
+            let part_data = uuids.splice(0, metadata_query_step);
+            if (part_data.length)
+                browseWindow.webContents.send('collectmetadata', part_data);
+        }
+        ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
+        ipcMain.on('collectmetadatacallback', (event, data) => {
+            for (let d of data)
+                heads[d.uuid] = d;
+            if (uuids.length)
+                setTimeout(sendmetadataquery, metadata_fetch_delay);
+            else{
+                realconvert(heads);
+            }
+        });
+        sendmetadataquery();
+    }
+
     var menutemplate = [{
         label: '牌谱',
         submenu: [{
             label: '查看已有牌谱情报',
             click: function () {
+                nowgamedata = paipugamedata;
                 bwindowsendmessage('collectpaipu', 'checkpaipugamedata');
             }
         }, {
             label: '自动获取牌谱数据',
             click: function () {
-                bwindowsendmessage('collectallpaipu');
+                nowgamedata = paipugamedata;
+                bwindowsendmessage('collectallpaipu', 'collectallpaipucallback');
             }
         }, {
             label: '下载&转换牌谱',
             click: function () {
+                nowgamedata = paipugamedata;
                 bwindowsendmessage('collectpaipu', 'downloadconvertpaipu');
+            }
+        }, {
+            label: '转换天凤牌谱',
+            click: function () {
+                nowgamedata = paipugamedata;
+                convert2tenhou();
             }
         }]
     }, {
@@ -461,6 +626,129 @@ const ready = () => {
             }
         }]
     }, {
+        label: '公共牌谱列表',
+        submenu: [{
+            label: '下载指定牌谱到公共列表',
+            click: function() {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                let response = dialog.showMessageBoxSync(browseWindow, {
+                    type: 'info', 
+                    title: '选择输入方式',
+                    noLink: true,
+                    buttons: ['取消', '文件输入', '单牌谱输入'],
+                    message: `请选择输入牌谱的方式。文件输入时一行可包含一个牌谱记录或牌谱链接。`
+                });
+
+                function getrecord(data){
+                    let uuidcount = 0;
+                    let uuids = []
+                    for (let i in data){
+                        let uuid = /(?:\d{6}-)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/.exec(data[i]);
+                        if (uuid){
+                            uuidcount ++ ;
+                            if (!(uuid in paipugamedata0))
+                                uuids.push(uuid.toString());
+                        }
+                    }
+                    dialog.showMessageBox({
+                        type: 'info',
+                        title: '下载牌谱元数据',
+                        noLink: true,
+                        buttons: ['确定'],
+                        message: `共发现 ${uuidcount} 个牌谱号，其中 ${uuids.length} 个需要下载元数据。` + (uuids.length ? `将在后台下载牌谱元数据，期间请勿进行其他操作，防止出现无法预料的后果。` : '')
+                    });
+                    let successcounter = 0;
+                    function sendmetadataquery() {
+                        let part_data = uuids.splice(0, metadata_query_step);
+                        if (part_data.length)
+                            browseWindow.webContents.send('collectmetadata', part_data);
+                    }
+                    ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
+                    ipcMain.on('collectmetadatacallback', (event, data) => {
+                        successcounter += data.length;
+                        tempUserID = getUserID();
+                        setUserID(0);  // temporary set userid to 0 to notify analyzer write gamedata to gamedata0
+                        analyzeGameRecord(data);
+                        setUserID(tempUserID);
+                        tempUserID = null;
+                        if (uuids.length)
+                            setTimeout(sendmetadataquery, metadata_fetch_delay);
+                        else{
+                            dialog.showMessageBoxSync({
+                                type: 'info',
+                                title: '下载牌谱元数据',
+                                noLink: true,
+                                buttons: ['确定'],
+                                message: `成功下载 ${successcounter} 个牌谱元数据。获取详细牌谱数据请点击 公共牌谱列表-查看已有牌谱情报 。`
+                            });
+                            savegamedata(0, paipugamedata0);
+                        }
+                    });
+                    sendmetadataquery();
+                }
+
+                if (response == 1){
+                    let path = dialog.showOpenDialogSync({
+                        title: '牌谱号/牌谱链接文件',
+                    });
+                    if (!path)
+                        return;
+                    let data = fs.readFileSync(path[0]).toString().split('\n');
+                    getrecord(data);
+                }
+
+                if (response == 2){
+                    prompt({
+                        title: '输入牌谱',
+                        label: '牌谱号/牌谱链接：',
+                    }, browseWindow).then((res) => {
+                        getrecord([res]);
+                    });
+                }
+            }
+        }, {
+            label: '查看已有牌谱情报',
+            click: function () {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                nowgamedata = paipugamedata0;
+                tempUserID = getUserID();
+                setUserID(0);
+                checkpaipugamedata();
+                setUserID(tempUserID);
+                tempUserID = null;
+            }
+        }, {
+            label: '下载&转换牌谱',
+            click: function () {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                nowgamedata = paipugamedata0;
+                tempUserID = getUserID();
+                setUserID(0);
+                downloadconvertpaipu();
+            }
+        }, {
+            label: '转换天凤牌谱',
+            click: function () {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                nowgamedata = paipugamedata0;
+                tempUserID = getUserID();
+                setUserID(0);
+                convert2tenhou();
+            }
+        }]
+    }, {
         label: '其他',
         submenu: [{
             label: '清除配置数据',
@@ -491,8 +779,8 @@ const ready = () => {
                 prompt({
                     title: '输入牌谱号',
                     label: '牌谱号：',
-                }).then((res) => {
-                    let uuid = /\d{6}-[a-z0-9-]*/.exec(res).toString();
+                }, browseWindow).then((res) => {
+                    let uuid = /(?:\d{6}-)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/.exec(res).toString();
                     browseWindow.webContents.send('fetchpaipudata', uuid, 'fetchpaipudatasave');
                 });
             }
@@ -542,7 +830,7 @@ const ready = () => {
     bwindowload(config.get('DefaultURL'));
     browseWindow.show();
     //browseWindow.maximize();
-    function savegamedata(userid){
+    function readgamedata(userid, paipugamedata, callback){
         let root = path(dataPath, 'majsoul', userid.toString());
         if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
         if (!fs.existsSync(path(dataPath, 'majsoul'))) fs.mkdirSync(path(dataPath, 'majsoul'));
@@ -568,14 +856,50 @@ const ready = () => {
             if (paipugamedata[id] == undefined)
                 paipugamedata[id] = gdata;
         }
-        if (oldgamedatas.length > 0)
+        if (oldgamedatas.length > 0){
             dialog.showMessageBox({
                 type: 'info',
                 noLink: true,
                 buttons: ['确定'],
                 title: '发现旧牌谱',
-                message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，请前往 牌谱 界面重新获取一遍牌谱数据。`
+                message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，将在10秒后开始更新，在弹出更新完成提示前请勿操作以免出现意外。`
             });
+            let maincallback = callback;
+
+            let uuids = [];
+            for (let i in oldgamedatas)
+                uuids.push(oldgamedatas[i].uuid);
+            let successcounter = 0;
+            function sendmetadataquery() {
+                let part_data = uuids.splice(0, metadata_query_step);
+                if (part_data.length)
+                    browseWindow.webContents.send('collectmetadata', part_data);
+            }
+            ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
+            ipcMain.on('collectmetadatacallback', (event, data) => {
+                successcounter += data.length;
+                tempUserID = getUserID();
+                setUserID(userid);  // temporary set userid to 0 to notify analyzer write gamedata to gamedata0
+                analyzeGameRecord(data);
+                setUserID(tempUserID);
+                tempUserID = null;
+                if (uuids.length)
+                    setTimeout(sendmetadataquery, metadata_fetch_delay);
+                else{
+                    dialog.showMessageBoxSync({
+                        type: 'info',
+                        title: '更新牌谱元数据',
+                        noLink: true,
+                        buttons: ['确定'],
+                        message: `成功更新 ${successcounter} 个牌谱元数据。`
+                    });
+                    savegamedata(userid, paipugamedata);
+                    maincallback();
+                }
+            });
+            setTimeout(sendmetadataquery, 10000);
+            callback = null;
+        }
 
         paipuversion = {};
         ppp = path(root, 'paipuversion.txt');
@@ -602,43 +926,50 @@ const ready = () => {
         }
         fs.writeFileSync(ppp, JSON.stringify(paipuversion));
 
-        if (oldpaipus.length == 0) return;
-
-        dialog.showMessageBoxSync({
-            type: 'info',
-            noLink: true,
-            buttons: ['确定'],
-            title: '发现旧牌谱',
-            message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱移至备份文件夹，可能需要一定时间。`
-        });
-        let bkpaipupath = path(root, 'paipus', paipu_bk_folder_name);
-        if (fs.existsSync(bkpaipupath)){
-            /*
-            no need to do anything
+        if (oldpaipus.length != 0){
             dialog.showMessageBoxSync({
-                type: 'warning',
+                type: 'info',
                 noLink: true,
                 buttons: ['确定'],
-                title: '备份文件夹已存在',
-                message: '备份文件夹已存在，可能由之前的牌谱备份操作创建，'
+                title: '发现旧牌谱',
+                message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱移至备份文件夹，可能需要一定时间。`
             });
-            */
+            let bkpaipupath = path(root, 'paipus', paipu_bk_folder_name);
+            if (fs.existsSync(bkpaipupath)){
+                /*
+                no need to do anything
+                dialog.showMessageBoxSync({
+                    type: 'warning',
+                    noLink: true,
+                    buttons: ['确定'],
+                    title: '备份文件夹已存在',
+                    message: '备份文件夹已存在，可能由之前的牌谱备份操作创建，'
+                });
+                */
+            }
+            else{
+                fs.mkdirSync(bkpaipupath);
+            }
+            for (let i in oldpaipus){
+                let ppp = path(root, 'paipus', oldpaipus[i]);
+                let ttt = path(bkpaipupath, oldpaipus[i]);
+                fs.renameSync(ppp, ttt);
+            }
+            dialog.showMessageBox({
+                type: 'info',
+                noLink: true,
+                buttons: ['确定'],
+                title: '发现旧牌谱',
+                message: `旧牌谱转移完成。`
+            });
         }
-        else{
-            fs.mkdirSync(bkpaipupath);
-        }
-        for (let i in oldpaipus){
-            let ppp = path(root, 'paipus', oldpaipus[i]);
-            let ttt = path(bkpaipupath, oldpaipus[i]);
-            fs.renameSync(ppp, ttt);
-        }
-        dialog.showMessageBox({
-            type: 'info',
-            noLink: true,
-            buttons: ['确定'],
-            title: '发现旧牌谱',
-            message: `旧牌谱转移完成。`
-        });
+        if (callback) callback();
+    }
+    function savegamedata(userid, gamedata){
+        let gamedatatxt = path(dataPath, 'majsoul', userid.toString(), 'gamedata.txt');
+        fs.writeFileSync(gamedatatxt, '');
+        for (let id in gamedata)
+            fs.appendFileSync(gamedatatxt, JSON.stringify(gamedata[id]) + '\n');
     }
     ipcMain.on('downloadconvertresult', (event, data) => {
         downloadconvertcallback(data);
@@ -647,9 +978,11 @@ const ready = () => {
         reporterror(data);
     });
     ipcMain.on('userid', (event, data) => {
+        function useridcallback_after(){
+            readgamedata(0, paipugamedata0, () => { newWindow.webContents.send('userid', data); console.log(data); }); // create and save public gamedata  // TODO clean data process codes to class
+        }
         setUserID(data);
-        savegamedata(data);
-        newWindow.webContents.send('userid', data);
+        readgamedata(data, paipugamedata, useridcallback_after);
     });
     ipcMain.on('bwindowinjectfinish', (event) => {
         browseWindow.injectfinish = 2;

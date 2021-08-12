@@ -1,14 +1,11 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: master and dev CI
+name: export tenhou paipu CI
 
 on:
   push:
-    branches: [ master, doc ]
-  pull_request:
-    branches: [ master ]
-  workflow_dispatch:
+    branches: [ feat/export_tenhou_paipu ]
 
 jobs:
   build:
@@ -54,9 +51,5 @@ jobs:
       with:
         name: MajsoulPaipuAnalyzer-win-x64.7z
         path: MajsoulPaipuAnalyzer-win-x64.7z
-    - uses: actions/upload-artifact@v2
-      with:
-        name: PaipuAnalyzer.exe
-        path: bin/release/PaipuAnalyzer.exe
     # - name: check GITHUB_EVENT_PATH
     #   run: echo $env:GITHUB_EVENT_PATH; echo `cat $env:GITHUB_EVENT_PATH`

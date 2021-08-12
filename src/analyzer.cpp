@@ -865,6 +865,16 @@ void MatchData::INewRound(CJsonObject &record){
     #endif
 }
 
+bool MatchData::checkstartsame(CJsonObject &record){
+    auto &pointarr = record["point"];
+    for (int i = 0; i < pointarr.GetArraySize(); i ++ ){
+        int pp;
+        pointarr.Get(i, pp);
+        if (data[i].score != pp) return false;
+    }
+    return true;
+}
+
 void MatchData::action(std::vector<std::string> &strvec){
     for (auto &i : strvec)
         action(i);
@@ -1696,6 +1706,16 @@ bool PaipuAnalyzer::filtercheck(CJsonObject &paipu){
     f = &exclude["round"];
     excluderesult = excluderesult || filterexclude(p, f);
     
+    int roomid;
+    roomdata.Get("room", roomid);
+    if (roomid == 100){ // if contest paipu, check contest id
+        p = &roomdata["contest_id"];
+        f = &include["contest_id"];
+        result = result && filterinclude(p, f);
+        f = &exclude["contest_id"];
+        excluderesult = excluderesult || filterexclude(p, f);
+    }
+
     long long tb, ta, time;
     std::string tas, tbs;
     gamedata.Get("starttime", time);
@@ -1828,6 +1848,8 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     #endif
     auto &records = paipu["record"];
     auto rlen = records.GetArraySize();
+    if (!matchdata.checkstartsame(records[0])) // 如果起始点数和首轮点数不同，跳过牌谱
+        return false;
     for (int i = 0; i < rlen; i ++ ){
         auto &oner = records[i];
         matchdata.INewRound(oner);
@@ -2117,13 +2139,27 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
             }
     }
     else{
-        std::vector<CJsonObject*> paipus;
-        auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
-        for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
-            paipus.push_back(&paipuarr[i]);
-        //int step = paipus.size() - 1;
-	    //for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
-        paipunum = pa.analyze(paipus);
+        if (id[0] == '0'){
+            // start with 0, special mode to read from "0" and analyze paipus with accountid as id[1:]
+            auto nowid = id.substr(1);
+            std::vector<CJsonObject*> paipus;
+            auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + "0" + "/paipus.txt");
+            // std::cout << nowid << ' ' << paipuarr.GetArraySize() << '\n';
+            for (int i = 0; i < paipuarr.GetArraySize(); i ++ ){
+                paipuarr[i]["gamedata"].Replace("accountid", atoi(nowid.c_str()));
+                paipus.push_back(&paipuarr[i]);
+            }
+            paipunum = pa.analyze(paipus);
+        }
+        else{
+            std::vector<CJsonObject*> paipus;
+            auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
+            for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
+                paipus.push_back(&paipuarr[i]);
+            //int step = paipus.size() - 1;
+            //for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
+            paipunum = pa.analyze(paipus);
+        }
     }
     #ifdef SAVEMATCHDATASTEP
         std::cout << TotalStep.ToString();

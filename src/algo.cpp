@@ -767,7 +767,7 @@ namespace SR{
             if (roomnumber == INVALIDROOM)
                 roomnumber= 0;
         }
-        assert(roomnumber == 0 || (roomnumber >= 0 && roomnumber < ROOMNUMBER && considerroom[roomnumber]));
+        assert(roomnumber == 0 || roomnumber == 100 || (roomnumber >= 0 && roomnumber < ROOMNUMBER && considerroom[roomnumber]));
         auto &rd = rds[roomnumber];
         if (!(rd.pt123.size() + rd.pt4.size())){
             stablerank = CI.first = CI.second = NAN;
@@ -792,11 +792,11 @@ namespace SR{
     }
 
     void addgamedata(int nroom, int round, int rank, int pt, int point){
-        assert(nroom >= 0 && nroom < ROOMNUMBER);
+        assert(nroom >= 0 && nroom < ROOMNUMBER || nroom == 100);
         if (round != 4 && round != 8) return;
         if (ME.size() != ROOMNUMBER) initializerounddata();
+        if (nroom == 100 || !considerroom[nroom]) return;
         auto &rd = round == 4 ? ME[nroom] : MS[nroom];
-        if (!considerroom[nroom]) return;
         if (rank != 4) rd.pt123.push_back(pt);
         else{
             pt = (point - 25000) / 1000;
@@ -810,8 +810,9 @@ namespace SR{
         auto &rds = round == 4 ? ME : MS;
         int roomnumber = INVALIDROOM;
         for (int i = 0; i < ROOMNUMBER; i ++ ){
-                if (considerroom[i] && (rds[i].pt123.size() + rds[i].pt4.size()))
-                    roomnumber = i;}
+            if (considerroom[i] && (rds[i].pt123.size() + rds[i].pt4.size()))
+                roomnumber = i;
+        }
         if (roomnumber < 0 || roomnumber > 5 || !considerroom[roomnumber]) return INVALIDROOM;
         return roomnumber;
     }

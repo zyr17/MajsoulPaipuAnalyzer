@@ -169,6 +169,7 @@ namespace PA{
         void clear();
         void INewGame(CJsonObject &record);
         void INewRound(CJsonObject &record);
+        bool checkstartsame(CJsonObject &record);
         void action(std::vector<std::string> &strvec);
         void action(std::string &actstr);
     };
