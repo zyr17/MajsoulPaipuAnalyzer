@@ -24,6 +24,7 @@ var paipuversion = undefined;
 var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
+const paipu_bk_folder_name = 'old_paipu_backup';
 
 if (InMacOS) dataPath = __dirname + '/../../../../' + dataPath;
 
@@ -296,7 +297,8 @@ const ready = () => {
         let paipudir = path(dataPath, 'majsoul', userid.toString(), 'paipus');
         let paipulist = fs.readdirSync(paipudir);
         for (let i in paipulist)
-            paipus.push(JSON.parse(fs.readFileSync(path(paipudir, paipulist[i]))));
+            if (paipulist[i] != paipu_bk_folder_name)
+                paipus.push(JSON.parse(fs.readFileSync(path(paipudir, paipulist[i]))));
         fs.writeFileSync(path(dataPath, 'majsoul', userid.toString(), 'paipus.txt'), JSON.stringify(paipus));
 
         let d = new Date();
@@ -575,7 +577,6 @@ const ready = () => {
                 message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，请前往 牌谱 界面重新获取一遍牌谱数据。`
             });
 
-        const paipu_bk_folder_name = 'old_paipu_backup';
         paipuversion = {};
         ppp = path(root, 'paipuversion.txt');
         if (fs.existsSync(ppp))
