@@ -27,6 +27,7 @@ var appPath = app.getAppPath();
 app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
 const paipu_bk_folder_name = 'old_paipu_backup';
+const metadata_query_step = 900; // How many uuids to query once. In test, 850 is safe and 1500 will be banned.     
 
 if (InMacOS) dataPath = __dirname + '/../../../../' + dataPath;
 
@@ -590,9 +591,8 @@ const ready = () => {
                             message: `共发现 ${uuidcount} 个牌谱号，其中 ${uuids.length} 个需要下载元数据。` + (uuids.length ? `将在后台下载牌谱元数据，期间请勿进行其他操作，防止出现无法预料的后果。` : '')
                         });
                         let successcounter = 0;
-                        const query_step = 900; // How many uuids to query once. In test, 850 is safe and 1500 will be banned.                    
                         function sendmetadataquery() {
-                            let part_data = uuids.splice(0, query_step);
+                            let part_data = uuids.splice(0, metadata_query_step);
                             if (part_data.length)
                                 browseWindow.webContents.send('collectmetadata', part_data);
                         }
@@ -687,7 +687,7 @@ const ready = () => {
     bwindowload(config.get('DefaultURL'));
     browseWindow.show();
     //browseWindow.maximize();
-    function readgamedata(userid, paipugamedata){
+    function readgamedata(userid, paipugamedata, callback){
         let root = path(dataPath, 'majsoul', userid.toString());
         if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
         if (!fs.existsSync(path(dataPath, 'majsoul'))) fs.mkdirSync(path(dataPath, 'majsoul'));
@@ -713,14 +713,50 @@ const ready = () => {
             if (paipugamedata[id] == undefined)
                 paipugamedata[id] = gdata;
         }
-        if (oldgamedatas.length > 0)
+        if (oldgamedatas.length > 0){
             dialog.showMessageBox({
                 type: 'info',
                 noLink: true,
                 buttons: ['确定'],
                 title: '发现旧牌谱',
-                message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，请前往 牌谱 界面重新获取一遍牌谱数据。`
+                message: `发现 ${oldgamedatas.length} 个旧版本获取的牌谱数据，将在10秒后开始更新，在弹出更新完成提示前请勿操作以免出现意外。`
             });
+            let maincallback = callback;
+
+            let uuids = [];
+            for (let i in oldgamedatas)
+                uuids.push(oldgamedatas[i].uuid);
+            let successcounter = 0;
+            function sendmetadataquery() {
+                let part_data = uuids.splice(0, metadata_query_step);
+                if (part_data.length)
+                    browseWindow.webContents.send('collectmetadata', part_data);
+            }
+            ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
+            ipcMain.on('collectmetadatacallback', (event, data) => {
+                successcounter += data.length;
+                tempUserID = getUserID();
+                setUserID(userid);  // temporary set userid to 0 to notify analyzer write gamedata to gamedata0
+                analyzeGameRecord(data);
+                setUserID(tempUserID);
+                tempUserID = null;
+                if (uuids.length)
+                    sendmetadataquery();
+                else{
+                    dialog.showMessageBoxSync({
+                        type: 'info',
+                        title: '更新牌谱元数据',
+                        noLink: true,
+                        buttons: ['确定'],
+                        message: `成功更新 ${successcounter} 个牌谱元数据。`
+                    });
+                    savegamedata(userid, paipugamedata);
+                    maincallback();
+                }
+            });
+            setTimeout(sendmetadataquery, 10000);
+            callback = null;
+        }
 
         paipuversion = {};
         ppp = path(root, 'paipuversion.txt');
@@ -784,6 +820,7 @@ const ready = () => {
             title: '发现旧牌谱',
             message: `旧牌谱转移完成。`
         });
+        if (callback) callback();
     }
     function savegamedata(userid, gamedata){
         let gamedatatxt = path(dataPath, 'majsoul', userid.toString(), 'gamedata.txt');
@@ -798,10 +835,11 @@ const ready = () => {
         reporterror(data);
     });
     ipcMain.on('userid', (event, data) => {
+        function useridcallback_after(){
+            readgamedata(0, paipugamedata0, () => { newWindow.webContents.send('userid', data); console.log(data); }); // create and save public gamedata  // TODO clean data process codes to class
+        }
         setUserID(data);
-        readgamedata(data, paipugamedata);
-        readgamedata(0, paipugamedata0); // create and save public gamedata  // TODO clean data process codes to class
-        newWindow.webContents.send('userid', data);
+        readgamedata(data, paipugamedata, useridcallback_after);
     });
     ipcMain.on('bwindowinjectfinish', (event) => {
         browseWindow.injectfinish = 2;
