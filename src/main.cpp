@@ -13,7 +13,7 @@ namespace MAIN{
             findi1 = findi2 = _findfirst((dataprefix + "data/" + source + "/*").c_str(), &finddata);
             while (~findi1){
                 ids.push_back(finddata.name);
-                if (*ids.rbegin() == "." || *ids.rbegin() == "..")
+                if (*ids.rbegin() == "." || *ids.rbegin() == ".." || *ids.rbegin() == "0")
                     ids.pop_back();
                 findi1 = _findnext(findi2, &finddata);
             }
@@ -23,7 +23,7 @@ namespace MAIN{
             dirent *entry;
             while (entry = readdir(dirptr)){
                 ids.push_back(entry -> d_name);
-                if (*ids.rbegin() == "." || *ids.rbegin() == "..")
+                if (*ids.rbegin() == "." || *ids.rbegin() == ".." || *ids.rbegin() == "0")
                     ids.pop_back();
             }
             closedir(dirptr);

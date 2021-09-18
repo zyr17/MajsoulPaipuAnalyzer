@@ -1696,6 +1696,16 @@ bool PaipuAnalyzer::filtercheck(CJsonObject &paipu){
     f = &exclude["round"];
     excluderesult = excluderesult || filterexclude(p, f);
     
+    int roomid;
+    roomdata.Get("room", roomid);
+    if (roomid == 100){ // if contest paipu, check contest id
+        p = &roomdata["contest_id"];
+        f = &include["contest_id"];
+        result = result && filterinclude(p, f);
+        f = &exclude["contest_id"];
+        excluderesult = excluderesult || filterexclude(p, f);
+    }
+
     long long tb, ta, time;
     std::string tas, tbs;
     gamedata.Get("starttime", time);
@@ -2117,13 +2127,27 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
             }
     }
     else{
-        std::vector<CJsonObject*> paipus;
-        auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
-        for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
-            paipus.push_back(&paipuarr[i]);
-        //int step = paipus.size() - 1;
-	    //for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
-        paipunum = pa.analyze(paipus);
+        if (id[0] == '0'){
+            // start with 0, special mode to read from "0" and analyze paipus with accountid as id[1:]
+            auto nowid = id.substr(1);
+            std::vector<CJsonObject*> paipus;
+            auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + "0" + "/paipus.txt");
+            // std::cout << nowid << ' ' << paipuarr.GetArraySize() << '\n';
+            for (int i = 0; i < paipuarr.GetArraySize(); i ++ ){
+                paipuarr[i]["gamedata"].Replace("accountid", atoi(nowid.c_str()));
+                paipus.push_back(&paipuarr[i]);
+            }
+            paipunum = pa.analyze(paipus);
+        }
+        else{
+            std::vector<CJsonObject*> paipus;
+            auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
+            for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
+                paipus.push_back(&paipuarr[i]);
+            //int step = paipus.size() - 1;
+            //for (; paipus.size() < 100000; paipus.push_back(*(paipus.rbegin() + step)));
+            paipunum = pa.analyze(paipus);
+        }
     }
     #ifdef SAVEMATCHDATASTEP
         std::cout << TotalStep.ToString();
