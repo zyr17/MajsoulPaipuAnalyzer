@@ -119,12 +119,51 @@ const ready = () => {
     }
 
     function isspecialrule(roomdata){
-        return roomdata.fanfu > 1 //>1番缚
+        let isspecialrule = roomdata.fanfu > 1 //>1番缚
             || roomdata.guyi_mode //古役
             || roomdata.begin_open_mode //配牌明牌
             || roomdata.xuezhandaodi //血战到底
             || roomdata.huansanzhang //换三张
         ;
+        let basicrule = {
+            "dora_count":3,
+            "shiduan":true,
+            "can_jifei":true,
+            "tianbian_value":0,  // TODO what's mean of tianbian
+            "liqibang_value":1000,
+            "changbang_value":300,
+            "noting_fafu_1":1000,
+            "noting_fafu_2":1500,
+            "noting_fafu_3":3000,
+            "have_liujumanguan":true,
+            "have_qieshangmanguan":false,
+            "have_biao_dora":true,
+            "have_gang_biao_dora":true,
+            "ming_dora_immediately_open":false,
+            "have_li_dora":true,
+            "have_gang_li_dora":true,
+            "have_sifenglianda":true,
+            "have_sigangsanle":true,
+            "have_sijializhi":true,
+            "have_jiuzhongjiupai":true,
+            "have_sanjiahele":false,
+            "have_toutiao":false,
+            "have_helelianzhuang":true,
+            "have_helezhongju":true,
+            "have_tingpailianzhuang":true,
+            "have_tingpaizhongju":true,
+            "have_yifa":true,
+            "have_nanruxiru":true,
+            "disable_multi_yukaman":false,
+            "disable_leijiyiman":false,
+        }
+        let isbasicrule = true;
+        for (let i in basicrule){
+            if (!((roomdata[i] == undefined) || roomdata[i] == basicrule[i]))
+                console.log(i, roomdata[i], basicrule[i]);
+            isbasicrule = isbasicrule && ((roomdata[i] == undefined) || roomdata[i] == basicrule[i]);
+        }
+        return isspecialrule && !isbasicrule;
     }
 
     function iserrorpaipu(gamedata){
@@ -132,7 +171,7 @@ const ready = () => {
         return !gamedata //空数据
             || !gamedata.roomdata //空房间数据
             || gamedata.roomdata.room == undefined //无房间号
-            || gamedata.roomdata.room >= 100 //房间号>=100是活动场
+            || gamedata.roomdata.room > 100 //房间号>100是活动场
             || isspecialrule(gamedata.roomdata) //包含特殊规则
         ;
     }
@@ -551,7 +590,7 @@ const ready = () => {
                             message: `共发现 ${uuidcount} 个牌谱号，其中 ${uuids.length} 个需要下载元数据。` + (uuids.length ? `将在后台下载牌谱元数据，期间请勿进行其他操作，防止出现无法预料的后果。` : '')
                         });
                         let successcounter = 0;
-                        const query_step = 90; // How many uuids to query once. In test, 850 is safe and 1500 will be banned.                    
+                        const query_step = 900; // How many uuids to query once. In test, 850 is safe and 1500 will be banned.                    
                         function sendmetadataquery() {
                             let part_data = uuids.splice(0, query_step);
                             if (part_data.length)
