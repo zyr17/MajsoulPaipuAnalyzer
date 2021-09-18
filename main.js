@@ -15,10 +15,12 @@ const path                           = require('path').join,
       prompt                         = require('electron-prompt'),
       { config, checknewestversion } = require('./lib/config.js');
 
-const { analyze, paipugamedata, analyzeGameRecord, getUserID, setUserID, AnalyzeInit, Protobuf2Object, reporterror } = require('./lib/majsoul/analyze');
+const { analyze, paipugamedata, paipugamedata0, analyzeGameRecord, getUserID, setUserID, AnalyzeInit, Protobuf2Object, reporterror } = require('./lib/majsoul/analyze');
 
 let InMacOS = process.platform == 'darwin';
 let activate_devtool = 0;
+let tempUserID = null;
+let nowgamedata = null;
 
 var paipuversion = undefined;
 var appPath = app.getAppPath();
@@ -137,15 +139,15 @@ const ready = () => {
     
     function checkpaipugamedata(){
         let msgstr = '', root, paipu4 = 0, paipu3 = 0, downloaded = 0, converted = 0, userid = getUserID(), errordata = 0;
-        if (userid <= 0){
+        if (userid < 0){
             showcantgetIDmsg();
             return;
         }
         root = path(dataPath, 'majsoul', userid.toString());
         let rawdirdata = new Set(fs.readdirSync(path(root, 'raw')));
         let paipusdirdata = new Set(fs.readdirSync(path(root, 'paipus')));
-        for (let id in paipugamedata){
-            let data = paipugamedata[id];
+        for (let id in nowgamedata){
+            let data = nowgamedata[id];
             if (iserrorpaipu(data)) errordata ++ ;
             else if (data.roomdata.player == 3) paipu3 ++ ;
             else paipu4 ++ ;
@@ -172,7 +174,7 @@ const ready = () => {
 
     function downloadconvertpaipu(){
         let userid = getUserID();
-        if (userid <= 0){
+        if (userid < 0){
             showcantgetIDmsg();
             return;
         }
@@ -192,8 +194,8 @@ const ready = () => {
         downloadconvertlist = [];
         downloadconvertresult = [0, 0, 0, 0, 0]; // convert-success, index, total, time
         downloadnumber = convertnumber = downloadcount = convertcount = 0;
-        for (let id in paipugamedata){
-            let needpaipu = !iserrorpaipu(paipugamedata[id]) && paipugamedata[id].roomdata.player == 4;
+        for (let id in nowgamedata){
+            let needpaipu = !iserrorpaipu(nowgamedata[id]) && nowgamedata[id].roomdata.player == 4;
             if (!rawdirdata.has(id) || !paipusdirdata.has(id) && needpaipu){
                 let needconvert = needpaipu && !paipusdirdata.has(id);
                 // id, (false: only download, true: download and convert)
@@ -227,8 +229,8 @@ const ready = () => {
             return;
         }
         let id = downloadconvertlist[0][0];
-        browseWindow.webContents.send('fetchpaipudata', paipugamedata[id].uuid);
-        //newWindow.webContents.send('downloadconvert', paipugamedata[id], downloadconvertresult);
+        browseWindow.webContents.send('fetchpaipudata', nowgamedata[id].uuid);
+        //newWindow.webContents.send('downloadconvert', nowgamedata[id], downloadconvertresult);
     }
 
     function fetchpaipudatacallback(res){
@@ -240,7 +242,7 @@ const ready = () => {
             return;
         }
         let id = downloadconvertlist[0][0], isconvert = downloadconvertlist[0][1];
-        let gamedata = paipugamedata[id];
+        let gamedata = nowgamedata[id];
         if (url){
             gamedata.url = url;
             newWindow.webContents.send('downloadconvert', gamedata, isconvert, downloadconvertresult);
@@ -314,6 +316,10 @@ const ready = () => {
         });
         downloadconvertresult = undefined;
         downloadconvertlist = undefined;
+        if (tempUserID){
+            setUserID(tempUserID);
+            tempUserID = null;
+        }
     }
 
     function downloadconvertcallback(data){
@@ -365,10 +371,7 @@ const ready = () => {
             return;
         }
         analyzeGameRecord(data);
-        let gamedatatxt = path(dataPath, 'majsoul', getUserID().toString(), 'gamedata.txt');
-        fs.writeFileSync(gamedatatxt, '');
-        for (let id in paipugamedata)
-            fs.appendFileSync(gamedatatxt, JSON.stringify(paipugamedata[id]) + '\n');
+        savegamedata(getUserID(), nowgamedata);
         if (option == 'checkpaipugamedata')
             checkpaipugamedata();
         else if (option == 'downloadconvertpaipu')
@@ -398,16 +401,19 @@ const ready = () => {
         submenu: [{
             label: '查看已有牌谱情报',
             click: function () {
+                nowgamedata = paipugamedata;
                 bwindowsendmessage('collectpaipu', 'checkpaipugamedata');
             }
         }, {
             label: '自动获取牌谱数据',
             click: function () {
+                nowgamedata = paipugamedata;
                 bwindowsendmessage('collectallpaipu');
             }
         }, {
             label: '下载&转换牌谱',
             click: function () {
+                nowgamedata = paipugamedata;
                 bwindowsendmessage('collectpaipu', 'downloadconvertpaipu');
             }
         }]
@@ -491,8 +497,8 @@ const ready = () => {
                 prompt({
                     title: '输入牌谱号',
                     label: '牌谱号：',
-                }).then((res) => {
-                    let uuid = /\d{6}-[a-z0-9-]*/.exec(res).toString();
+                }, browseWindow).then((res) => {
+                    let uuid = /(?:\d{6}-)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/.exec(res).toString();
                     browseWindow.webContents.send('fetchpaipudata', uuid, 'fetchpaipudatasave');
                 });
             }
@@ -513,6 +519,106 @@ const ready = () => {
                     fs.writeFileSync(path[i] + '.json', JSON.stringify(data.toJSON()));
                 }
             }
+        }, {
+            label: '公共牌谱列表',
+            submenu: [{
+                label: '下载指定牌谱到公共列表',
+                click: function() {
+                    let response = dialog.showMessageBoxSync(browseWindow, {
+                        type: 'info', 
+                        title: '选择输入方式',
+                        noLink: true,
+                        buttons: ['取消', '文件输入', '单牌谱输入'],
+                        message: `请选择输入牌谱的方式。文件输入时一行一个牌谱记录。`
+                    });
+
+                    function getrecord(data){
+                        let uuidcount = 0;
+                        let uuids = []
+                        for (let i in data){
+                            let uuid = /(?:\d{6}-)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/.exec(data[i]);
+                            if (uuid){
+                                uuidcount ++ ;
+                                if (!(uuid in paipugamedata0))
+                                    uuids.push(uuid.toString());
+                            }
+                        }
+                        dialog.showMessageBox({
+                            type: 'info',
+                            title: '下载牌谱元数据',
+                            noLink: true,
+                            buttons: ['确定'],
+                            message: `共发现 ${uuidcount} 个牌谱号，其中 ${uuids.length} 个需要下载元数据。` + (uuids.length ? `将在后台下载牌谱元数据，期间请勿进行其他操作，防止出现无法预料的后果。` : '')
+                        });
+                        let successcounter = 0;
+                        const query_step = 90; // How many uuids to query once. In test, 850 is safe and 1500 will be banned.                    
+                        function sendmetadataquery() {
+                            let part_data = uuids.splice(0, query_step);
+                            if (part_data.length)
+                                browseWindow.webContents.send('collectmetadata', part_data);
+                        }
+                        ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
+                        ipcMain.on('collectmetadatacallback', (event, data) => {
+                            successcounter += data.length;
+                            tempUserID = getUserID();
+                            setUserID(0);  // temporary set userid to 0 to notify analyzer write gamedata to gamedata0
+                            analyzeGameRecord(data);
+                            setUserID(tempUserID);
+                            tempUserID = null;
+                            if (uuids.length)
+                                sendmetadataquery();
+                            else{
+                                dialog.showMessageBoxSync({
+                                    type: 'info',
+                                    title: '下载牌谱元数据',
+                                    noLink: true,
+                                    buttons: ['确定'],
+                                    message: `成功下载 ${successcounter} 个牌谱元数据。获取详细牌谱数据请点击 公共牌谱列表-查看已有牌谱情报 。`
+                                });
+                                savegamedata(0, paipugamedata0);
+                            }
+                        });
+                        sendmetadataquery();
+                    }
+
+                    if (response == 1){
+                        let path = dialog.showOpenDialogSync({
+                            title: '牌谱号/牌谱链接文件',
+                        });
+                        if (!path)
+                            return;
+                        let data = fs.readFileSync(path[0]).toString().split('\n');
+                        getrecord(data);
+                    }
+
+                    if (response == 2){
+                        prompt({
+                            title: '输入牌谱',
+                            label: '牌谱号/牌谱链接：',
+                        }, browseWindow).then((res) => {
+                            getrecord([res]);
+                        });
+                    }
+                }
+            }, {
+                label: '查看已有牌谱情报',
+                click: function () {
+                    nowgamedata = paipugamedata0;
+                    tempUserID = getUserID();
+                    setUserID(0);
+                    checkpaipugamedata();
+                    setUserID(tempUserID);
+                    tempUserID = null;
+                }
+            }, {
+                label: '下载&转换牌谱',
+                click: function () {
+                    nowgamedata = paipugamedata0;
+                    tempUserID = getUserID();
+                    setUserID(0);
+                    downloadconvertpaipu();
+                }
+            }]
         }, {
             label: '关于',
             click: function() {
@@ -542,7 +648,7 @@ const ready = () => {
     bwindowload(config.get('DefaultURL'));
     browseWindow.show();
     //browseWindow.maximize();
-    function savegamedata(userid){
+    function readgamedata(userid, paipugamedata){
         let root = path(dataPath, 'majsoul', userid.toString());
         if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
         if (!fs.existsSync(path(dataPath, 'majsoul'))) fs.mkdirSync(path(dataPath, 'majsoul'));
@@ -640,6 +746,12 @@ const ready = () => {
             message: `旧牌谱转移完成。`
         });
     }
+    function savegamedata(userid, gamedata){
+        let gamedatatxt = path(dataPath, 'majsoul', userid.toString(), 'gamedata.txt');
+        fs.writeFileSync(gamedatatxt, '');
+        for (let id in gamedata)
+            fs.appendFileSync(gamedatatxt, JSON.stringify(gamedata[id]) + '\n');
+    }
     ipcMain.on('downloadconvertresult', (event, data) => {
         downloadconvertcallback(data);
     });
@@ -648,7 +760,8 @@ const ready = () => {
     });
     ipcMain.on('userid', (event, data) => {
         setUserID(data);
-        savegamedata(data);
+        readgamedata(data, paipugamedata);
+        readgamedata(0, paipugamedata0); // create and save public gamedata  // TODO clean data process codes to class
         newWindow.webContents.send('userid', data);
     });
     ipcMain.on('bwindowinjectfinish', (event) => {
