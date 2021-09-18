@@ -783,43 +783,43 @@ const ready = () => {
         }
         fs.writeFileSync(ppp, JSON.stringify(paipuversion));
 
-        if (oldpaipus.length == 0) return;
-
-        dialog.showMessageBoxSync({
-            type: 'info',
-            noLink: true,
-            buttons: ['确定'],
-            title: '发现旧牌谱',
-            message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱移至备份文件夹，可能需要一定时间。`
-        });
-        let bkpaipupath = path(root, 'paipus', paipu_bk_folder_name);
-        if (fs.existsSync(bkpaipupath)){
-            /*
-            no need to do anything
+        if (oldpaipus.length != 0){
             dialog.showMessageBoxSync({
-                type: 'warning',
+                type: 'info',
                 noLink: true,
                 buttons: ['确定'],
-                title: '备份文件夹已存在',
-                message: '备份文件夹已存在，可能由之前的牌谱备份操作创建，'
+                title: '发现旧牌谱',
+                message: `发现 ${oldpaipus.length} 个旧版本生成的牌谱，需要重新生成，会将旧牌谱移至备份文件夹，可能需要一定时间。`
             });
-            */
+            let bkpaipupath = path(root, 'paipus', paipu_bk_folder_name);
+            if (fs.existsSync(bkpaipupath)){
+                /*
+                no need to do anything
+                dialog.showMessageBoxSync({
+                    type: 'warning',
+                    noLink: true,
+                    buttons: ['确定'],
+                    title: '备份文件夹已存在',
+                    message: '备份文件夹已存在，可能由之前的牌谱备份操作创建，'
+                });
+                */
+            }
+            else{
+                fs.mkdirSync(bkpaipupath);
+            }
+            for (let i in oldpaipus){
+                let ppp = path(root, 'paipus', oldpaipus[i]);
+                let ttt = path(bkpaipupath, oldpaipus[i]);
+                fs.renameSync(ppp, ttt);
+            }
+            dialog.showMessageBox({
+                type: 'info',
+                noLink: true,
+                buttons: ['确定'],
+                title: '发现旧牌谱',
+                message: `旧牌谱转移完成。`
+            });
         }
-        else{
-            fs.mkdirSync(bkpaipupath);
-        }
-        for (let i in oldpaipus){
-            let ppp = path(root, 'paipus', oldpaipus[i]);
-            let ttt = path(bkpaipupath, oldpaipus[i]);
-            fs.renameSync(ppp, ttt);
-        }
-        dialog.showMessageBox({
-            type: 'info',
-            noLink: true,
-            buttons: ['确定'],
-            title: '发现旧牌谱',
-            message: `旧牌谱转移完成。`
-        });
         if (callback) callback();
     }
     function savegamedata(userid, gamedata){
