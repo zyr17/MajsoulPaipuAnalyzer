@@ -2132,11 +2132,12 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
             auto nowid = id.substr(1);
             std::vector<CJsonObject*> paipus;
             auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + "0" + "/paipus.txt");
-            // std::cout << nowid << ' ' << paipuarr.GetArraySize() << '\n';
+            std::cout << nowid << ' ' << paipuarr.GetArraySize() << '\n';
             for (int i = 0; i < paipuarr.GetArraySize(); i ++ ){
                 paipuarr[i]["gamedata"].Replace("accountid", atoi(nowid.c_str()));
                 paipus.push_back(&paipuarr[i]);
             }
+            std::cout << "paipu over" << std::endl;
             paipunum = pa.analyze(paipus);
         }
         else{
