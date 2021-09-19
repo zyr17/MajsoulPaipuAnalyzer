@@ -865,6 +865,16 @@ void MatchData::INewRound(CJsonObject &record){
     #endif
 }
 
+bool MatchData::checkstartsame(CJsonObject &record){
+    auto &pointarr = record["point"];
+    for (int i = 0; i < pointarr.GetArraySize(); i ++ ){
+        int pp;
+        pointarr.Get(i, pp);
+        if (data[i].score != pp) return false;
+    }
+    return true;
+}
+
 void MatchData::action(std::vector<std::string> &strvec){
     for (auto &i : strvec)
         action(i);
@@ -1838,6 +1848,8 @@ bool PaipuAnalyzer::analyze(CJsonObject &paipu){
     #endif
     auto &records = paipu["record"];
     auto rlen = records.GetArraySize();
+    if (!matchdata.checkstartsame(records[0])) // 如果起始点数和首轮点数不同，跳过牌谱
+        return false;
     for (int i = 0; i < rlen; i ++ ){
         auto &oner = records[i];
         matchdata.INewRound(oner);
