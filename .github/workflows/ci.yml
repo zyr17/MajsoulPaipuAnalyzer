@@ -53,5 +53,9 @@ jobs:
       with:
         name: MajsoulPaipuAnalyzer-win-x64.7z
         path: MajsoulPaipuAnalyzer-win-x64.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: PaipuAnalyzer.exe
+        path: bin/release/PaipuAnalyzer.exe
     # - name: check GITHUB_EVENT_PATH
     #   run: echo $env:GITHUB_EVENT_PATH; echo `cat $env:GITHUB_EVENT_PATH`
