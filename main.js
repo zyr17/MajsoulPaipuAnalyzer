@@ -165,7 +165,7 @@ const ready = () => {
                 console.log(i, roomdata[i], basicrule[i]);
             isbasicrule = isbasicrule && ((roomdata[i] == undefined) || roomdata[i] == basicrule[i]);
         }
-        return isspecialrule && !isbasicrule;
+        return isspecialrule || !isbasicrule;
     }
 
     function iserrorpaipu(gamedata){
@@ -440,22 +440,22 @@ const ready = () => {
     var menutemplate = [{
         label: '牌谱',
         submenu: [{
-            label: '查看已有牌谱情报',
-            click: function () {
-                nowgamedata = paipugamedata;
-                bwindowsendmessage('collectpaipu', 'checkpaipugamedata');
-            }
-        }, {
             label: '自动获取牌谱数据',
             click: function () {
                 nowgamedata = paipugamedata;
                 bwindowsendmessage('collectallpaipu');
             }
         }, {
+            label: '查看已获取牌谱情报',
+            click: function () {
+                nowgamedata = paipugamedata;
+                checkpaipugamedata();
+            }
+        }, {
             label: '下载&转换牌谱',
             click: function () {
                 nowgamedata = paipugamedata;
-                bwindowsendmessage('collectpaipu', 'downloadconvertpaipu');
+                downloadconvertpaipu();
             }
         }]
     }, {
