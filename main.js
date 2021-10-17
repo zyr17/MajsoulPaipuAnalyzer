@@ -83,17 +83,22 @@ const ready = () => {
         }
     });
 
-    function browseinject() {
+    function browseinject_one(filepath) {
         if (browseWindow.injectfinish != 0)
             //1 2对应注入请求发送未执行；注入完成。均不需要尝试注入
             return;
-        fs.readFile(path(__dirname, 'lib', 'majsoul', 'browseinject.js'), function (error, browsedata) {
+        fs.readFile(filepath, function (error, browsedata) {
             if (error) console.log('read browseinject.js error: ' + error);
             else{
                 browseWindow.injectfinish = 1;
                 browseWindow.webContents.executeJavaScript(String(browsedata));
             }
         });
+    }
+
+    function browseinject() {
+        browseinject_one(path(__dirname, 'lib', 'majsoul', 'browseinject.js'));
+        browseinject_one(path(__dirname, 'lib', 'majsoul', 'majsoul2tenhou.js'));
     }
     
     function bwindowload(url){
@@ -437,6 +442,81 @@ const ready = () => {
         browseWindow.webContents.send(cmd, d1, d2, d3, d4);
     }
 
+    function convert2tenhou() {
+        let uuids = [];
+        let heads = {};
+        for (let uuid in nowgamedata)
+            if (!iserrorpaipu(nowgamedata[uuid]) && nowgamedata[uuid].roomdata.player == 4)
+                uuids.push(uuid);
+        dialog.showMessageBox({
+            type: 'info',
+            noLink: true,
+            buttons: ['确定'],
+            title: '转换牌谱到天凤格式',
+            message: `尝试转换 ${uuids.length} 个牌谱到天凤格式中。只有能被正常分析且已经下载的四人牌谱才会被尝试转换。\n转换代码来自 GitHub: Equim-chan，转换结果仅供参考，不保证正确性。`
+        });
+
+        function restore() {
+            if (tempUserID) {
+                setUserID(tempUserID);
+                tempUserID = null;
+            }
+        }
+
+        let task_count = 0;
+        let success_count = 0;
+
+        ipcMain.removeAllListeners('converttenhoulogcallback');
+        ipcMain.on('converttenhoulogcallback', function (event, uuid, result) {
+            let tenhoufolder = path(__dirname, 'data', 'majsoul', getUserID().toString(), 'tenhou');
+            if (!fs.existsSync(tenhoufolder))
+                fs.mkdirSync(tenhoufolder);
+            if (result != undefined) {
+                success_count ++ ;
+                fs.writeFileSync(path(tenhoufolder, uuid), JSON.stringify(result));
+            }
+            if ( -- task_count == 0) {
+                dialog.showMessageBox({
+                    type: 'info',
+                    noLink: true,
+                    buttons: ['确定'],
+                    title: '转换完成',
+                    message: `转换了 ${success_count} 个牌谱。\n存储位置: ${path('data', 'majsoul', getUserID().toString(), 'tenhou')}`
+                });
+                restore();
+            }
+        });
+
+        function realconvert(heads) {
+            let rawfolder = path(__dirname, 'data', 'majsoul', getUserID().toString(), 'raw');
+            for (let uuid in heads)
+                if (fs.existsSync(path(rawfolder, uuid)))
+                    task_count ++ ;
+            for (let uuid in heads)
+                if (fs.existsSync(path(rawfolder, uuid)))
+                    browseWindow.webContents.send('converttenhoulog', heads[uuid], fs.readFileSync(path(rawfolder, uuid)));
+            if (!task_count)
+                restore();
+        }
+
+        function sendmetadataquery() {
+            let part_data = uuids.splice(0, metadata_query_step);
+            if (part_data.length)
+                browseWindow.webContents.send('collectmetadata', part_data);
+        }
+        ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
+        ipcMain.on('collectmetadatacallback', (event, data) => {
+            for (let d of data)
+                heads[d.uuid] = d;
+            if (uuids.length)
+                setTimeout(sendmetadataquery, metadata_fetch_delay);
+            else{
+                realconvert(heads);
+            }
+        });
+        sendmetadataquery();
+    }
+
     var menutemplate = [{
         label: '牌谱',
         submenu: [{
@@ -456,6 +536,12 @@ const ready = () => {
             click: function () {
                 nowgamedata = paipugamedata;
                 downloadconvertpaipu();
+            }
+        }, {
+            label: '转换天凤牌谱',
+            click: function () {
+                nowgamedata = paipugamedata;
+                convert2tenhou();
             }
         }]
     }, {
@@ -657,6 +743,14 @@ const ready = () => {
                     tempUserID = getUserID();
                     setUserID(0);
                     downloadconvertpaipu();
+                }
+            }, {
+                label: '转换天凤牌谱',
+                click: function () {
+                    nowgamedata = paipugamedata0;
+                    tempUserID = getUserID();
+                    setUserID(0);
+                    convert2tenhou();
                 }
             }]
         }, {

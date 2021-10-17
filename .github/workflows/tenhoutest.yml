@@ -1,11 +1,11 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: doc debug CI
+name: export tenhou paipu CI
 
 on:
   push:
-    branches: [ doc, feat/export_tenhou_paipu ]
+    branches: [ feat/export_tenhou_paipu ]
 
 jobs:
   build:
@@ -30,14 +30,14 @@ jobs:
       run: |
         git submodule update --init --recursive
         mkdir bin
-        mkdir bin/debug
-        cd bin/debug
-        cmake ../.. -DCMAKE_BUILD_TYPE=Debug -G "MinGW Makefiles"
+        mkdir bin/release
+        cd bin/release
+        cmake ../.. -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles"
         make -j
     - name: collect
       run: |
         cp -r dist/MajsoulPaipuCrawler-win32-x64 result
-        cp bin/debug/PaipuAnalyzer.exe result/
+        cp bin/release/PaipuAnalyzer.exe result/
         mkdir result/data
         cp config.json result/
         cp PAADData.json result/
@@ -51,9 +51,5 @@ jobs:
       with:
         name: MajsoulPaipuAnalyzer-win-x64.7z
         path: MajsoulPaipuAnalyzer-win-x64.7z
-    - uses: actions/upload-artifact@v2
-      with:
-        name: PaipuAnalyzer.exe
-        path: bin/debug/PaipuAnalyzer.exe
     # - name: check GITHUB_EVENT_PATH
     #   run: echo $env:GITHUB_EVENT_PATH; echo `cat $env:GITHUB_EVENT_PATH`
