@@ -468,7 +468,7 @@ const ready = () => {
 
         ipcMain.removeAllListeners('converttenhoulogcallback');
         ipcMain.on('converttenhoulogcallback', function (event, uuid, result) {
-            let tenhoufolder = path(__dirname, 'data', 'majsoul', getUserID().toString(), 'tenhou');
+            let tenhoufolder = path(dataPath, 'majsoul', getUserID().toString(), 'tenhou');
             if (!fs.existsSync(tenhoufolder))
                 fs.mkdirSync(tenhoufolder);
             if (result != undefined) {
@@ -488,7 +488,7 @@ const ready = () => {
         });
 
         function realconvert(heads) {
-            let rawfolder = path(__dirname, 'data', 'majsoul', getUserID().toString(), 'raw');
+            let rawfolder = path(dataPath, 'majsoul', getUserID().toString(), 'raw');
             for (let uuid in heads)
                 if (fs.existsSync(path(rawfolder, uuid)))
                     task_count ++ ;
