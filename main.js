@@ -54,6 +54,18 @@ const ready = () => {
         }
     });
 
+    newWindow.on('closed', () => {
+        newWindow = null;
+        if (browseWindow)
+            browseWindow.close();
+    })
+
+    browseWindow.on('closed', () => {
+        browseWindow = null;
+        if (newWindow)
+            newWindow.close();
+    })
+
     browseWindow.nowingamepage = true;
 
     browseWindow.webContents.on('dom-ready', function (){
@@ -428,6 +440,10 @@ const ready = () => {
         collectpaipucallback(err, option, data);
     });
 
+    ipcMain.on('collectallpaipucallback', (event) => {
+        savegamedata(getUserID(), nowgamedata);
+    });
+
     function bwindowsendmessage(cmd, d1, d2, d3, d4){ //先放4个参数，不够再加
         if (browseWindow.injectfinish != 2){
             dialog.showMessageBox({
@@ -520,22 +536,22 @@ const ready = () => {
     var menutemplate = [{
         label: '牌谱',
         submenu: [{
+            label: '查看已有牌谱情报',
+            click: function () {
+                nowgamedata = paipugamedata;
+                bwindowsendmessage('collectpaipu', 'checkpaipugamedata');
+            }
+        }, {
             label: '自动获取牌谱数据',
             click: function () {
                 nowgamedata = paipugamedata;
-                bwindowsendmessage('collectallpaipu');
-            }
-        }, {
-            label: '查看已获取牌谱情报',
-            click: function () {
-                nowgamedata = paipugamedata;
-                checkpaipugamedata();
+                bwindowsendmessage('collectallpaipu', 'collectallpaipucallback');
             }
         }, {
             label: '下载&转换牌谱',
             click: function () {
                 nowgamedata = paipugamedata;
-                downloadconvertpaipu();
+                bwindowsendmessage('collectpaipu', 'downloadconvertpaipu');
             }
         }, {
             label: '转换天凤牌谱',
