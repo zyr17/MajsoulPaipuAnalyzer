@@ -145,8 +145,10 @@ const ready = () => {
             || roomdata.begin_open_mode //配牌明牌
             || roomdata.xuezhandaodi //血战到底
             || roomdata.huansanzhang //换三张
+            || roomdata.jiuchao_mode //鸠巢
+            || roomdata.reveal_discard //暗夜之战
         ;
-        let basicrule = {
+        const basicrule = {
             "dora_count":3,
             "shiduan":true,
             "can_jifei":true,
@@ -177,13 +179,25 @@ const ready = () => {
             "have_nanruxiru":true,
             "disable_multi_yukaman":false,
             "disable_leijiyiman":false,
+            "fanfu":1,
         }
+        const basickey = [
+            "player", "round", "init_point", "fandian", "time_fixed", 
+            "time_add", "room", "contest_id", "has_ai", "bianjietishi",
+            "ai_level"
+        ]
         let isbasicrule = true;
         for (let i in basicrule){
             if (!((roomdata[i] == undefined) || roomdata[i] == basicrule[i]))
                 console.log(i, roomdata[i], basicrule[i]);
             isbasicrule = isbasicrule && ((roomdata[i] == undefined) || roomdata[i] == basicrule[i]);
         }
+        for (let i in roomdata)
+            if (false && basicrule[i] == undefined && !basickey.includes(i) && roomdata[i]){
+                // TODO 存在不是基本规则或是基本参数的内容，当做特殊规则。没调试好先disable
+                console.log(i, roomdata[i]);
+                isspecialrule = true;
+            }
         return isspecialrule || !isbasicrule;
     }
 
