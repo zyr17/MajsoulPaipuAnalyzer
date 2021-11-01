@@ -41,7 +41,8 @@ const ready = () => {
         title: `Simple Mahjong`,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     });
     var browseWindow = new BrowserWindow({
@@ -50,7 +51,8 @@ const ready = () => {
         title: `browser`,
         show: false,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false
         }
     });
 

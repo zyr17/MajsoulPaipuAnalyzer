@@ -6,6 +6,7 @@ name: doc debug CI
 on:
   push:
     branches: [ doc, feat/export_tenhou_paipu ]
+  workflow_dispatch:
 
 jobs:
   build:
