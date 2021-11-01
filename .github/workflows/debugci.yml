@@ -6,6 +6,7 @@ name: doc debug CI
 on:
   push:
     branches: [ doc ]
+  workflow_dispatch:
 
 jobs:
   build:
