@@ -626,6 +626,129 @@ const ready = () => {
             }
         }]
     }, {
+        label: '公共牌谱列表',
+        submenu: [{
+            label: '下载指定牌谱到公共列表',
+            click: function() {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                let response = dialog.showMessageBoxSync(browseWindow, {
+                    type: 'info', 
+                    title: '选择输入方式',
+                    noLink: true,
+                    buttons: ['取消', '文件输入', '单牌谱输入'],
+                    message: `请选择输入牌谱的方式。文件输入时一行可包含一个牌谱记录或牌谱链接。`
+                });
+
+                function getrecord(data){
+                    let uuidcount = 0;
+                    let uuids = []
+                    for (let i in data){
+                        let uuid = /(?:\d{6}-)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/.exec(data[i]);
+                        if (uuid){
+                            uuidcount ++ ;
+                            if (!(uuid in paipugamedata0))
+                                uuids.push(uuid.toString());
+                        }
+                    }
+                    dialog.showMessageBox({
+                        type: 'info',
+                        title: '下载牌谱元数据',
+                        noLink: true,
+                        buttons: ['确定'],
+                        message: `共发现 ${uuidcount} 个牌谱号，其中 ${uuids.length} 个需要下载元数据。` + (uuids.length ? `将在后台下载牌谱元数据，期间请勿进行其他操作，防止出现无法预料的后果。` : '')
+                    });
+                    let successcounter = 0;
+                    function sendmetadataquery() {
+                        let part_data = uuids.splice(0, metadata_query_step);
+                        if (part_data.length)
+                            browseWindow.webContents.send('collectmetadata', part_data);
+                    }
+                    ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
+                    ipcMain.on('collectmetadatacallback', (event, data) => {
+                        successcounter += data.length;
+                        tempUserID = getUserID();
+                        setUserID(0);  // temporary set userid to 0 to notify analyzer write gamedata to gamedata0
+                        analyzeGameRecord(data);
+                        setUserID(tempUserID);
+                        tempUserID = null;
+                        if (uuids.length)
+                            setTimeout(sendmetadataquery, metadata_fetch_delay);
+                        else{
+                            dialog.showMessageBoxSync({
+                                type: 'info',
+                                title: '下载牌谱元数据',
+                                noLink: true,
+                                buttons: ['确定'],
+                                message: `成功下载 ${successcounter} 个牌谱元数据。获取详细牌谱数据请点击 公共牌谱列表-查看已有牌谱情报 。`
+                            });
+                            savegamedata(0, paipugamedata0);
+                        }
+                    });
+                    sendmetadataquery();
+                }
+
+                if (response == 1){
+                    let path = dialog.showOpenDialogSync({
+                        title: '牌谱号/牌谱链接文件',
+                    });
+                    if (!path)
+                        return;
+                    let data = fs.readFileSync(path[0]).toString().split('\n');
+                    getrecord(data);
+                }
+
+                if (response == 2){
+                    prompt({
+                        title: '输入牌谱',
+                        label: '牌谱号/牌谱链接：',
+                    }, browseWindow).then((res) => {
+                        getrecord([res]);
+                    });
+                }
+            }
+        }, {
+            label: '查看已有牌谱情报',
+            click: function () {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                nowgamedata = paipugamedata0;
+                tempUserID = getUserID();
+                setUserID(0);
+                checkpaipugamedata();
+                setUserID(tempUserID);
+                tempUserID = null;
+            }
+        }, {
+            label: '下载&转换牌谱',
+            click: function () {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                nowgamedata = paipugamedata0;
+                tempUserID = getUserID();
+                setUserID(0);
+                downloadconvertpaipu();
+            }
+        }, {
+            label: '转换天凤牌谱',
+            click: function () {
+                if (getUserID() < 0){
+                    showcantgetIDmsg();
+                    return;
+                }
+                nowgamedata = paipugamedata0;
+                tempUserID = getUserID();
+                setUserID(0);
+                convert2tenhou();
+            }
+        }]
+    }, {
         label: '其他',
         submenu: [{
             label: '清除配置数据',
@@ -678,113 +801,6 @@ const ready = () => {
                     fs.writeFileSync(path[i] + '.json', JSON.stringify(data.toJSON()));
                 }
             }
-        }, {
-            label: '公共牌谱列表',
-            submenu: [{
-                label: '下载指定牌谱到公共列表',
-                click: function() {
-                    let response = dialog.showMessageBoxSync(browseWindow, {
-                        type: 'info', 
-                        title: '选择输入方式',
-                        noLink: true,
-                        buttons: ['取消', '文件输入', '单牌谱输入'],
-                        message: `请选择输入牌谱的方式。文件输入时一行一个牌谱记录。`
-                    });
-
-                    function getrecord(data){
-                        let uuidcount = 0;
-                        let uuids = []
-                        for (let i in data){
-                            let uuid = /(?:\d{6}-)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/.exec(data[i]);
-                            if (uuid){
-                                uuidcount ++ ;
-                                if (!(uuid in paipugamedata0))
-                                    uuids.push(uuid.toString());
-                            }
-                        }
-                        dialog.showMessageBox({
-                            type: 'info',
-                            title: '下载牌谱元数据',
-                            noLink: true,
-                            buttons: ['确定'],
-                            message: `共发现 ${uuidcount} 个牌谱号，其中 ${uuids.length} 个需要下载元数据。` + (uuids.length ? `将在后台下载牌谱元数据，期间请勿进行其他操作，防止出现无法预料的后果。` : '')
-                        });
-                        let successcounter = 0;
-                        function sendmetadataquery() {
-                            let part_data = uuids.splice(0, metadata_query_step);
-                            if (part_data.length)
-                                browseWindow.webContents.send('collectmetadata', part_data);
-                        }
-                        ipcMain.removeAllListeners('collectmetadatacallback');  // remove last listener to avoid duplicate running
-                        ipcMain.on('collectmetadatacallback', (event, data) => {
-                            successcounter += data.length;
-                            tempUserID = getUserID();
-                            setUserID(0);  // temporary set userid to 0 to notify analyzer write gamedata to gamedata0
-                            analyzeGameRecord(data);
-                            setUserID(tempUserID);
-                            tempUserID = null;
-                            if (uuids.length)
-                                setTimeout(sendmetadataquery, metadata_fetch_delay);
-                            else{
-                                dialog.showMessageBoxSync({
-                                    type: 'info',
-                                    title: '下载牌谱元数据',
-                                    noLink: true,
-                                    buttons: ['确定'],
-                                    message: `成功下载 ${successcounter} 个牌谱元数据。获取详细牌谱数据请点击 公共牌谱列表-查看已有牌谱情报 。`
-                                });
-                                savegamedata(0, paipugamedata0);
-                            }
-                        });
-                        sendmetadataquery();
-                    }
-
-                    if (response == 1){
-                        let path = dialog.showOpenDialogSync({
-                            title: '牌谱号/牌谱链接文件',
-                        });
-                        if (!path)
-                            return;
-                        let data = fs.readFileSync(path[0]).toString().split('\n');
-                        getrecord(data);
-                    }
-
-                    if (response == 2){
-                        prompt({
-                            title: '输入牌谱',
-                            label: '牌谱号/牌谱链接：',
-                        }, browseWindow).then((res) => {
-                            getrecord([res]);
-                        });
-                    }
-                }
-            }, {
-                label: '查看已有牌谱情报',
-                click: function () {
-                    nowgamedata = paipugamedata0;
-                    tempUserID = getUserID();
-                    setUserID(0);
-                    checkpaipugamedata();
-                    setUserID(tempUserID);
-                    tempUserID = null;
-                }
-            }, {
-                label: '下载&转换牌谱',
-                click: function () {
-                    nowgamedata = paipugamedata0;
-                    tempUserID = getUserID();
-                    setUserID(0);
-                    downloadconvertpaipu();
-                }
-            }, {
-                label: '转换天凤牌谱',
-                click: function () {
-                    nowgamedata = paipugamedata0;
-                    tempUserID = getUserID();
-                    setUserID(0);
-                    convert2tenhou();
-                }
-            }]
         }, {
             label: '关于',
             click: function() {
