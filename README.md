@@ -51,78 +51,15 @@ macOS: 10.14 (VMware Workstation 15), nodejs v12.4.0, g++ 4.2.1(映射到clang-1
 
 AppVeyor环境请参考[其网站](https://www.appveyor.com/docs/build-environment/)
 
+Github Actions环境请参考workflow配置
+
 ### 依赖
 
 需要npm, g++, cmake, make/mingw32-make
 
 ### 安装脚本
 
-Windows脚本使用PowerShell。路径不能出现中文。
-
-#### Windows
-    
-    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
-    cd MajsoulPaipuAnalyzer
-    npm install
-    npm run-script package-win
-    mkdir bin
-    mkdir bin/release
-    cd bin/release
-    cmake ../.. -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles"
-    mingw32-make
-    cd ../..
-    cp -r dist/MajsoulPaipuCrawler-win32-x64 result
-    cp bin/release/PaipuAnalyzer.exe result/
-    mkdir result/data
-    cp config.json result/
-    cp PAADData.json result/
-    cp doc/README.txt result/
-    cp doc/release-notes.txt result/
-    cp -r i18n/ result/
-
-#### Linux
-
-    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
-    cd MajsoulPaipuAnalyzer
-    npm install
-    npm run-script package-linux
-    mkdir bin
-    mkdir bin/release
-    cd bin/release
-    cmake ../.. -DCMAKE_BUILD_TYPE=Release
-    make
-    cd ../..
-    cp -r dist/MajsoulPaipuCrawler-linux-x64 result
-    cp bin/release/PaipuAnalyzer result/
-    mkdir result/data
-    cp config.json result/
-    cp PAADData.json result/
-    cp doc/README.txt result/
-    cp doc/release-notes.txt result/
-    cp -r i18n/ result/
-
-#### macOS
-
-    git clone --recurse-submodules https://github.com/zyr17/MajsoulPaipuAnalyzer
-    cd MajsoulPaipuAnalyzer
-    npm install
-    npm run-script package-darwin
-    mkdir bin
-    mkdir bin/release
-    cd bin/release
-    cmake ../.. -DCMAKE_BUILD_TYPE=Release
-    make
-    cd ../..
-    cp -r dist/MajsoulPaipuCrawler-darwin-x64 result
-    cp bin/release/PaipuAnalyzer result/
-    mkdir result/data
-    cp config.json result/
-    cp PAADData.json result/
-    cp doc/README.txt result/
-    cp doc/release-notes.txt result/
-    cp -r i18n result/
-
-result中即为结果。
+三平台安装脚本参考[这里](doc/install_scripts.md)。
 
 ## 使用
 
@@ -138,10 +75,7 @@ result中即为结果。
 
 每个账户会有自己的独立ID，这个ID和加好友时候的那个ID是不一样的，游戏里大概不能直接看到？如果登陆多个账户，会将每个账户的资料按照ID分别存储，不会混在一起。牌谱下载及转换内容存储于data文件夹，避免重复下载和转换，每次进行下载仅会尝试下载转换未下载的牌谱。存储方式不再赘述，感兴趣的人翻一翻大概就能明白了。
 
-在0.4.11版本新增公共牌谱池，相关选项在其他-公共牌谱列表中。和账户牌谱获取相比，主要在收集牌谱列表上有不同，可以手动输入或是选择文件输入。收集牌谱列表后同样需要下载转换，公共牌谱池和所有账户分离存储，如果需要将某账户的牌谱导入公共牌谱池，可：
-1. 公共牌谱列表-下载指定牌谱-文件输入-选择`data/majsoul/%ID%/gamedata.txt`
-2. 如果牌谱数量很多，将`data/majsoul/%ID%/raw|paipus`中文件复制到`data/majsoul/0/raw|paipus`中，避免重复下载
-3. 公共牌谱列表-下载转换牌谱，等待下载转换完成
+点击**转换天凤牌谱**选项可以将该账户的所有能转换的牌谱尝试转换成天凤牌谱格式，相关转换代码来自[Equim-chan](https://github.com/Equim-chan)的[akochan-reviewer](https://github.com/Equim-chan/akochan-reviewer)。成功转换的牌谱存储在`data/majsoul/%ID%/tenhou`中。目前较早牌谱的转换结果可能不可靠，仅供参考。
 
 ### 牌谱分析
 
@@ -150,6 +84,18 @@ result中即为结果。
 在进行分析前，请确认data/config.json文件。在该文件中存储了牌谱分析的各种配置。关于配置文件各项内容的含义请参照[这里](doc/config.md)。
 
 确认配置无误后，运行PaipuAnalyzer即可得到结果。部分统计规则和雀魂官方有所出入(我不知道官方是怎么算的，反正结果和官方差了一点)。一些项目的计算方式和特殊说明请参照[这里](doc/result.md)。
+
+### 公共牌谱池
+
+在0.5.0版本新增公共牌谱池，相关选项在 公共牌谱列表 中。和账户牌谱获取相比，主要在收集牌谱列表上有不同，可以手动输入或是选择文件输入。收集牌谱列表后同样需要下载转换，公共牌谱池和所有账户分离存储，如果需要将某账户的牌谱导入公共牌谱池，可：
+1. 公共牌谱列表-下载指定牌谱-文件输入-选择`data/majsoul/%ID%/gamedata.txt`
+2. 如果牌谱数量很多，将`data/majsoul/%ID%/raw|paipus`中文件复制到`data/majsoul/0/raw|paipus`中，避免重复下载
+3. 公共牌谱列表-下载转换牌谱，等待下载转换完成
+
+目前公共牌谱池支持指定玩家id为主视角，分析该玩家牌谱数据的功能。分析公共牌谱池中的牌谱步骤如下：
+1. 查询到玩家id。打开包含该玩家的牌谱，如`data/majsoul/0/paipus/190205-4f533de1-ba3e-4876-b6ea-8cf1f18a5559`，搜索玩家名称，可以在名称前看到玩家id。如`Zyr17`的id为`50264`
+2. 在PaipuAnalyzer的config中，id前加0作为id。接上例，id填写`050264`
+3. 其他配置和分析个人牌谱相同
 
 ## 已知问题
 
@@ -164,6 +110,8 @@ Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的�
 对比赛场支持不完善，目前仅可对和段位场配置基本相同的比赛场进行分析，具体可参照`main.js:isspecialrule`。
 
 0.4.9版部分数据准确性存疑，正在尝试找到问题。
+
+天凤牌谱转换对较早的牌谱不能成功转换。
 
 ## 联系
 
@@ -184,3 +132,5 @@ Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的�
 [wsHook](https://github.com/skepticfx/wshook)
 
 [wssip](https://github.com/nccgroup/wssip)
+
+[akochan-reviewer](https://github.com/Equim-chan/akochan-reviewer)
