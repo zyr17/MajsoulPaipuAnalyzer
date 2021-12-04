@@ -308,6 +308,10 @@ const ready = () => {
     }
 
     function fetchpaipudatacallback(res){
+        if (!res) {
+            // network error? res is null or undefined.
+            res = { error: 'response null/undefined error' };
+        }
         let error = res.error, bytearr = res.data, url = res.data_url;
         if (error){
             if (error) console.log('read browseinject.js error: ' + JSON.stringify(error));
