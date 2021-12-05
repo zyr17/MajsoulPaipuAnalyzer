@@ -143,6 +143,7 @@ class majsoulpaipuanalyze{
             request.open('GET', filelink, true);
             request.responseType = 'blob';
             request.onload = loadfunc.bind(this);
+            request.onerror = () => { loadfunc.bind(this)(null, new Uint8Array()); } // if download error, skip it
             request.send();
         }
         else{
