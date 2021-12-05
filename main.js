@@ -234,7 +234,7 @@ const ready = () => {
                + '\n未识别(无法分析，活动规则)牌谱: ' + errordata
                + '\n已下载: ' + downloaded 
                + '\n已转换: ' + converted
-               + '\n\n提示：工具会尝试下载所有牌谱，但是只会转换规则和四人段位场相同的牌谱。\n规则不同（例如宝牌数、番缚、古役等）的牌谱无法转换。';
+               + '\n\n提示：工具会尝试下载所有牌谱，但是只会转换规则和四人段位场相同的牌谱。\n规则不同（例如宝牌数、番缚、古役等）的牌谱为未识别牌谱，无法转换。';
         dialog.showMessageBox({
             type: 'info',
             noLink: true,
@@ -392,7 +392,7 @@ const ready = () => {
             title: '下载转换完成',
             message: '完成 ' + downloadcount + '/' + downloadnumber + ' 个下载任务，完成 '
                      + convertcount + '/' + convertnumber + ' 个转换任务。\n下载成功牌谱的最晚时间是' + timestr
-                     + '\n\n提示：工具会尝试下载所有牌谱，但是只会转换规则和四人段位场相同的牌谱。\n规则不同（例如宝牌数、番缚、古役等）的牌谱为未识别，无法转换。'
+                     + '\n\n提示：工具会尝试下载所有牌谱，但是只会转换规则和四人段位场相同的牌谱。\n规则不同（例如宝牌数、番缚、古役等）的牌谱为未识别牌谱，无法转换。'
         });
         downloadconvertresult = undefined;
         downloadconvertlist = undefined;
