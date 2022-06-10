@@ -105,7 +105,11 @@ const ready = () => {
             if (error) console.log('read browseinject.js error: ' + error);
             else{
                 browseWindow.injectfinish = 1;
-                browseWindow.webContents.executeJavaScript(String(browsedata));
+                browseWindow.webContents.executeJavaScript(String(browsedata))
+                .catch((err) => {
+                    console.log(err);
+                    browseWindow.injectfinish = 0;
+                });
             }
         });
     }
@@ -116,6 +120,7 @@ const ready = () => {
     }
     
     function bwindowload(url){
+        console.log('inject', browseWindow.injectfinish);
         if (browseWindow.injectfinish == 2 || browseWindow.injectfinish == undefined)
             browseWindow.injectfinish = 0;
         for (let i in paipugamedata)
@@ -612,9 +617,33 @@ const ready = () => {
                 }); */
             }
         }, {
-            label: '进入国服（已关服）',
+            label: '进入中文服（备用链接）',
             click: function () {
-                gotonewpage('https://www.majsoul.com/1/');
+                gotonewpage('https://game.maj-soul.net/1/');
+            }
+        }, {
+            label: '指定服务器地址',
+            click: function () {
+                prompt({
+                    title: '输入服务器地址(包含https://)',
+                    label: '服务器地址',
+                }, browseWindow).then((res) => {
+                    if (!res) return;
+                    if (res.slice(0, 7) != 'http://' && res.slice(0, 8) != 'https://') {
+                        dialog.showMessageBox({
+                            type: 'error',
+                            noLink: true,
+                            buttons: ['确定'],
+                            title: '服务器地址错误',
+                            message: `请确认地址以http://或https://开头`
+                        });
+                        return;
+                    }
+                    gotonewpage(res);
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
             }
         }, {
             label: '登录专用窗口',
@@ -627,6 +656,7 @@ const ready = () => {
                     }
                 });
                 let str = config.get('DefaultURL');
+                console.log(str);
                 loginWindow.loadURL(str, {userAgent: 'Chrome'});
                 loginWindow.show();
             }
