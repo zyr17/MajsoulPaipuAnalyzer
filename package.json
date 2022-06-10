@@ -21,7 +21,7 @@
   "dependencies": {
     "electron": "^15.3.5",
     "electron-prompt": "^1.6.2",
-    "protobufjs": "^6.11.2",
+    "protobufjs": "^6.11.3",
     "request": "^2.88.2"
   }
 }
