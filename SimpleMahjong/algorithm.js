@@ -955,7 +955,7 @@ class Algo{
                 //console.log(get1, get2, num2maty[get1 % 10], num2maty[get2 % 10]);
                 if (num2maty[get2 % 10] - num2maty[get1 % 10] == 2)
                     fu += 2;
-                else if (get2 % 10 == 9 || get1 % 10 == 0)
+                else if (get1 != get2 && (get2 % 10 == 9 || get1 % 10 == 0))
                     fu += 2;
             }
             if (data.agari.length == 4){
