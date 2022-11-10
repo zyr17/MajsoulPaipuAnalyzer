@@ -19,7 +19,7 @@
     "electron-packager": "^15.2.0"
   },
   "dependencies": {
-    "electron": "^15.3.5",
+    "electron": "^18.3.7",
     "electron-prompt": "^1.6.2",
     "protobufjs": "^6.11.3",
     "request": "^2.88.2"
