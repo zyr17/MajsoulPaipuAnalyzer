@@ -16,7 +16,7 @@
   "author": "zyr17",
   "license": "MIT",
   "devDependencies": {
-    "electron-packager": "^15.2.0"
+    "electron-packager": "^16.0.0"
   },
   "dependencies": {
     "electron": "^15.3.5",
