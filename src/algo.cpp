@@ -759,6 +759,7 @@ namespace SR{
     }
 
     void stablerank(int round, double &stablerank, std::pair<double, double> &CI, int roomnumber){
+        // new calculator, proposed by @yuanhang0. Simulate 1000 times.
         assert(round == 4 || round == 8);
         if (ME.size() != ROOMNUMBER) initializerounddata();
         auto &rds = round == 4 ? ME : MS;
@@ -767,41 +768,72 @@ namespace SR{
             if (roomnumber == INVALIDROOM)
                 roomnumber= 0;
         }
+        std::cout << "stablerank " << round << ' ' << roomnumber << std::endl;
         assert(roomnumber == 0 || roomnumber == 100 || (roomnumber >= 0 && roomnumber < ROOMNUMBER && considerroom[roomnumber]));
         auto &rd = rds[roomnumber];
-        if (!(rd.pt123.size() + rd.pt4.size())){
+        if (!(rd.pts[0].size())){
             stablerank = CI.first = CI.second = NAN;
             return;
         }
 
-        std::vector<double> pt = rd.pt123;
-        double total = 0;
-        for (auto i : rd.pt123)
-            total += i;
-        for (auto i : rd.pt4)
-            total += i;
-        double r4 = 1.0 * rd.pt4.size() / (rd.pt123.size() + rd.pt4.size());
-        double every4 = total / rd.pt4.size();
-        for (auto i : rd.pt4)
-            pt.push_back(i - every4);
-        CI = confidenceinterval(pt);
-        stablerank = (every4 - rd.roombase) / rd.roomdelta;
-        CI.first = CI.first / rd.roomdelta / r4 + stablerank;
-        CI.second = CI.second / rd.roomdelta / r4 + stablerank;
-        //std::cout << total << ' ' << r4 << ' ' << every4 << ' ' << stablerank << ' ' << CI.first << ' ' << CI.second << '\n';
+        const int sim_time = 1000;
+
+        // average delta_pt
+        double delta_pt = 0;
+        for (auto i : rd.pts[0])
+            delta_pt += i;
+        int total_number = rd.pts[0].size();
+        std::cout << rd.pts[0].size() << ' ' << rd.pts[1].size() << ' ' << rd.pts[2].size() << ' ' << rd.pts[3].size() << ' ' << rd.pts[4].size() << std::endl;
+        delta_pt /= total_number;
+        std::vector<int> numbers;
+        std::cout << 12321 << ' ' << delta_pt << std::endl;
+        for (int i = 1; i <= 4; i ++ ) {
+            numbers.push_back(rd.pts[i].size());
+            if (i != 4)
+                for (auto j : rd.pts[i]) {
+                    assert(j == rd.pts[i][0]); // all pt should be same
+                }
+        }
+        std::cout << 32123 << std::endl;
+        std::cout << numbers[0] << ' ' << numbers[1] << ' ' << numbers[2] << ' ' << numbers[3] << std::endl;
+        std::discrete_distribution<> dist(numbers.begin(), numbers.end());
+        std::mt19937 gen(19260817);
+        std::vector<double> sim_res;
+        double sim_total = 0;
+        std::cout << 22222 << std::endl;
+        for (int i = sim_time; i -- ; ){
+            std::vector<int> counts(4, 0);
+            for (int j = total_number; j -- ; )
+                counts[dist(gen)] ++ ;
+            double nowpt = 0;
+            for (int j = 0; j < 3; j ++ )
+                if (counts[j] > 0)
+                    nowpt += counts[j] * rd.pts[j + 1][0];
+            if (counts[3] == 0) counts[3] = 1; // if no 4, use 1 to avoid divide by 0
+            nowpt /= counts[3];
+            sim_res.push_back(nowpt + delta_pt);
+            sim_total += nowpt + delta_pt;
+        }
+        std::cout << 44444 << std::endl;
+        std::sort(sim_res.begin(), sim_res.end());
+        stablerank = (sim_total / sim_time - rd.roombase) / rd.roomdelta;
+        CI = std::make_pair(sim_res[sim_time * 0.025], sim_res[sim_time * 0.975]);
+        CI.first = (CI.first - rd.roombase) / rd.roomdelta;
+        CI.second = (CI.second - rd.roombase) / rd.roomdelta;
+        std::cout << stablerank << ' ' << CI.first << ' ' << CI.second << std::endl;
     }
 
     void addgamedata(int nroom, int round, int rank, int pt, int point){
-        assert(nroom >= 0 && nroom < ROOMNUMBER || nroom == 100);
+        // std::cout << "addgamedata " << nroom << ' ' << round << ' ' << rank << ' ' << pt << ' ' << point << std::endl;
+        // assert(nroom >= 0 && nroom < ROOMNUMBER || nroom == 100 || nroom == 99 || nroom == 98);
         if (round != 4 && round != 8) return;
         if (ME.size() != ROOMNUMBER) initializerounddata();
-        if (nroom == 100 || !considerroom[nroom]) return;
+        if (nroom >= ROOMNUMBER || !considerroom[nroom]) return;
         auto &rd = round == 4 ? ME[nroom] : MS[nroom];
-        if (rank != 4) rd.pt123.push_back(pt);
-        else{
-            pt = (point - 25000) / 1000;
-            rd.pt4.push_back(pt);
-        }
+        int delta_pt = (point + 900 - rank * 10000 + 1000000) / 1000 - 1000;
+        pt -= delta_pt;
+        rd.pts[0].push_back(delta_pt);
+        rd.pts[rank].push_back(pt);
     }
 
     int getroom(int round){
@@ -810,7 +842,7 @@ namespace SR{
         auto &rds = round == 4 ? ME : MS;
         int roomnumber = INVALIDROOM;
         for (int i = 0; i < ROOMNUMBER; i ++ ){
-            if (considerroom[i] && (rds[i].pt123.size() + rds[i].pt4.size()))
+            if (considerroom[i] && (rds[i].pts[0].size()))
                 roomnumber = i;
         }
         if (roomnumber < 0 || roomnumber > 5 || !considerroom[roomnumber]) return INVALIDROOM;

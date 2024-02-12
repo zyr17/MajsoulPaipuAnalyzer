@@ -329,9 +329,8 @@
                 "置信區間表示了安定星數的可信程度。簡單來說，置信區間越小說明計算場次越多，估計的安定星數越準確。",
                 "詳細了解置信區間需要概率論和統計的基礎數學知識，如果沒有基礎知識可以忽略以下內容。",
                 "本程序計算的置信區間為0.95置信區間。使用正態分布進行估計，在盤數小於100時由於分布的離散性很不準確。",
-                "程序所採用的公式在盤數大於1000時和隨機採樣結果進行比較結果相近因此採用，其數學原理沒有依據。如果有擅長此方面的大佬存在歡迎指正。",
-                "<b>相關Issue：</b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/4\">Github Issue</a>",
-                "<b>程序的安定星數和置信區間計算說明：</b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/blob/master/doc/stable-rank.md\">stable-rank.md</a>"
+                "程序使用1000次隨機采樣模擬的方式計算近似安定段位和置信區間，具體算法可參考下方Issue。",
+                "<b>相關Issue：</b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/4\">Github Issue</a>"
             ]
         },
         "TITLE": {

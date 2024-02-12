@@ -1,6 +1,8 @@
 #ifndef _ALGO_H
 #define _ALGO_H
 
+#include <random>
+#include <algorithm>
 #include "header.h"
 #include "analyzer.h"
 #include "consts.h"
@@ -67,7 +69,7 @@ namespace Algo{
         struct RoundData{
             const int roombase, roomdelta;
             int room = INVALIDROOM;
-            std::vector<double> pt123, pt4;
+            std::vector<double> pts[5]; // 0 for delta pts by final points, 1-4 for 1-4 place pts.
             RoundData(const int roombase, const int roomdelta) : roombase(roombase), roomdelta(roomdelta) {}
         };
         
