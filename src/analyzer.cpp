@@ -1558,11 +1558,11 @@ void AnalyzeData::calcresult(){
             else resultjson.Add(key, "-");
             key = "EASTCIL0";
             key[7] += i;
-            if (isfinite(stablerank)) resultjson.Add(key, CI.first);
+            if (isfinite(CI.first)) resultjson.Add(key, CI.first);
             else resultjson.Add(key, "-");
             key = "EASTCIR0";
             key[7] += i;
-            if (isfinite(stablerank)) resultjson.Add(key, CI.second);
+            if (isfinite(CI.second)) resultjson.Add(key, CI.second);
             else resultjson.Add(key, "-");
 
             Algo::SR::stablerank(8, stablerank, CI, i);
@@ -1572,11 +1572,11 @@ void AnalyzeData::calcresult(){
             else resultjson.Add(key, "-");
             key = "SOUTHCIL0";
             key[8] += i;
-            if (isfinite(stablerank)) resultjson.Add(key, CI.first);
+            if (isfinite(CI.first)) resultjson.Add(key, CI.first);
             else resultjson.Add(key, "-");
             key = "SOUTHCIR0";
             key[8] += i;
-            if (isfinite(stablerank)) resultjson.Add(key, CI.second);
+            if (isfinite(CI.second)) resultjson.Add(key, CI.second);
             else resultjson.Add(key, "-");
         }
     //和牌役种和铳役种需要自行组装
