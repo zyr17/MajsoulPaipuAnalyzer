@@ -325,12 +325,11 @@
                 "Different stable stars in different room corresponding to the latter title to enter this room. e.g. stable stars 4.5 in Gold Room means Expert 4.5.",
                 "About Expert 4.5, when stable stars bigger than 3, with enough matches you will upgrade your title. For upgrading title will change the penalty step and open new rooms, we can't cimply say Expert 4.5 = Master 1.5. For same reason, when stable ranks is less than 1, you will fall with enough matches.",
                 "",
-                "<b>Confidence Interval: </b>",
+                "<b>Stable Rank Calculation and Confidence Interval: </b>",
                 "For confidence interval, in simple, the more matches analyzed, the smaller the confidence interval, and the stable stars is more accurate. alpha=0.05",
-                "The procedure when calculating confidence interval may having many mistakes, if you are good at this (and familiar with Chinese), please help me.",
-                "Below are some data about these in Chinese.",
-                "<b>Issue: </b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/4\">Github Issue</a>",
-                "<b>Introduction of calculating stable rank and confidence interval: </b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/blob/master/doc/stable-rank.md\">stable-rank.md</a>"
+                "The procedure uses random sampling and simulation to calculate stable rank and confidence interval. It simulates 1000 times based on prior 1-2-3-4 place rate. ",
+                "You can find details in the following Issue.",
+                "<b>Issue: </b><a href=\"https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/4\">Github Issue</a>"
             ]
         },
         "TITLE": {

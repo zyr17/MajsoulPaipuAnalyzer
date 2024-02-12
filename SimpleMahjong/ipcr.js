@@ -15,6 +15,7 @@ ipcr.on('downloadconvert', function (event, gamedata, isconvert, arr, bytearr = 
         if (gamedata.url){
             let prefix = gamedata.url.replace(gamedata.uuid, '');
             //console.log(gamedata.url, gamedata.uuid, prefix);
+            if (prefix == '/') prefix = 'https://record-old.maj-soul.com:9443/majsoul/game_record/';
             majsoulpaipuanalyzer.convertsomepaipu([gamedata], prefix);
         }
         else majsoulpaipuanalyzer.convertsomepaipu([gamedata]);
