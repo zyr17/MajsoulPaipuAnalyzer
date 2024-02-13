@@ -768,7 +768,7 @@ namespace SR{
             if (roomnumber == INVALIDROOM)
                 roomnumber= 0;
         }
-        std::cout << "stablerank " << round << ' ' << roomnumber << std::endl;
+        // std::cout << "stablerank " << round << ' ' << roomnumber << std::endl;
         assert(roomnumber == 0 || roomnumber == 100 || (roomnumber >= 0 && roomnumber < ROOMNUMBER && considerroom[roomnumber]));
         auto &rd = rds[roomnumber];
         if (!(rd.pts[0].size())){
@@ -783,10 +783,8 @@ namespace SR{
         for (auto i : rd.pts[0])
             delta_pt += i;
         int total_number = rd.pts[0].size();
-        std::cout << rd.pts[0].size() << ' ' << rd.pts[1].size() << ' ' << rd.pts[2].size() << ' ' << rd.pts[3].size() << ' ' << rd.pts[4].size() << std::endl;
         delta_pt /= total_number;
         std::vector<int> numbers;
-        std::cout << 12321 << ' ' << delta_pt << std::endl;
         for (int i = 1; i <= 4; i ++ ) {
             numbers.push_back(rd.pts[i].size());
             if (i != 4)
@@ -794,13 +792,10 @@ namespace SR{
                     assert(j == rd.pts[i][0]); // all pt should be same
                 }
         }
-        std::cout << 32123 << std::endl;
-        std::cout << numbers[0] << ' ' << numbers[1] << ' ' << numbers[2] << ' ' << numbers[3] << std::endl;
         std::discrete_distribution<> dist(numbers.begin(), numbers.end());
         std::mt19937 gen(19260817);
         std::vector<double> sim_res;
         double sim_total = 0;
-        std::cout << 22222 << std::endl;
         for (int i = sim_time; i -- ; ){
             std::vector<int> counts(4, 0);
             for (int j = total_number; j -- ; )
@@ -814,13 +809,11 @@ namespace SR{
             sim_res.push_back(nowpt + delta_pt);
             sim_total += nowpt + delta_pt;
         }
-        std::cout << 44444 << std::endl;
         std::sort(sim_res.begin(), sim_res.end());
         stablerank = (sim_total / sim_time - rd.roombase) / rd.roomdelta;
         CI = std::make_pair(sim_res[sim_time * 0.025], sim_res[sim_time * 0.975]);
         CI.first = (CI.first - rd.roombase) / rd.roomdelta;
         CI.second = (CI.second - rd.roombase) / rd.roomdelta;
-        std::cout << stablerank << ' ' << CI.first << ' ' << CI.second << std::endl;
     }
 
     void addgamedata(int nroom, int round, int rank, int pt, int point){

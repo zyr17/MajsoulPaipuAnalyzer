@@ -23,12 +23,15 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Install mingw
+      run: choco install mingw --Version 8.1.0
     - name: npm
       run: |
         npm ci
         npm run-script package-win
     - name: cmake
       run: |
+        $env:Path = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;" + $env:Path
         git submodule update --init --recursive
         mkdir bin
         mkdir bin/release
@@ -48,7 +51,16 @@ jobs:
         mv result MajsoulPaipuAnalyzer-win-x64
     - name: archive
       run: 7z a MajsoulPaipuAnalyzer-win-x64.7z MajsoulPaipuAnalyzer-win-x64 -m0=LZMA2 -mmt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: MajsoulPaipuAnalyzer-win-x64.7z
+        path: MajsoulPaipuAnalyzer-win-x64.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: PaipuAnalyzer
+        path: bin/release/PaipuAnalyzer.exe
     - name: Upload to release
+      if: github.event_name != 'workflow_dispatch'
       run: |
         echo $GITHUB_EVENT_PATH $GITHUB_REPOSITORY
         echo $env:GITHUB_EVENT_PATH $env:GITHUB_REPOSITORY
