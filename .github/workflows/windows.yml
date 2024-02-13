@@ -52,6 +52,7 @@ jobs:
     - name: archive
       run: 7z a MajsoulPaipuAnalyzer-win-x64.7z MajsoulPaipuAnalyzer-win-x64 -m0=LZMA2 -mmt
     - name: Upload to release
+      if: github.event_name != 'workflow_dispatch'
       run: |
         echo $GITHUB_EVENT_PATH $GITHUB_REPOSITORY
         echo $env:GITHUB_EVENT_PATH $env:GITHUB_REPOSITORY
