@@ -36,7 +36,7 @@ result = JSON.stringify(result);
 let token = process.argv[2];
 let repo = process.argv[3];
 
-let cmd = 'curl -X POST -H "Authorization: token ' + token + '"'
+let cmd = 'curl -X POST -H "Authorization: Bearer ' + token + '"'
           + ' --data ' + "'" + result + "'" 
           + ' https://api.github.com/repos/' + repo + '/releases';
 
