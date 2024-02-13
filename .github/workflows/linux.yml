@@ -54,7 +54,16 @@ jobs:
     #     path: MajsoulPaipuAnalyzer-linux-x64.7z
     # - name: fake artifact
     #   run: mv result.html MajsoulPaipuAnalyzer-linux-x64.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: MajsoulPaipuAnalyzer-win-x64.7z
+        path: MajsoulPaipuAnalyzer-win-x64.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: PaipuAnalyzer.exe
+        path: bin/debug/PaipuAnalyzer.exe
     - name: Upload to release
+      if: github.event_name != 'workflow_dispatch'
       run: |
         cp .github/asset.js .
         node asset.js ${{ secrets.ACCESS_TOKEN }} $GITHUB_EVENT_PATH $GITHUB_REPOSITORY MajsoulPaipuAnalyzer-linux-x64.7z application/octet_stream
