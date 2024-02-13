@@ -768,7 +768,7 @@ namespace SR{
             if (roomnumber == INVALIDROOM)
                 roomnumber= 0;
         }
-        std::cout << "stablerank " << round << ' ' << roomnumber << std::endl;
+        // std::cout << "stablerank " << round << ' ' << roomnumber << std::endl;
         assert(roomnumber == 0 || roomnumber == 100 || (roomnumber >= 0 && roomnumber < ROOMNUMBER && considerroom[roomnumber]));
         auto &rd = rds[roomnumber];
         if (!(rd.pts[0].size())){
