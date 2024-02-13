@@ -51,6 +51,14 @@ jobs:
         mv result MajsoulPaipuAnalyzer-win-x64
     - name: archive
       run: 7z a MajsoulPaipuAnalyzer-win-x64.7z MajsoulPaipuAnalyzer-win-x64 -m0=LZMA2 -mmt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: MajsoulPaipuAnalyzer-win-x64.7z
+        path: MajsoulPaipuAnalyzer-win-x64.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: PaipuAnalyzer
+        path: bin/release/PaipuAnalyzer.exe
     - name: Upload to release
       if: github.event_name != 'workflow_dispatch'
       run: |
