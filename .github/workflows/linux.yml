@@ -56,12 +56,12 @@ jobs:
     #   run: mv result.html MajsoulPaipuAnalyzer-linux-x64.7z
     - uses: actions/upload-artifact@v2
       with:
-        name: MajsoulPaipuAnalyzer-win-x64.7z
-        path: MajsoulPaipuAnalyzer-win-x64.7z
+        name: MajsoulPaipuAnalyzer-linux-x64.7z
+        path: MajsoulPaipuAnalyzer-linux-x64.7z
     - uses: actions/upload-artifact@v2
       with:
-        name: PaipuAnalyzer.exe
-        path: bin/debug/PaipuAnalyzer.exe
+        name: PaipuAnalyzer
+        path: bin/release/PaipuAnalyzer
     - name: Upload to release
       if: github.event_name != 'workflow_dispatch'
       run: |
