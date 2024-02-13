@@ -31,7 +31,7 @@ jobs:
         npm run-script package-win
     - name: cmake
       run: |
-        $env:Path = "C:\ProgramData\mingw64\mingw64\bin;" + $env:Path
+        $env:Path = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;" + $env:Path
         git submodule update --init --recursive
         mkdir bin
         mkdir bin/debug
