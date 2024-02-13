@@ -28,4 +28,4 @@ jobs:
     - name: update tag
       run: |
         cp .github/tag.js .
-        node tag.js ${{ secrets.GITHUB_TOKEN }} $GITHUB_REPOSITORY
+        node tag.js ${{ secrets.ACCESS_TOKEN }} $GITHUB_REPOSITORY
