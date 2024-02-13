@@ -50,7 +50,16 @@ jobs:
       run: |
         brew install p7zip
         7z a MajsoulPaipuAnalyzer-macos-x64.7z MajsoulPaipuAnalyzer-macos-x64 -m0=LZMA2 -mmt
+    - uses: actions/upload-artifact@v2
+      with:
+        name: MajsoulPaipuAnalyzer-macos-x64.7z
+        path: MajsoulPaipuAnalyzer-macos-x64.7z
+    - uses: actions/upload-artifact@v2
+      with:
+        name: PaipuAnalyzer
+        path: bin/release/PaipuAnalyzer
     - name: Upload to release
+      if: github.event_name != 'workflow_dispatch'
       run: |
         cp .github/asset.js .
         node asset.js ${{ secrets.ACCESS_TOKEN }} $GITHUB_EVENT_PATH $GITHUB_REPOSITORY MajsoulPaipuAnalyzer-macos-x64.7z application/octet_stream
