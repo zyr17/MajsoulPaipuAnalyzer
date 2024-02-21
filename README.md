@@ -104,8 +104,6 @@ Github Actions环境请参考workflow配置
 
 由于雀魂官方的牌谱查看只支持1000个牌谱，而MajsoulPaipuCrawler基于官方操作，如果超过了1000个牌谱目前没有办法获取。如果有好办法请至[issue](https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/5)中指导作者。
 
-由于作者统计和概率论水平不行，目前安定段位计算为有偏估计。目前安定段位及置信区间的计算参照[这里](doc/stable-rank.md)，欢迎数学好的大佬们在[issue](https://github.com/zyr17/MajsoulPaipuAnalyzer/issues/4)中或其他联系渠道提供正确的安定段位和置信区间的计算方式。
-
 Ubuntu高版本中可能会出现GUI将可执行文件当做动态链接库的情况。目前没有找到解决方法，请使用Terminal执行。
 
 如果运行Electron时出现游戏界面黑屏、白屏、崩溃等问题，有可能是显卡对WebGL的支持问题，可以尝试将resources/app/main.js文件第24行附近的app.isableHardwareAcceleration双斜杠删去，关闭硬件加速运行。
