@@ -39,7 +39,6 @@ jobs:
       run: |
         cp -r dist/MajsoulPaipuCrawler-darwin-x64 result
         cp bin/release/PaipuAnalyzer result/
-        mkdir result/data
         cp config.json result/
         cp PAADData.json result/
         cp doc/README.txt result/
