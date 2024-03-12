@@ -31,7 +31,8 @@ const metadata_query_step = 100; // How many uuids to query once. In test, 850 i
 const metadata_fetch_delay = 1000; // ms to delay after fetching metadata
 
 if (InMacOS) {
-    let cwd = app.getPath('exe').replace(/\/[^\/]+$/, '');
+    // let cwd = app.getPath('exe').replace(/\/[^\/]+$/, '');
+    let cwd = app.getAppPath();
     console.log('current dir: ' + cwd);
     dataPath = cwd + '/' + dataPath;
 }
