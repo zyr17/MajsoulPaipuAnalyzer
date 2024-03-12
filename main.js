@@ -873,7 +873,7 @@ const ready = () => {
     //browseWindow.maximize();
     function readgamedata(userid, paipugamedata, callback){
         let root = path(dataPath, 'majsoul', userid.toString());
-        if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath);
+        if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath, { recursive: true });
         if (!fs.existsSync(path(dataPath, 'majsoul'))) fs.mkdirSync(path(dataPath, 'majsoul'));
         if (!fs.existsSync(root)) fs.mkdirSync(root);
         let ppp = path(root, 'raw');
