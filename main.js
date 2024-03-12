@@ -24,7 +24,6 @@ let nowgamedata = null;
 
 var paipuversion = undefined;
 var appPath = app.getAppPath();
-app.setPath('userData', appPath + '/UserData');
 let dataPath = 'data/';
 const paipu_bk_folder_name = 'old_paipu_backup';
 const metadata_query_step = 100; // How many uuids to query once. In test, 850 is safe and 1500 will be banned.     
@@ -32,9 +31,12 @@ const metadata_fetch_delay = 1000; // ms to delay after fetching metadata
 
 if (InMacOS) {
     // let cwd = app.getPath('exe').replace(/\/[^\/]+$/, '');
-    let cwd = '~/Library/Application Support/MajsoulPaipuAnalyzer/';
+    let cwd = app.getPath('userData');
     console.log('current dir: ' + cwd);
     dataPath = cwd + '/' + dataPath;
+}
+else {
+    app.setPath('userData', appPath + '/UserData');
 }
 
 //app.disableHardwareAcceleration();
