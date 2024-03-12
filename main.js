@@ -874,6 +874,15 @@ const ready = () => {
     function readgamedata(userid, paipugamedata, callback){
         let root = path(dataPath, 'majsoul', userid.toString());
         if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath, { recursive: true });
+        if (InMacOS) {
+            dialog.showMessageBox({
+                type: 'info',
+                noLink: true,
+                buttons: ['确定'],
+                title: 'MacOS存储位置提示',
+                message: `由于权限原因，MacOS会将文件存储于${dataPath}，完成牌谱收集后，请手动将该目录下的data文件夹拷贝至当前文件夹！`
+            })
+        }
         if (!fs.existsSync(path(dataPath, 'majsoul'))) fs.mkdirSync(path(dataPath, 'majsoul'));
         if (!fs.existsSync(root)) fs.mkdirSync(root);
         let ppp = path(root, 'raw');

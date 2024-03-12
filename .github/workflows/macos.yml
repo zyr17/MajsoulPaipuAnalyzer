@@ -47,20 +47,13 @@ jobs:
         cp -r i18n/ result/
         mv result MajsoulPaipuAnalyzer-macos-x64
     - name: archive
-      if: github.event_name != 'workflow_dispatch'
       run: |
         brew install p7zip
         7z a MajsoulPaipuAnalyzer-macos-x64.7z MajsoulPaipuAnalyzer-macos-x64 -m0=LZMA2 -mmt
     - uses: actions/upload-artifact@v2
-      if: github.event_name != 'workflow_dispatch'
       with:
         name: MajsoulPaipuAnalyzer-macos-x64.7z
         path: MajsoulPaipuAnalyzer-macos-x64.7z
-    - uses: actions/upload-artifact@v2
-      if: github.event_name == 'workflow_dispatch'
-      with:
-        name: MajsoulPaipuAnalyzer-macos-x64
-        path: MajsoulPaipuAnalyzer-macos-x64
     - uses: actions/upload-artifact@v2
       with:
         name: PaipuAnalyzer
