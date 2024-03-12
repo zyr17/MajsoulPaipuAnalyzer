@@ -34,6 +34,7 @@ if (InMacOS) {
     let cwd = path(process.env.HOME, "Library", "Application Support", "MajsoulPaipuAnalyzer");
     console.log('current dir: ' + cwd);
     dataPath = cwd + '/' + dataPath;
+    fs.mkdirSync(dataPath, { recursive: true });
 }
 else {
     app.setPath('userData', appPath + '/UserData');
