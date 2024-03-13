@@ -39,25 +39,27 @@ jobs:
       run: |
         cp -r dist/MajsoulPaipuCrawler-darwin-x64 result
         cp bin/release/PaipuAnalyzer result/
+        cp bin/release/PaipuAnalyzer ./
         cp config.json result/
         cp PAADData.json result/
         cp doc/README.txt result/
         cp doc/release-notes.txt result/
         cp -r i18n/ result/
-        ln -s "~/Library/Application Support/MajsoulPaipuAnalyzer/data" result/data
-        mv result MajsoulPaipuAnalyzer-macos-x64
+#        ln -s "~/Library/Application Support/MajsoulPaipuAnalyzer/data" result/data
+        mv result MajsoulPaipuAnalyzer-macos
     - name: archive
       run: |
         brew install p7zip
-        7z a MajsoulPaipuAnalyzer-macos-x64.7z MajsoulPaipuAnalyzer-macos-x64 -m0=LZMA2 -mmt
+        7z a MajsoulPaipuAnalyzer-macos.7z MajsoulPaipuAnalyzer-macos -m0=LZMA2 -mmt
+        7z a PaipuAnalyzer.zip PaipuAnalyzer
     - uses: actions/upload-artifact@v2
       with:
-        name: MajsoulPaipuAnalyzer-macos-x64.7z
-        path: MajsoulPaipuAnalyzer-macos-x64.7z
+        name: MajsoulPaipuAnalyzer-macos.7z
+        path: MajsoulPaipuAnalyzer-macos.7z
     - uses: actions/upload-artifact@v2
       with:
         name: PaipuAnalyzer
-        path: bin/release/PaipuAnalyzer
+        path: PaipuAnalyzer.zip
     - name: Upload to release
       if: github.event_name != 'workflow_dispatch'
       run: |
