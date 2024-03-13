@@ -31,10 +31,10 @@ const metadata_fetch_delay = 1000; // ms to delay after fetching metadata
 
 if (InMacOS) {
     // let cwd = app.getPath('exe').replace(/\/[^\/]+$/, '');
-    let cwd = process.env.HOME + "Library/Application Support/MajsoulPaipuAnalyzer";
+    let cwd = path(process.env.HOME, "Library", "Application Support", "MajsoulPaipuAnalyzer");
     console.log('current dir: ' + cwd);
     dataPath = cwd + '/' + dataPath;
-    fs.mkdirSync(dataPath, { recursive: true });
+    if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath, { recursive: true });
 }
 else {
     app.setPath('userData', appPath + '/UserData');
