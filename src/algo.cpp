@@ -340,7 +340,7 @@ int Access(const char *filename, int mode){
         if (filename_string.find("data/") == 0)
             full_filename = Header::appledatafolderprefix + filename;
     #endif
-    std::cout << "Access " << full_filename << '\n';
+    std::cout << "Access " << full_filename << std::endl;
     return access(full_filename.c_str(), mode);
 }
 
@@ -353,7 +353,7 @@ CJsonObject ReadJSON(const std::string &filename){
         if (filename.find("data/") == 0)
             full_filename = Header::appledatafolderprefix + filename;
     #endif
-    std::cout << "ReadJSON " << full_filename << '\n';
+    std::cout << "ReadJSON " << full_filename << std::endl;
     auto f = fopen(full_filename.c_str(), "r");
     for (; ; ){
         int length = fread(buffer, 1, JSONBUFFERSIZE - 1, f);

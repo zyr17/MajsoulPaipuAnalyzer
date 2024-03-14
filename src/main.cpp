@@ -50,7 +50,9 @@ namespace MAIN{
             }
             _findclose(findi2);
         #elif defined(__linux) || defined(__APPLE__)
+            std::cout << "try to open: " << dataprefix + "data/" + source << std::endl;
             DIR *dirptr = opendir((dataprefix + "data/" + source).c_str());
+            std::cout << "open success: " << dataprefix + "data/" + source << std::endl;
             dirent *entry;
             while (entry = readdir(dirptr)){
                 ids.push_back(entry -> d_name);
