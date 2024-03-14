@@ -336,7 +336,8 @@ int Access(const char *filename, int mode){
     std::string full_filename = Header::datafolderprefix + filename;
     #ifdef __APPLE__
         // 如果是访问data，apple需要重设路径到Header::appledatafolderprefix
-        if (filename.find("data/") == 0)
+        std::string filename_string = filename;
+        if (filename_string.find("data/") == 0)
             full_filename = Header::appledatafolderprefix + filename;
     #endif
     std::cout << "Access " << full_filename << '\n';
