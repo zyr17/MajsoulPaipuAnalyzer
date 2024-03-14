@@ -31,7 +31,7 @@ jobs:
         mkdir bin
         mkdir bin/release
         cd bin/release
-        cmake ../.. -DCMAKE_BUILD_TYPE=Release
+        cmake ../.. -DCMAKE_BUILD_TYPE=Debug
         make -j
     - name: collect
       run: |
