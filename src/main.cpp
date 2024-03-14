@@ -95,7 +95,11 @@ namespace MAIN{
             return 1;
         }
         config.Get("id", id);
+#ifdef __APPLE__
+        std::vector<std::string> ids = findid(Header::appledatafolderprefix, source, id);
+#else
         std::vector<std::string> ids = findid(Header::datafolderprefix, source, id);
+#endif
         std::cout << "ID: " << id << std::endl;
         if (!ids.size()){
             Out::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC/*") + source + I18N::get("MAIN", "CANTDATA/SRC/*AFT") + "\n";
