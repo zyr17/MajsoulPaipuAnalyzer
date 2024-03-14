@@ -333,7 +333,14 @@ void testshanten(){
 }
 
 int Access(const char *filename, int mode){
-    return access((Header::datafolderprefix + filename).c_str(), mode);
+    std::string full_filename = Header::datafolderprefix + filename;
+    #ifdef __APPLE__
+        // 如果是访问data，apple需要重设路径到Header::appledatafolderprefix
+        if (filename.find("data/") == 0)
+            full_filename = Header::appledatafolderprefix + filename;
+    #endif
+    std::cout << "Access " << full_filename << '\n';
+    return access(full_filename.c_str(), mode);
 }
 
 CJsonObject ReadJSON(const std::string &filename){
@@ -345,6 +352,7 @@ CJsonObject ReadJSON(const std::string &filename){
         if (filename.find("data/") == 0)
             full_filename = Header::appledatafolderprefix + filename;
     #endif
+    std::cout << "ReadJSON " << full_filename << '\n';
     auto f = fopen(full_filename.c_str(), "r");
     for (; ; ){
         int length = fread(buffer, 1, JSONBUFFERSIZE - 1, f);
