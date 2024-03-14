@@ -35,17 +35,14 @@ jobs:
         make -j
     - name: collect
       run: |
-        cp -r dist/MajsoulPaipuCrawler-darwin-x64 result
+        mkdir result
         cp bin/release/PaipuAnalyzer result/
-        cp bin/release/PaipuAnalyzer ./
         cp config.json result/
         cp PAADData.json result/
-        cp doc/README.txt result/
-        cp doc/release-notes.txt result/
         cp -r i18n result/
         ln -s "~/Library/Application Support/MajsoulPaipuAnalyzer/data" result/data
         ls -l result
-        mv result MajsoulPaipuAnalyzer-macos
+        mv result PaipuAnalyzer
     - name: archive
       run: |
         brew install p7zip
