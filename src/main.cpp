@@ -1,6 +1,37 @@
 #include "main.h"
 
 namespace MAIN{
+
+#ifdef __APPLE__
+    std::string expandTilde(const char* str) {
+        if (!str) {
+            std::cout << "Null pointer passed to expandTilde" << std::endl;
+            throw std::exception();
+        }
+
+        glob_t globbuf;
+        if (glob(str, GLOB_TILDE, nullptr, &globbuf) == 0) {
+            std::string result(globbuf.gl_pathv[0]);
+            globfree(&globbuf);
+            return result;
+        } else {
+            std::cout << "Failed to expand tilde" << std::endl;
+            throw std::exception();
+        }
+    }
+
+    std::string settingsPath(const char* str) {
+        char path[PATH_MAX];
+        auto state = sysdir_start_search_path_enumeration(SYSDIR_DIRECTORY_APPLICATION_SUPPORT,
+                                                        SYSDIR_DOMAIN_MASK_USER);
+        if ((state = sysdir_get_next_search_path_enumeration(state, path))) {
+            return expandTilde(path);
+        } else {
+            std::cout << "Failed to get settings folder" << std::endl;
+            throw std::exception();
+        }
+    }
+#endif
     
     std::string source, id;
     CJsonObject config;
@@ -78,7 +109,7 @@ namespace MAIN{
 
     void setrootfolder(){
         #ifdef __APPLE__
-            //只有macOS需要重新查找设置rootfolder
+            //只有macOS需要重新查找设置rootfolder，并设置正确的appledatafolderprefix
             unsigned int bufferSize = 512;
             std::vector<char> buffer(bufferSize + 1);
             _NSGetExecutablePath(&buffer[0], &bufferSize);
@@ -87,6 +118,8 @@ namespace MAIN{
                 if (i) s += i;
             s.erase(s.size() - 13); //删去"PaipuAnalyzer"
             Header::rootfolderprefix = s;
+            auto data_path_prefix = settingsPath(Header::appledatafolderprefix.c_str());
+            Header::appledatafolderprefix = data_path_prefix + '/' + Header::appledatafolderprefix;
         #endif
     }
 
