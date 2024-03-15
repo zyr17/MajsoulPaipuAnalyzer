@@ -50,18 +50,18 @@ namespace MAIN{
             }
             _findclose(findi2);
         #elif defined(__linux) || defined(__APPLE__)
-            std::cout << "try to open: " << dataprefix + "data/" + source << std::endl;
+            // std::cout << "try to open: " << dataprefix + "data/" + source << std::endl;
             DIR *dirptr = opendir((dataprefix + "data/" + source).c_str());
-            std::cout << "open success: " << dataprefix + "data/" + source << std::endl;
+            // std::cout << "open success: " << dataprefix + "data/" + source << std::endl;
             dirent *entry;
             while (entry = readdir(dirptr)){
-                std::cout << "entry id: " << entry -> d_name << std::endl;
+                // std::cout << "entry id: " << entry -> d_name << std::endl;
                 ids.push_back(entry -> d_name);
                 if (*ids.rbegin() == "." || *ids.rbegin() == ".." || *ids.rbegin() == "0")
                     ids.pop_back();
             }
             closedir(dirptr);
-            std::cout << "close success: " << dataprefix + "data/" + source << std::endl;
+            // std::cout << "close success: " << dataprefix + "data/" + source << std::endl;
         #else
             Out::cout << I18N::get("MAIN", "MACROUNDEFINED") << '\n';
             PAUSEEXIT;
@@ -100,16 +100,16 @@ namespace MAIN{
 #else
         std::vector<std::string> ids = findid(Header::datafolderprefix, source, id);
 #endif
-        std::cout << "ID: " << id << std::endl;
+        // std::cout << "ID: " << id << std::endl;
         if (!ids.size()){
             Out::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC/*") + source + I18N::get("MAIN", "CANTDATA/SRC/*AFT") + "\n";
             PAUSEEXIT;
             return 1;
         }
-        std::cout << "Try to print to Out" << std::endl;
+        // std::cout << "Try to print to Out" << std::endl;
         Out::cout << '\n';
         Out::cout << I18N::get("MAIN", "SRC") + I18N::get("MISC", "COLON") + source + "\n";
-        std::cout << "Try to print to Out Success" << std::endl;
+        // std::cout << "Try to print to Out Success" << std::endl;
         std::string outputid = id;
         #ifdef _WIN32
             outputid = Algo::UTF82GBK(outputid);
@@ -146,7 +146,7 @@ int main(int argc, char *argv[]){
     //Algo::testtenpai(); return 0;
 
     auto rcres = readconfig();
-    std::cout << "Read Config Result: " << rcres << std::endl;
+    // std::cout << "Read Config Result: " << rcres << std::endl;
     if (rcres == 1) return 0;
 
     if (argc > 1 && argv[1] == std::string("--tenhou-basedata")){
