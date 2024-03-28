@@ -152,6 +152,9 @@ const ready = () => {
             || roomdata.huansanzhang //换三张
             || roomdata.jiuchao_mode //鸠巢
             || roomdata.reveal_discard //暗夜之战
+            // || roomdata.dora3_mode
+            // || roomdata.muyu_mode
+            // || roomdata.chuanma
         ;
         const basicrule = {
             "dora_count":3,
@@ -185,11 +188,19 @@ const ready = () => {
             "disable_multi_yukaman":false,
             "disable_leijiyiman":false,
             "fanfu":1,
+            "have_zimosun":true,
+            "disable_double_yakuman":false,
+            "disable_composite_yakuman":false,
+            "disable_double_wind_four_fu":false,
+            "disable_angang_guoshi":false,
+            "enable_renhe":false,
+            "enable_baopai_extend_settings":false,
         }
         const basickey = [
             "player", "round", "init_point", "fandian", "time_fixed", 
             "time_add", "room", "contest_id", "has_ai", "bianjietishi",
-            "ai_level"
+            "ai_level", "jingsuanyuandian", "shunweima_2", "shunweima_3",
+            "shunweima_4", "open_hand"
         ]
         let isbasicrule = true;
         for (let i in basicrule){
@@ -198,8 +209,8 @@ const ready = () => {
             isbasicrule = isbasicrule && ((roomdata[i] == undefined) || roomdata[i] == basicrule[i]);
         }
         for (let i in roomdata)
-            if (false && basicrule[i] == undefined && !basickey.includes(i) && roomdata[i]){
-                // TODO 存在不是基本规则或是基本参数的内容，当做特殊规则。没调试好先disable
+            if (basicrule[i] == undefined && !basickey.includes(i) && roomdata[i]){
+                // 存在不是基本规则或是基本参数的内容，当做特殊规则。
                 console.log(i, roomdata[i]);
                 isspecialrule = true;
             }
@@ -385,6 +396,13 @@ const ready = () => {
         for (let i in paipulist)
             if (paipulist[i] != paipu_bk_folder_name)
                 paipus.push(JSON.parse(fs.readFileSync(path(paipudir, paipulist[i]))));
+        // used to check every paipu is valid or not. may be used in the future
+        // for (let i in paipulist)
+        //     if (paipulist[i] != paipu_bk_folder_name) {
+        //         let one_paipu = JSON.parse(fs.readFileSync(path(paipudir, paipulist[i])));
+        //         if (!iserrorpaipu(one_paipu.gamedata))
+        //             paipus.push(JSON.parse(fs.readFileSync(path(paipudir, paipulist[i]))));
+        //     }
         fs.writeFileSync(path(dataPath, 'majsoul', userid.toString(), 'paipus.txt'), JSON.stringify(paipus));
 
         let d = new Date();
