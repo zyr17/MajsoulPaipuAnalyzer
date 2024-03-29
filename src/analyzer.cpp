@@ -2076,6 +2076,7 @@ void analyzetenhou(const std::string &dataf, const std::string &source, const st
 }
 
 void analyzemain(const std::string &dataf, const std::string &source, const std::string &id, CJsonObject &config){
+    // std::cout << "Go into main" << std::endl;
     auto &filter = config["filter"];
     PaipuAnalyzer pa = PaipuAnalyzer(filter);
     int paipunum = 0;
@@ -2153,7 +2154,9 @@ void analyzemain(const std::string &dataf, const std::string &source, const std:
         }
         else{
             std::vector<CJsonObject*> paipus;
+            // std::cout << "Read paipu file: " << dataf + "/" + source + "/" + id + "/paipus.txt" << std::endl;
             auto paipuarr = Algo::ReadJSON(dataf + "/" + source + "/" + id + "/paipus.txt");
+            // std::cout << "Read paipu file success: " << dataf + "/" + source + "/" + id + "/paipus.txt" << std::endl;
             for (int i = 0; i < paipuarr.GetArraySize(); i ++ )
                 paipus.push_back(&paipuarr[i]);
             //int step = paipus.size() - 1;

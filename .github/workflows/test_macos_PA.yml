@@ -1,16 +1,14 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: MacOS CI
+name: MacOS PaipuAnalyzer only test CI
 
 on:
-  release:
-    types: [published]
+  push:
   workflow_dispatch:
 
 jobs:
   build:
-    if: "!github.event.release.prerelease"
     runs-on: macOS-latest
 
     strategy:
@@ -33,35 +31,23 @@ jobs:
         mkdir bin
         mkdir bin/release
         cd bin/release
-        cmake ../.. -DCMAKE_BUILD_TYPE=Release
+        cmake ../.. -DCMAKE_BUILD_TYPE=Debug
         make -j
     - name: collect
       run: |
-        cp -r dist/MajsoulPaipuCrawler-darwin-x64 result
+        mkdir result
         cp bin/release/PaipuAnalyzer result/
-        cp bin/release/PaipuAnalyzer ./
         cp config.json result/
         cp PAADData.json result/
-        cp doc/README.txt result/
-        cp doc/release-notes.txt result/
         cp -r i18n result/
-        mv result MajsoulPaipuAnalyzer-macos
-#       ln -s "~/Library/Application Support/MajsoulPaipuAnalyzer/data" result/data
+        ln -s "~/Library/Application Support/MajsoulPaipuAnalyzer/data" result/data
+        ls -l result
+        mv result PaipuAnalyzer
     - name: archive
       run: |
         brew install p7zip
-        7z a MajsoulPaipuAnalyzer-macos.7z MajsoulPaipuAnalyzer-macos -m0=LZMA2 -mmt
         7z a PaipuAnalyzer.zip PaipuAnalyzer
-    - uses: actions/upload-artifact@v2
-      with:
-        name: MajsoulPaipuAnalyzer-macos.7z
-        path: MajsoulPaipuAnalyzer-macos.7z
     - uses: actions/upload-artifact@v2
       with:
         name: PaipuAnalyzer
         path: PaipuAnalyzer.zip
-    - name: Upload to release
-      if: github.event_name != 'workflow_dispatch'
-      run: |
-        cp .github/asset.js .
-        node asset.js ${{ secrets.ACCESS_TOKEN }} $GITHUB_EVENT_PATH $GITHUB_REPOSITORY MajsoulPaipuAnalyzer-macos-x64.7z application/octet_stream

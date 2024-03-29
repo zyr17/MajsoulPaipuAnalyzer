@@ -333,13 +333,28 @@ void testshanten(){
 }
 
 int Access(const char *filename, int mode){
-    return access((Header::datafolderprefix + filename).c_str(), mode);
+    std::string full_filename = Header::datafolderprefix + filename;
+    #ifdef __APPLE__
+        // 如果是访问data，apple需要重设路径到Header::appledatafolderprefix
+        std::string filename_string = filename;
+        if (filename_string.find("data/") == 0)
+            full_filename = Header::appledatafolderprefix + filename;
+    #endif
+    // std::cout << "Access " << full_filename << std::endl;
+    return access(full_filename.c_str(), mode);
 }
 
 CJsonObject ReadJSON(const std::string &filename){
     std::string jsonstr;
     char *buffer = new char[JSONBUFFERSIZE];
-    auto f = fopen((Header::datafolderprefix + filename).c_str(), "r");
+    std::string full_filename = Header::datafolderprefix + filename;
+    #ifdef __APPLE__
+        // 如果是访问data，apple需要重设路径到Header::appledatafolderprefix
+        if (filename.find("data/") == 0)
+            full_filename = Header::appledatafolderprefix + filename;
+    #endif
+    // std::cout << "ReadJSON " << full_filename << std::endl;
+    auto f = fopen(full_filename.c_str(), "r");
     for (; ; ){
         int length = fread(buffer, 1, JSONBUFFERSIZE - 1, f);
         buffer[length] = '\0';
@@ -354,6 +369,7 @@ CJsonObject ReadJSON(const std::string &filename){
 }
 
 std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::string &prefix, const std::string &suffix){
+    // TODO: Cannot work on MacOS! currently not used by MacOS, so not fixed.
     auto f = fopen((Header::datafolderprefix + filename).c_str(), "r");
     std::vector<CJsonObject> res;
     for (; ; ){
@@ -370,6 +386,7 @@ std::vector<CJsonObject> ReadLineJSON(const std::string &filename, const std::st
 }
 
 void WriteJSON(const std::string &filename, const CJsonObject json){
+    // TODO: Cannot work on MacOS! currently not used by MacOS, so not fixed.
     FILE *f = fopen((Header::datafolderprefix + filename).c_str(), "w");
     fprintf(f, "%s", json.ToString().c_str());
 }

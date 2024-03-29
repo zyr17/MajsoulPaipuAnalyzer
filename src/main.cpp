@@ -1,6 +1,37 @@
 #include "main.h"
 
 namespace MAIN{
+
+#ifdef __APPLE__
+    std::string expandTilde(const char* str) {
+        if (!str) {
+            std::cout << "Null pointer passed to expandTilde" << std::endl;
+            throw std::exception();
+        }
+
+        glob_t globbuf;
+        if (glob(str, GLOB_TILDE, nullptr, &globbuf) == 0) {
+            std::string result(globbuf.gl_pathv[0]);
+            globfree(&globbuf);
+            return result;
+        } else {
+            std::cout << "Failed to expand tilde" << std::endl;
+            throw std::exception();
+        }
+    }
+
+    std::string settingsPath(const char* str) {
+        char path[PATH_MAX];
+        auto state = sysdir_start_search_path_enumeration(SYSDIR_DIRECTORY_APPLICATION_SUPPORT,
+                                                        SYSDIR_DOMAIN_MASK_USER);
+        if ((state = sysdir_get_next_search_path_enumeration(state, path))) {
+            return expandTilde(path);
+        } else {
+            std::cout << "Failed to get settings folder" << std::endl;
+            throw std::exception();
+        }
+    }
+#endif
     
     std::string source, id;
     CJsonObject config;
@@ -19,14 +50,18 @@ namespace MAIN{
             }
             _findclose(findi2);
         #elif defined(__linux) || defined(__APPLE__)
+            // std::cout << "try to open: " << dataprefix + "data/" + source << std::endl;
             DIR *dirptr = opendir((dataprefix + "data/" + source).c_str());
+            // std::cout << "open success: " << dataprefix + "data/" + source << std::endl;
             dirent *entry;
             while (entry = readdir(dirptr)){
+                // std::cout << "entry id: " << entry -> d_name << std::endl;
                 ids.push_back(entry -> d_name);
                 if (*ids.rbegin() == "." || *ids.rbegin() == ".." || *ids.rbegin() == "0")
                     ids.pop_back();
             }
             closedir(dirptr);
+            // std::cout << "close success: " << dataprefix + "data/" + source << std::endl;
         #else
             Out::cout << I18N::get("MAIN", "MACROUNDEFINED") << '\n';
             PAUSEEXIT;
@@ -60,14 +95,21 @@ namespace MAIN{
             return 1;
         }
         config.Get("id", id);
+#ifdef __APPLE__
+        std::vector<std::string> ids = findid(Header::appledatafolderprefix, source, id);
+#else
         std::vector<std::string> ids = findid(Header::datafolderprefix, source, id);
+#endif
+        // std::cout << "ID: " << id << std::endl;
         if (!ids.size()){
             Out::cout << I18N::get("MISC", "ERROR") + I18N::get("MAIN", "CANTDATA/SRC/*") + source + I18N::get("MAIN", "CANTDATA/SRC/*AFT") + "\n";
             PAUSEEXIT;
             return 1;
         }
+        // std::cout << "Try to print to Out" << std::endl;
         Out::cout << '\n';
         Out::cout << I18N::get("MAIN", "SRC") + I18N::get("MISC", "COLON") + source + "\n";
+        // std::cout << "Try to print to Out Success" << std::endl;
         std::string outputid = id;
         #ifdef _WIN32
             outputid = Algo::UTF82GBK(outputid);
@@ -78,7 +120,7 @@ namespace MAIN{
 
     void setrootfolder(){
         #ifdef __APPLE__
-            //只有macOS需要重新查找设置rootfolder
+            //只有macOS需要重新查找设置rootfolder，并设置正确的appledatafolderprefix
             unsigned int bufferSize = 512;
             std::vector<char> buffer(bufferSize + 1);
             _NSGetExecutablePath(&buffer[0], &bufferSize);
@@ -87,6 +129,8 @@ namespace MAIN{
                 if (i) s += i;
             s.erase(s.size() - 13); //删去"PaipuAnalyzer"
             Header::rootfolderprefix = s;
+            auto data_path_prefix = settingsPath(Header::appledatafolderprefix.c_str());
+            Header::appledatafolderprefix = data_path_prefix + '/' + Header::appledatafolderprefix;
         #endif
     }
 
@@ -102,6 +146,7 @@ int main(int argc, char *argv[]){
     //Algo::testtenpai(); return 0;
 
     auto rcres = readconfig();
+    // std::cout << "Read Config Result: " << rcres << std::endl;
     if (rcres == 1) return 0;
 
     if (argc > 1 && argv[1] == std::string("--tenhou-basedata")){
