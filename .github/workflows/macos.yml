@@ -64,4 +64,4 @@ jobs:
       if: github.event_name != 'workflow_dispatch'
       run: |
         cp .github/asset.js .
-        node asset.js ${{ secrets.ACCESS_TOKEN }} $GITHUB_EVENT_PATH $GITHUB_REPOSITORY MajsoulPaipuAnalyzer-macos-x64.7z application/octet_stream
+        node asset.js ${{ secrets.ACCESS_TOKEN }} $GITHUB_EVENT_PATH $GITHUB_REPOSITORY MajsoulPaipuAnalyzer-macos.7z application/octet_stream
