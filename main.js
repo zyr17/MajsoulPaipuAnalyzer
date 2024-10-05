@@ -21,6 +21,7 @@ let InMacOS = process.platform == 'darwin';
 let activate_devtool = 0;
 let tempUserID = null;
 let nowgamedata = null;
+let liqiJSONdone = false;
 
 var paipuversion = undefined;
 var appPath = app.getAppPath();
@@ -152,6 +153,18 @@ const ready = () => {
         });
     }
 
+    function showliqinotdonemsg(){
+        if (liqiJSONdone) return false;
+        dialog.showMessageBox({
+            type: 'error',
+            noLink: true,
+            buttons: ['确定'],
+            title: '错误',
+            message: '未完成liqi.json数据获取，请稍后重试。如果长时间未完成请尝试刷新页面，或向开发者报告问题。'
+        });
+        return true;
+    }
+
     function isspecialrule(roomdata){
         let isspecialrule = roomdata.fanfu > 1 //>1番缚
             || roomdata.guyi_mode //古役
@@ -241,6 +254,7 @@ const ready = () => {
             showcantgetIDmsg();
             return;
         }
+        if (showliqinotdonemsg()) return;
         root = path(dataPath, 'majsoul', userid.toString());
         let rawdirdata = new Set(fs.readdirSync(path(root, 'raw')));
         let paipusdirdata = new Set(fs.readdirSync(path(root, 'paipus')));
@@ -277,6 +291,7 @@ const ready = () => {
             showcantgetIDmsg();
             return;
         }
+        if (showliqinotdonemsg()) return;
         let root = path(dataPath, 'majsoul', userid.toString());
         let rawdirdata = new Set(fs.readdirSync(path(root, 'raw')));
         let paipusdirdata = new Set(fs.readdirSync(path(root, 'paipus')));
@@ -696,6 +711,7 @@ const ready = () => {
                     showcantgetIDmsg();
                     return;
                 }
+                if (showliqinotdonemsg()) return;
                 let response = dialog.showMessageBoxSync(browseWindow, {
                     type: 'info', 
                     title: '选择输入方式',
@@ -778,6 +794,7 @@ const ready = () => {
                     showcantgetIDmsg();
                     return;
                 }
+                if (showliqinotdonemsg()) return;
                 nowgamedata = paipugamedata0;
                 tempUserID = getUserID();
                 setUserID(0);
@@ -792,6 +809,7 @@ const ready = () => {
                     showcantgetIDmsg();
                     return;
                 }
+                if (showliqinotdonemsg()) return;
                 nowgamedata = paipugamedata0;
                 tempUserID = getUserID();
                 setUserID(0);
@@ -804,6 +822,7 @@ const ready = () => {
                     showcantgetIDmsg();
                     return;
                 }
+                if (showliqinotdonemsg()) return;
                 nowgamedata = paipugamedata0;
                 tempUserID = getUserID();
                 setUserID(0);
@@ -1053,6 +1072,7 @@ const ready = () => {
     ipcMain.on('fetchliqijsoncallback', (event, data, room) => {
         AnalyzeInit(data, room);
         newWindow.webContents.send('fetchliqijsoncallback', data, room);
+        liqiJSONdone = true;
     });
     
     setTimeout(checknewestversion, 3000);
