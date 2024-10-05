@@ -47,7 +47,7 @@ jobs:
       run: |
         brew install p7zip
         7z a PaipuAnalyzer.zip PaipuAnalyzer
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: PaipuAnalyzer
         path: PaipuAnalyzer.zip

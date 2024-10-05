@@ -52,11 +52,11 @@ jobs:
         brew install p7zip
         7z a MajsoulPaipuAnalyzer-macos.7z MajsoulPaipuAnalyzer-macos -m0=LZMA2 -mmt
         7z a PaipuAnalyzer.zip PaipuAnalyzer
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: MajsoulPaipuAnalyzer-macos.7z
         path: MajsoulPaipuAnalyzer-macos.7z
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: PaipuAnalyzer
         path: PaipuAnalyzer.zip

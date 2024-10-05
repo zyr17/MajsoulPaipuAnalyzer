@@ -48,17 +48,17 @@ jobs:
         mv result MajsoulPaipuAnalyzer-linux-x64
     - name: archive
       run: 7z a MajsoulPaipuAnalyzer-linux-x64.7z MajsoulPaipuAnalyzer-linux-x64 -m0=LZMA2 -mmt
-    # - uses: actions/upload-artifact@v2
+    # - uses: actions/upload-artifact@v4
     #   with:
     #     name: MajsoulPaipuAnalyzer-linux-x64.7z
     #     path: MajsoulPaipuAnalyzer-linux-x64.7z
     # - name: fake artifact
     #   run: mv result.html MajsoulPaipuAnalyzer-linux-x64.7z
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: MajsoulPaipuAnalyzer-linux-x64.7z
         path: MajsoulPaipuAnalyzer-linux-x64.7z
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: PaipuAnalyzer
         path: bin/release/PaipuAnalyzer
