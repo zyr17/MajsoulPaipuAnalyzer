@@ -1,5 +1,8 @@
 # MajsoulPaipuAnalyzer
 
+> [!CAUTION]
+> 2024.10.13 有报告使用后可能导致账号封禁，请谨慎使用。需要转换天凤牌谱建议使用其他方法（如[mjai-reviewer's instruction](https://github.com/Equim-chan/mjai-reviewer/blob/master/mjsoul.adoc)），基础数据分析可以使用[牌谱屋](https://amae-koromo.sapk.ch/)。使用该工具导致的任何结果作者均不会承担任何责任。
+
 自制雀魂牌谱分析工具。支持国服、日服、国际服。提供Windows，Linux，macOS版本。
 **受设备所限，目前Linux版本和macOS版本无法测试，仅由Actions自动构建不保证可用性。**
 
