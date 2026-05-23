@@ -284,6 +284,8 @@ const ready = () => {
 
     var downloadconvertlist = undefined, downloadconvertresult = undefined;
     var downloadnumber = 0, convertnumber = 0, downloadcount = 0, convertcount = 0;
+    const download_fetch_min_delay = 1000; // ms, avoid burst requests when convert/download failed
+    var downloadfetchtimer = undefined, downloadfetching = false, lastdownloadfetchtime = 0;
 
     function downloadconvertpaipu(){
         let userid = getUserID();
@@ -336,18 +338,32 @@ const ready = () => {
     }
 
     function nextdownloadconvert(){
+        if (downloadfetchtimer != undefined){
+            clearTimeout(downloadfetchtimer);
+            downloadfetchtimer = undefined;
+        }
         if (downloadconvertlist.length == 0){
             //显示转换完成正在组合
             newWindow.webContents.send('downloadconvert', {}, true, downloadconvertresult);
             setTimeout(function () { finaldownloadconvert(); }, 100);
             return;
         }
+        if (downloadfetching) return;
+        let now = Date.now();
+        let wait = Math.max(0, lastdownloadfetchtime + download_fetch_min_delay - now);
+        if (wait > 0){
+            downloadfetchtimer = setTimeout(nextdownloadconvert, wait);
+            return;
+        }
+        downloadfetching = true;
+        lastdownloadfetchtime = Date.now();
         let id = downloadconvertlist[0][0];
         browseWindow.webContents.send('fetchpaipudata', nowgamedata[id].uuid);
         //newWindow.webContents.send('downloadconvert', nowgamedata[id], downloadconvertresult);
     }
 
     function fetchpaipudatacallback(res){
+        downloadfetching = false;
         if (!res) {
             // network error? res is null or undefined.
             res = { error: 'response null/undefined error' };
@@ -442,6 +458,12 @@ const ready = () => {
         });
         downloadconvertresult = undefined;
         downloadconvertlist = undefined;
+        if (downloadfetchtimer != undefined){
+            clearTimeout(downloadfetchtimer);
+            downloadfetchtimer = undefined;
+        }
+        downloadfetching = false;
+        lastdownloadfetchtime = 0;
         if (tempUserID){
             setUserID(tempUserID);
             tempUserID = null;
